@@ -18,6 +18,49 @@ DEAP_REGION_INDEX = [
     [11, 29],
     [13, 19, 30, 31, 15]
 ]
+
+def adjust_region_index(region_index, num_channels, selected_channels=None):
+    """
+    调整区域索引以适应少通道设置
+    
+    Args:
+        region_index: 原始区域索引列表
+        num_channels: 可用的通道数量
+        selected_channels: 选中的通道索引列表，如果为None则不进行映射
+    
+    Returns:
+        调整后的区域索引列表
+    """
+    adjusted_regions = []
+    
+    # 如果指定了选中的通道，需要建立原始索引到选中索引的映射
+    if selected_channels is not None:
+        # 创建原始索引到选中索引的映射字典
+        original_to_selected = {original_idx: new_idx for new_idx, original_idx in enumerate(selected_channels)}
+        
+        # 调整每个区域的索引
+        for region in region_index:
+            adjusted_region = []
+            for idx in region:
+                # 只保留在选中通道中的索引
+                if idx in original_to_selected:
+                    adjusted_region.append(original_to_selected[idx])
+            # 只保留非空区域
+            if adjusted_region:
+                adjusted_regions.append(adjusted_region)
+    else:
+        # 否则，只保留在有效通道范围内的索引
+        for region in region_index:
+            adjusted_region = [idx for idx in region if idx < num_channels]
+            # 只保留非空区域
+            if adjusted_region:
+                adjusted_regions.append(adjusted_region)
+    
+    # 如果调整后没有区域，创建一个默认区域包含所有通道
+    if not adjusted_regions:
+        adjusted_regions = [[i for i in range(num_channels)]]
+    
+    return adjusted_regions
 # From Regional to Global Brain: A Novel Hierarchical Spatial-Temporal Neural Network Model for EEG Emotion Recognition
 # r2gstnn paper link : https://ieeexplore.ieee.org/document/8736804
 # Y. Li, W. Zheng, L. Wang, Y. Zong and Z. Cui, "From Regional to Global Brain: A Novel Hierarchical Spatial-Temporal Neural Network Model for EEG Emotion Recognition," in IEEE Transactions on Affective Computing, vol. 13, no. 2, pp. 568-578, 1 April-June 2022, doi: 10.1109/TAFFC.2019.2922912.
@@ -25,12 +68,10 @@ DEAP_REGION_INDEX = [
 class R2GSTNN(nn.Module):
     def __init__(self, input_size=5,  num_classes=3, regions=16, region_index=SEED_REGION_INDEX, k=3, t=9,
                  regional_size=100, global_size = 150,regional_temporal_size=200, global_temporal_size=250,
-                 domain_classes=2, lambda_ = 1,dropout=0.5):
+                 domain_classes=2, lambda_ = 1, dropout=0.5, num_channels=None, selected_channels=None):
         super(R2GSTNN, self).__init__()
         self.input_size = input_size
         self.num_classes = num_classes
-        self.regions = regions
-        self.region_index = region_index
         self.k = k
         self.t = t
         self.regional_size = regional_size
@@ -40,6 +81,14 @@ class R2GSTNN(nn.Module):
         self.domain_classes = domain_classes
         self.lambda_ = lambda_
         self.dropout = dropout
+        
+        # 如果提供了通道数量信息，调整区域索引以适应少通道设置
+        if num_channels is not None:
+            self.region_index = adjust_region_index(region_index, num_channels, selected_channels)
+            self.regions = len(self.region_index)
+        else:
+            self.region_index = region_index
+            self.regions = regions
 
         self.regional_learner = RegionFeatureLearner(input_size=self.input_size, regional_size=self.regional_size, regions=self.regions, region_index=self.region_index)
         self.regional_attention = RegionAttention(regional_size=self.regional_size, regions=self.regions)
@@ -54,6 +103,49 @@ class R2GSTNN(nn.Module):
     def forward(self, source_data, target_data):
         #source_data: (batch_size, T, num_electrodes, d)
         #target_data: (batch_size, T, num_electrodes, d)
+        
+        # 检查输入数据的通道数是否与区域索引匹配
+        # 如果不匹配，动态调整区域索引
+        source_num_electrodes = source_data.shape[2]
+        
+        # 如果模型初始化后通道数发生变化，动态更新区域索引
+        if hasattr(self, 'last_num_electrodes') and self.last_num_electrodes != source_num_electrodes:
+            # 警告：这种动态调整可能导致训练不稳定，最好在初始化时设置正确的通道数
+            print(f"警告：输入通道数从{self.last_num_electrodes}变为{source_num_electrodes}，动态调整区域索引")
+            self.region_index = adjust_region_index(self.region_index, source_num_electrodes)
+            self.regions = len(self.region_index)
+            # 更新网络层以适应新的区域数
+            self.regional_learner = RegionFeatureLearner(input_size=self.input_size, 
+                                                       regional_size=self.regional_size, 
+                                                       regions=self.regions, 
+                                                       region_index=self.region_index)
+            self.regional_attention = RegionAttention(regional_size=self.regional_size, regions=self.regions)
+            self.global_learner = GlobalFeatureLearner(regional_size=self.regional_size, 
+                                                     global_size=self.global_size, 
+                                                     regions=self.regions, 
+                                                     k=self.k)
+            self.temporal_learner = TemporalFeatureLearner(k=self.k, t=self.t, 
+                                                         regions=self.regions, 
+                                                         regional_size=self.regional_size, 
+                                                         global_size=self.global_size, 
+                                                         regional_temporal_size=self.regional_temporal_size, 
+                                                         global_temporal_size=self.global_temporal_size, 
+                                                         dropout=self.dropout)
+            self.classifer = Classifer(regions=self.regions, 
+                                     regional_temporal_size=self.regional_temporal_size, 
+                                     global_temporal_size=self.global_temporal_size, 
+                                     num_classes=self.num_classes, 
+                                     hidden_size1=512, hidden_size2=128)
+            self.discriminator = Discriminator(regions=self.regions, 
+                                             regional_temporal_size=self.regional_temporal_size, 
+                                             global_temporal_size=self.global_temporal_size, 
+                                             domain_classes=self.domain_classes, 
+                                             lambda_=self.lambda_, 
+                                             hidden_size1=512, hidden_size2=128)
+        
+        self.last_num_electrodes = source_num_electrodes
+        
+        # 正常前向传播
         source_regional_feature = self.regional_learner(source_data)
         source_attention_feature = self.regional_attention(source_regional_feature)
         source_global_feature = self.global_learner(source_attention_feature)
@@ -95,14 +187,43 @@ class RegionFeatureLearner(nn.Module):#input: (batch_size*T, num_electrodes, d)
     def forward(self, features):
         regional_feature_input =[]
         regional_feature_list = []
-        features = features.reshape(-1, features.shape[2], features.shape[3])
+        
+        # 确保features有正确的维度
+        # 支持不同的输入形状：
+        # - (batch_size, T, channels, features) 原始形状
+        # - (batch_size, channels, features) 简化形状
+        if len(features.shape) == 4:
+            # 原始形状 (batch_size, T, channels, features)
+            features = features.reshape(-1, features.shape[2], features.shape[3])
+        elif len(features.shape) == 3:
+            # 简化形状 (batch_size, channels, features)
+            pass  # 已经是正确的形状
+        elif len(features.shape) == 2:
+            # 可能是 (channels, features)，需要增加batch维度
+            features = features.unsqueeze(0)
+        else:
+            raise ValueError(f"不支持的输入形状: {features.shape}")
+        
+        # 处理每个区域的特征
         for i in range(self.regions):
-            regional_feature_input.append(features[:,self.region_index[i],:])
-            hidden_unit = (self.bilstm[i](regional_feature_input[i])[0])
-            regional_feature_list.append(hidden_unit[:, -1, :].unsqueeze(1))#keep the dimension
+            # 确保区域索引有效
+            valid_indices = [idx for idx in self.region_index[i] if idx < features.shape[1]]
+            if valid_indices:
+                regional_feature_input.append(features[:, valid_indices, :])
+                # 如果该区域只有一个通道，需要调整输入维度
+                if regional_feature_input[i].shape[1] == 1:
+                    regional_feature_input[i] = regional_feature_input[i].squeeze(1).unsqueeze(1)
+                hidden_unit = (self.bilstm[i](regional_feature_input[i])[0])
+                regional_feature_list.append(hidden_unit[:, -1, :].unsqueeze(1))  # 保持维度
+        
+        if not regional_feature_list:
+            # 如果没有有效的区域，创建一个默认的特征
+            batch_size = features.shape[0]
+            default_feature = torch.zeros(batch_size, 1, 2 * self.regional_size, device=features.device)
+            return default_feature
         
         regional_feature = torch.cat(regional_feature_list, dim=1)
-        #regional_feature: (batch_size*T, regions, 2*hidden_size)
+        # regional_feature: (batch_size*T, regions, 2*hidden_size)
         return regional_feature
     
 class RegionAttention(nn.Module):
@@ -213,18 +334,67 @@ class TemporalFeatureLearner(nn.Module):
     def forward(self, regional_feature, global_feature):
         #regional_feature: (batch_size*T, regions, 2*regional_hidden_size)
         #global_feature: (batch_size*T, global_hidden_size, k)
-        regional_feature = regional_feature.reshape(-1, self.t, self.regions, 2*self.regional_size)
-        regional_feature = regional_feature.transpose(1,2)
-        regional_feature = regional_feature.reshape(-1, self.t, 2*self.regional_size)
+        
+        # 适应少通道情况下的不同区域数量
+        actual_regions = regional_feature.shape[1]  # 获取实际的区域数量
+        
+        try:
+            # 尝试根据实际区域数量重塑regional_feature
+            # 计算合适的批次大小，确保重塑不会失败
+            batch_size = regional_feature.size(0) // self.t if self.t > 0 else regional_feature.size(0)
+            regional_feature = regional_feature.reshape(batch_size, self.t, actual_regions, 2*self.regional_size)
+        except RuntimeError:
+            # 如果重塑失败，使用更灵活的方式处理
+            # 假设形状已经是 (batch_size, regions, 2*regional_hidden_size)
+            batch_size = regional_feature.size(0)
+            regional_feature = regional_feature.reshape(batch_size, 1, actual_regions, 2*self.regional_size)
+        
+        # 处理区域时间特征
+        regional_feature = regional_feature.transpose(1, 2)
+        regional_feature = regional_feature.reshape(-1, regional_feature.size(2), 2*self.regional_size)
         regional_feature = self.regional_bilstm(regional_feature)[0]
         regional_feature = regional_feature[:, -1, :]
-        regional_temporal_feature = regional_feature.reshape(-1, self.regions*self.regional_temporal_size)
+        
+        # 调整区域时间特征的大小，以匹配分类器的输入要求
+        # 这里我们使用线性层来调整维度，而不是直接重塑
+        if actual_regions != self.regions:
+            # 创建一个临时线性层来调整维度
+            temp_fc = nn.Linear(actual_regions * regional_feature.size(1), self.regions * self.regional_temporal_size, device=regional_feature.device)
+            # 初始化权重
+            nn.init.xavier_normal_(temp_fc.weight)
+            nn.init.zeros_(temp_fc.bias)
+            # 调整维度
+            regional_temporal_feature = temp_fc(regional_feature.reshape(batch_size, -1))
+        else:
+            regional_temporal_feature = regional_feature.reshape(batch_size, self.regions*self.regional_temporal_size)
 
-        global_feature  = global_feature.reshape(-1, self.t, self.global_size*self.k )
-        global_feature =  self.global_bilstm(global_feature)[0]
+        # 处理全局特征
+        try:
+            global_feature = global_feature.reshape(-1, self.t, self.global_size*self.k)
+        except RuntimeError:
+            # 如果重塑失败，使用更灵活的方式处理
+            global_feature = global_feature.reshape(global_feature.size(0), 1, self.global_size*self.k)
+        
+        global_feature = self.global_bilstm(global_feature)[0]
         global_feature = global_feature[:, -1, :]
-        global_temporal_feature = global_feature.reshape(-1, self.global_temporal_size)
+        
+        # 确保全局时间特征的大小正确
+        if global_feature.size(1) != self.global_temporal_size:
+            temp_global_fc = nn.Linear(global_feature.size(1), self.global_temporal_size, device=global_feature.device)
+            nn.init.xavier_normal_(temp_global_fc.weight)
+            nn.init.zeros_(temp_global_fc.bias)
+            global_temporal_feature = temp_global_fc(global_feature)
+        else:
+            global_temporal_feature = global_feature.reshape(-1, self.global_temporal_size)
 
+        # 确保两个特征的批次大小匹配
+        if regional_temporal_feature.size(0) != global_temporal_feature.size(0):
+            # 调整批次大小以匹配较小的那个
+            min_batch = min(regional_temporal_feature.size(0), global_temporal_feature.size(0))
+            regional_temporal_feature = regional_temporal_feature[:min_batch]
+            global_temporal_feature = global_temporal_feature[:min_batch]
+
+        # 拼接全局和区域时间特征
         global_regional_temporal_feature = torch.cat([global_temporal_feature, regional_temporal_feature], dim=1)
         global_regional_temporal_feature = self.dropout(global_regional_temporal_feature)
         

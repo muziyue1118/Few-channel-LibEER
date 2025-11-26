@@ -52,9 +52,41 @@ def main(args):
                 val_data = test_data
                 val_label = test_label
 
-            model = Model['R2GSTNN'](input_size=feature_dim,  num_classes=num_classes, regions=16, region_index=REGION_INDEX, k=3, t=9,
-                 regional_size=100, global_size = 150,regional_temporal_size=200, global_temporal_size=250,
-                 domain_classes=2, lambda_ = 1,dropout=0.5)
+            # 获取通道信息，支持少通道设置
+            # 处理data_i可能是列表的情况
+            if isinstance(data_i, list) and len(data_i) > 0:
+                # 如果data_i是列表，获取第一个元素的形状
+                first_sample = data_i[0]
+                if hasattr(first_sample, 'shape'):
+                    if len(first_sample.shape) == 2:
+                        # 形状可能是 (samples, features) 或 (channels, features)
+                        # 对于少通道SEED数据，可能是 (channels, features)
+                        num_channels = first_sample.shape[0]  # 假设是 (channels, features)
+                    elif len(first_sample.shape) == 3:
+                        num_channels = first_sample.shape[1]  # 假设是 (samples, channels, features)
+                    else:
+                        num_channels = setting.selected_channels_count if hasattr(setting, 'selected_channels_count') else 6
+                else:
+                    num_channels = setting.selected_channels_count if hasattr(setting, 'selected_channels_count') else 6
+            elif hasattr(data_i, 'shape'):
+                # 如果data_i是numpy数组或张量
+                if len(data_i.shape) >= 3:
+                    num_channels = data_i.shape[2]  # 数据形状: (samples, time, channels, features)
+                elif len(data_i.shape) == 2:
+                    num_channels = data_i.shape[1]  # 数据形状可能是 (samples, channels, features) 简化版
+                else:
+                    num_channels = setting.selected_channels_count if hasattr(setting, 'selected_channels_count') else 6
+            else:
+                # 默认值
+                num_channels = setting.selected_channels_count if hasattr(setting, 'selected_channels_count') else 6
+            
+            # 获取选中的通道
+            selected_channels = setting.selected_channels if hasattr(setting, 'selected_channels') and setting.selected_channels else None
+            
+            # 创建模型，传递通道信息
+            model = Model['R2GSTNN'](input_size=feature_dim, num_classes=num_classes, regions=16, region_index=REGION_INDEX, k=3, t=9,
+                 regional_size=100, global_size=150, regional_temporal_size=200, global_temporal_size=250,
+                 domain_classes=2, lambda_=1, dropout=0.5, num_channels=num_channels, selected_channels=selected_channels)
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
             dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.Tensor(test_label))

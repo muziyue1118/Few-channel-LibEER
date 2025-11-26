@@ -7,7 +7,8 @@ from tqdm import tqdm
 from utils.metric import Metric
 from utils.store import save_state
 
-def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="result/", metrics=None, metric_choose=None, batch_size=16, epochs=40):
+def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="result/", metrics=None, metric_choose=None,
+          batch_size=16, epochs=40, rbm_epochs=10, unsup_epochs=5):
     if metrics is None:
         metrics = ['acc']
     if metric_choose is None:
@@ -28,7 +29,7 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
     )
     model = model.to(device)
     model.train()
-    for epoch in range(10):
+    for epoch in range(rbm_epochs):
         # create train pbar
         train_bar = tqdm(enumerate(data_loader_train), total=len(data_loader_train), desc=
         f"Train Epoch {epoch + 1}: ")
@@ -46,7 +47,7 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
     criterion = torch.nn.MSELoss()
     optimizer = optim.SGD(model.parameters(), lr=0.5)
     # optimizer = optim.AdamW(model.parameters(), lr=0.5, weight_decay=1e-3, eps=1e-4)
-    for epoch in range(5):
+    for epoch in range(unsup_epochs):
         model.train()
         # create train pbar
         train_bar = tqdm(enumerate(data_loader_train), total=len(data_loader_train), desc=

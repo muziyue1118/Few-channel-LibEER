@@ -7,11 +7,45 @@ from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
 from Trainer.CoralDgcnnTraining import train
 from models.DGCNN import NewSparseL2Regularization
+from data_utils.constants.seed import SEED_CHANNEL_NAME
+from data_utils.constants.deap import DEAP_CHANNEL_NAME
 import torch
 import torch.optim as optim
 import torch.nn as nn
 
 
+
+
+def _get_channel_name_list(dataset: str):
+    dataset = (dataset or "").lower()
+    if dataset.startswith("seed") or dataset.startswith("mped") or dataset.startswith("faced"):
+        return SEED_CHANNEL_NAME
+    if dataset.startswith("deap") or dataset.startswith("hci"):
+        return DEAP_CHANNEL_NAME
+    return None
+
+
+def _apply_channel_name_selection(args):
+    """
+    Convert channel names provided via CLI into indices compatible with the
+    rest of the pipeline.
+    """
+    if not args.selected_channel_names:
+        return
+    if args.selected_channels is not None:
+        raise ValueError("请勿同时使用 -selected_channels 与 -selected_channel_names 参数")
+    channel_name_list = _get_channel_name_list(args.dataset)
+    if channel_name_list is None:
+        raise ValueError(f"当前数据集 {args.dataset} 暂不支持通过通道名称选择")
+    name_to_index = {name.upper(): idx for idx, name in enumerate(channel_name_list)}
+    selected_indices = []
+    for raw_name in args.selected_channel_names:
+        normalized = raw_name.upper()
+        if normalized not in name_to_index:
+            raise ValueError(f"通道 {raw_name} 不存在于数据集 {args.dataset}，可选通道：{channel_name_list}")
+        selected_indices.append(name_to_index[normalized])
+    args.selected_channels = selected_indices
+    print(f"使用通道名称 {args.selected_channel_names} => 索引 {args.selected_channels}")
 
 
 def main(args):
@@ -21,6 +55,8 @@ def main(args):
         setting = set_setting_by_args(args)
     setup_seed(args.seed)
     data, label, channels, feature_dim, num_classes = get_data(setting)
+    if setting.selected_channels is not None:
+        print(f"已启用少通道训练，通道索引: {setting.selected_channels}，通道数量: {channels}")
     data, label = merge_to_part(data, label, setting)
     device = torch.device(args.device)
     best_metrics = []
@@ -53,7 +89,8 @@ def main(args):
             output_dir = make_output_dir(args, "CoralDGCNN")
             round_metric = train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device,
                                  output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, optimizer=optimizer,
-                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, loss_func=loss_func, loss_param=model)
+                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, loss_func=loss_func, loss_param=model,
+                                 coral_lambda=getattr(model, "alpha", 1.0))
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":
                 subjects_metrics[rridx-1].append(round_metric)
@@ -67,6 +104,7 @@ def main(args):
 if __name__ == '__main__':
     args = get_args_parser()
     args = args.parse_args()
+    _apply_channel_name_selection(args)
     # log out train state
     # state_log(args)
     main(args)

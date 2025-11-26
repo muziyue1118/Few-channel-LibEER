@@ -21,8 +21,31 @@ from braindecode import EEGClassifier
 from torch.optim import AdamW
 from braindecode.training import CroppedLoss
 from braindecode.util import set_random_seeds
-from braindecode.models import get_output_shape
 from sklearn.metrics import confusion_matrix
+import torch
+
+# 自定义get_output_shape函数，因为当前braindecode版本中不存在这个函数
+def get_output_shape(model, input_shape):
+    """Get the output shape of a PyTorch model.
+    
+    Parameters
+    ----------
+    model : torch.nn.Module
+        The model to get the output shape from.
+    input_shape : tuple
+        The shape of the input tensor, (batch_size, channels, time, ...).
+    
+    Returns
+    -------
+    tuple
+        The shape of the output tensor, (batch_size, ...).
+    """
+    # Create a dummy input tensor with the given shape
+    dummy_input = torch.zeros(*input_shape)
+    # Forward pass to get the output shape
+    with torch.no_grad():
+        output = model(dummy_input)
+    return output.shape
 
 
 def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="result/", metrics=None,

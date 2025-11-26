@@ -88,17 +88,20 @@ class NewSGConv(SGConv):
         if not self.cached or self.cached_result is None:
             edge_index, norm = NewSGConv.norm(
                 edge_index, x.size(0), edge_weight, dtype=x.dtype)
-
+            
+            # 保存norm以便在message方法中使用
+            self.norm = norm
+            
             for k in range(self.K):
-                x = self.propagate(edge_index, x=x, norm=norm)
+                x = self.propagate(edge_index, x=x, edge_weight=norm)
             self.cached_result = x
 
         return self.lin(self.cached_result)
 
-    def message(self, x_j, norm):
+    def message(self, x_j, edge_weight):
         # x_j: (batch_size*num_nodes*num_nodes, num_features)
-        # norm: (batch_size*num_nodes*num_nodes, )
-        return norm.view(-1, 1) * x_j
+        # edge_weight: (batch_size*num_nodes*num_nodes, )
+        return edge_weight.view(-1, 1) * x_j
 
 
 class ReverseLayerF(Function):
@@ -131,12 +134,12 @@ class SymSimGCNNet(torch.nn.Module):
         self.domain_adaptation = domain_adaptation
         self.num_nodes = num_nodes
         self.num_classes = num_classes
+        self.learn_edge_weight = learn_edge_weight
+        # 初始化xs和ys，但先不设置edge_weight，留给后续外部设置
         self.xs, self.ys = torch.tril_indices(self.num_nodes, self.num_nodes, offset=0)
-        edge_weight = torch.tensor(0)
-        if num_nodes == 62:
-            edge_weight = torch.Tensor(SEED_RGNN_ADJACENCY_MATRIX)
-        elif num_nodes == 32:
-            edge_weight = torch.Tensor(DEAP_RGNN_ADJACENCY_MATRIX)
+        
+        # 初始化一个默认的邻接矩阵，避免索引错误
+        edge_weight = torch.eye(num_nodes)  # 使用单位矩阵作为默认值
         self.edge_index = edge_weight.to_sparse()._indices()
         self.edge_weight = nn.Parameter(edge_weight[self.xs, self.ys], requires_grad=learn_edge_weight)
         self.dropout = dropout

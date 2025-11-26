@@ -2,7 +2,7 @@ class Setting:
     def __init__(self, dataset, dataset_path, pass_band=None, extract_bands=None, time_window=1, overlap=0, sample_length=1, stride=1, seed=0,
                  feature_type='de_lds', only_seg=False, cross_trail='true', experiment_mode="subject-dependent", train_part=None, eog_clean=True,
                  metrics=None, normalize=False, save_data=True, split_type="kfold", fold_num=5, fold_shuffle=True, front=9, test_size=0.2, val_size = 0.2, sessions=None, pr=None, sr=None, bounds=None,
-                 onehot=True, label_used=None):
+                 onehot=True, label_used=None, selected_channels=None):
         # random seed
         if pass_band is None:
             pass_band = [0.3, 50]
@@ -59,6 +59,8 @@ class Setting:
         self.bounds = bounds
         self.onehot = onehot
         self.label_used = label_used
+        # selected channels (None means use all channels, list of indices means use selected channels)
+        self.selected_channels = selected_channels
 
 
 
@@ -73,7 +75,7 @@ def set_setting_by_args(args):
                    only_seg=args.only_seg, cross_trail=args.cross_trail, experiment_mode=args.experiment_mode,
                    metrics=args.metrics, normalize=args.normalize, split_type=args.split_type, fold_num=args.fold_num,
                    fold_shuffle=args.fold_shuffle, front=args.front, sessions=args.sessions, pr=args.pr, sr=args.sr,
-                   bounds=args.bounds, onehot=args.onehot, label_used=args.label_used)
+                   bounds=args.bounds, onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 
 def faced_sub_independent_train_val_test_setting(args):
@@ -90,7 +92,7 @@ def faced_sub_independent_train_val_test_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2,
-                   pr=args.pr, sr=args.sr, onehot=args.onehot)
+                   pr=args.pr, sr=args.sr, onehot=args.onehot, selected_channels=args.selected_channels)
 
 def seed_sub_dependent_front_back_setting(args):
     if not args.dataset.startswith('seed'):
@@ -103,7 +105,7 @@ def seed_sub_dependent_front_back_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='front-back', front=9, sessions=args.sessions, pr=args.pr, sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def seed_sub_dependent_train_val_test_setting(args):
     if not args.dataset.startswith('seed'):
@@ -117,7 +119,7 @@ def seed_sub_dependent_train_val_test_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=args.sessions, pr=args.pr, sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def seedv_sub_dependent_train_val_test_setting(args):
     if not args.dataset.startswith('seedv'):
@@ -132,7 +134,7 @@ def seedv_sub_dependent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=[1,2,3], pr=args.pr,
                    sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def seedv_sub_dependent_train_val_test_mean_setting(args):
     if not args.dataset.startswith('seedv'):
@@ -147,7 +149,7 @@ def seedv_sub_dependent_train_val_test_mean_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.34, val_size=0.34, sessions=[1,2,3], pr=args.pr,
                    sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 def seedv_sub_independent_train_val_test_setting(args):
     if not args.dataset.startswith('seedv'):
         print('not using SEED V dataset, please check your setting')
@@ -161,7 +163,7 @@ def seedv_sub_independent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2,
                    sessions=[1,2,3] if args.sessions is None else args.sessions,
-                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used)
+                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 def mped_sub_dependent_train_val_test_setting(args):
     if not args.dataset.startswith('mped'):
         print('not using mped dataset, please check your setting')
@@ -175,7 +177,7 @@ def mped_sub_dependent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.25, val_size=0.25, sessions=[1], pr=args.pr,
                    sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def mped_sub_independent_train_val_test_setting(args):
     if not args.dataset.startswith('mped'):
@@ -187,7 +189,7 @@ def mped_sub_independent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=[1], pr=args.pr,
                    sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def mped_sub_dependent_front_back_setting(args):
     if not args.dataset.startswith('mped'):
@@ -201,7 +203,7 @@ def mped_sub_dependent_front_back_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='front-back', front=14, sessions=args.sessions, pr=args.pr, sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 def seediv_sub_dependent_train_val_test_setting(args):
     if not args.dataset.startswith('seediv'):
         print('not using SEED IV dataset, please check your setting')
@@ -214,7 +216,7 @@ def seediv_sub_dependent_train_val_test_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=args.sessions, pr=args.pr, sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def seed_sub_dependent_5fold_setting(args):
     if not args.dataset.startswith('seed'):
@@ -227,7 +229,7 @@ def seed_sub_dependent_5fold_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, cross_trail=args.cross_trail, experiment_mode="subject-dependent",
                    normalize=args.normalize, split_type='kfold', fold_num=5, fold_shuffle=False, sessions=args.sessions,
-                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used)
+                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 
 def seed_sub_independent_leave_one_out_setting(args):
@@ -243,7 +245,7 @@ def seed_sub_independent_leave_one_out_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='leave-one-out', sessions=[1] if args.sessions is None else args.sessions,
-                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used)
+                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 def seed_sub_independent_train_val_test_setting(args):
     if not args.dataset.startswith('seed'):
@@ -259,7 +261,7 @@ def seed_sub_independent_train_val_test_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=[1] if args.sessions is None else args.sessions,
-                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used)
+                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 def hci_sub_dependent_train_val_test_setting(args):
     if not args.dataset.startswith('hci'):
@@ -274,7 +276,7 @@ def hci_sub_dependent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=args.sessions, pr=args.pr, sr=args.sr,
                    onehot=args.onehot, bounds=args.bounds,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def seediv_sub_independent_train_val_test_setting(args):
     if not args.dataset.startswith('seediv'):
@@ -289,7 +291,7 @@ def seediv_sub_independent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2,
                    sessions=[1] if args.sessions is None else args.sessions,
-                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used)
+                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 def deap_sub_independent_train_val_test_setting(args):
     if not args.dataset.startswith('deap'):
@@ -301,7 +303,7 @@ def deap_sub_independent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=args.sessions, pr=args.pr, sr=args.sr,
                    onehot=args.onehot, bounds=args.bounds,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 def hci_sub_independent_train_val_test_setting(args):
     if not args.dataset.startswith('hci'):
         print('not using Hci dataset, please check your setting')
@@ -315,7 +317,7 @@ def hci_sub_independent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=args.sessions, pr=args.pr, sr=args.sr,
                    onehot=args.onehot, bounds=args.bounds,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 def deap_sub_dependent_train_val_test_setting(args):
     if not args.dataset.startswith('deap'):
         print('not using deap dataset, please check your setting')
@@ -327,7 +329,7 @@ def deap_sub_dependent_train_val_test_setting(args):
                    only_seg=args.only_seg, experiment_mode="subject-dependent", normalize=args.normalize,
                    split_type='train-val-test', test_size=0.2, val_size=0.2, sessions=args.sessions, pr=args.pr, sr=args.sr,
                    onehot=args.onehot,bounds=args.bounds,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 
 
@@ -342,7 +344,7 @@ def seed_cross_session_setting(args):
                    sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
                    only_seg=args.only_seg, experiment_mode="cross-session", normalize=args.normalize,
                    split_type='leave-one-out', sessions=args.sessions, pr=args.pr, sr=args.sr, onehot=args.onehot,
-                   label_used=args.label_used)
+                   label_used=args.label_used, selected_channels=args.selected_channels)
 
 def deap_sub_independent_leave_one_out_setting(args):
     if not args.dataset.startswith('deap'):
@@ -354,7 +356,7 @@ def deap_sub_independent_leave_one_out_setting(args):
                    overlap=args.overlap, sample_length=args.sample_length, stride=args.stride, seed=args.seed,
                    feature_type=args.feature_type, only_seg=args.only_seg, experiment_mode="subject-independent",
                    normalize=args.normalize, split_type='leave-one-out', pr=args.pr, sr=args.sr, bounds=args.bounds,
-                   onehot=args.onehot, label_used=args.label_used)
+                   onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 def deap_sub_dependent_10fold_setting(args):
     if not args.dataset.startswith('deap'):
@@ -366,7 +368,7 @@ def deap_sub_dependent_10fold_setting(args):
                    overlap=args.overlap, sample_length=args.sample_length, stride=args.stride, seed=args.seed,
                    feature_type=args.feature_type, only_seg=args.only_seg, experiment_mode="subject-dependent",
                    normalize=args.normalize, cross_trail=args.cross_trail, split_type='kfold', fold_num=10, pr=args.pr, sr=args.sr, bounds=args.bounds,
-                   onehot=args.onehot, label_used=args.label_used)
+                   onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 def dreamer_sub_independent_setting(args):
     if not args.dataset.startswith('dreamer'):
@@ -378,7 +380,7 @@ def dreamer_sub_independent_setting(args):
                    overlap=args.overlap, sample_length=args.sample_length, stride=args.stride, seed=args.seed,
                    feature_type=args.feature_type, only_seg=args.only_seg, experiment_mode="subject-independent",
                    normalize=args.normalize, split_type='leave-one-out', pr=args.pr, sr=args.sr, bounds=args.bounds,
-                   onehot=args.onehot, label_used=args.label_used)
+                   onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 def dreamer_sub_dependent_setting(args):
     if not args.dataset.startswith('dreamer'):
@@ -390,7 +392,7 @@ def dreamer_sub_dependent_setting(args):
                    overlap=args.overlap, sample_length=args.sample_length, stride=args.stride, seed=args.seed,
                    feature_type=args.feature_type, only_seg=args.only_seg, experiment_mode="subject-dependent",
                    normalize=args.normalize, cross_trail=args.cross_trail, split_type='leave-one-out', pr=args.pr, sr=args.sr, bounds=args.bounds,
-                   onehot=args.onehot, label_used=args.label_used)
+                   onehot=args.onehot, label_used=args.label_used, selected_channels=args.selected_channels)
 
 preset_setting = {
     "seed_sub_dependent_train_val_test_setting": seed_sub_dependent_train_val_test_setting,

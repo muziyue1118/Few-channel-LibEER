@@ -10,6 +10,7 @@ from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
 from Trainer.DBNTraining import train
 from models.DGCNN import NewSparseL2Regularization
+from utils.channel_selector import apply_channel_name_selection
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -89,6 +90,8 @@ def main(args):
         setting = set_setting_by_args(args)
     setup_seed(args.seed)
     data, label, channels, feature_dim, num_classes = get_data(setting)
+    if setting.selected_channels is not None:
+        print(f"已启用少通道训练，通道索引: {setting.selected_channels}，通道数量: {channels}")
     data, label = merge_to_part(data, label, setting)
     device = torch.device(args.device)
     best_metrics = []
@@ -134,8 +137,9 @@ def main(args):
             criterion = nn.CrossEntropyLoss()
             output_dir = make_output_dir(args, "DBN")
             round_metric = train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device,
-                                 output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, test_sub_label=test_sub_label,
-                                 batch_size=args.batch_size, epochs=args.epochs)
+                                 output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose,
+                                 batch_size=args.batch_size, epochs=args.epochs,
+                                 rbm_epochs=args.dbn_rbm_epochs, unsup_epochs=args.dbn_unsup_epochs)
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":
                 subjects_metrics[rridx-1].append(round_metric)
@@ -149,5 +153,6 @@ def main(args):
 if __name__ == '__main__':
     args = get_args_parser()
     args = args.parse_args()
+    apply_channel_name_selection(args)
     # log out train state
     main(args)

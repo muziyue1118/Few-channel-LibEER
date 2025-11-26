@@ -28,10 +28,11 @@ RIGHT_CHANNEL_NAME = ['FP2', 'AF4', 'F8',
 
 class BiDANN(nn.Module):
     def __init__(self, num_electrodes=62, in_channels=5, num_classes=3, sample_length=9, 
-                 domain_classes = 2, lambda_= 1, device = None):
+                 domain_classes = 2, lambda_= 1, device = None, selected_channels=None):
         # num_electrodes(int): The number of electrodes.s=1,
         # in_channels(int): The feature dimension of each electrode.
         # num_classes(int): The number of emotions to predict.
+        # selected_channels(list): List of selected channel indices (0-indexed). If None, use all channels.
         super(BiDANN, self).__init__()
         
         self.in_channels = in_channels
@@ -41,10 +42,40 @@ class BiDANN(nn.Module):
         self.lambda_ = lambda_
         self.length = sample_length
         self.device = device
-       
+        self.selected_channels = selected_channels
+        
+        # 根据selected_channels计算左右脑区的通道索引
+        if selected_channels is not None:
+            # 获取选择的通道名称
+            selected_channel_names = [SEED_CHANNEL_NAME[i] for i in selected_channels]
+            # 计算左右脑区的通道索引（在selected_channels中的索引）
+            self.left_channel_indices = [i for i, ch_name in enumerate(selected_channel_names) if ch_name in LEFT_CHANNEL_NAME]
+            self.right_channel_indices = [i for i, ch_name in enumerate(selected_channel_names) if ch_name in RIGHT_CHANNEL_NAME]
+            # 计算左右脑区的通道数量
+            self.left_num_electrodes = len(self.left_channel_indices)
+            self.right_num_electrodes = len(self.right_channel_indices)
+            # 使用的通道名称
+            self.channel_names = selected_channel_names
+            self.left_channel_names = [selected_channel_names[i] for i in self.left_channel_indices]
+            self.right_channel_names = [selected_channel_names[i] for i in self.right_channel_indices]
+            # 打印左右脑区分配信息（仅在初始化时打印一次）
+            print(f"BiDANN模型初始化: 总通道数={len(selected_channels)}, 左脑区={self.left_num_electrodes}个通道, 右脑区={self.right_num_electrodes}个通道")
+            print(f"  左脑区通道: {self.left_channel_names}")
+            print(f"  右脑区通道: {self.right_channel_names}")
+        else:
+            # 使用所有通道
+            self.left_channel_indices = [i for i, ch_name in enumerate(SEED_CHANNEL_NAME) if ch_name in LEFT_CHANNEL_NAME]
+            self.right_channel_indices = [i for i, ch_name in enumerate(SEED_CHANNEL_NAME) if ch_name in RIGHT_CHANNEL_NAME]
+            self.left_num_electrodes = len(self.left_channel_indices)
+            self.right_num_electrodes = len(self.right_channel_indices)
+            self.channel_names = SEED_CHANNEL_NAME
+            self.left_channel_names = LEFT_CHANNEL_NAME
+            self.right_channel_names = RIGHT_CHANNEL_NAME
+        
         #2 feature extractor， 1 classifier， 2 local discriminators， 1 global discriminator
-        self.l_extractor = BiDANNFeatureExtractor(num_electrodes=self.num_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
-        self.r_extractor = BiDANNFeatureExtractor(num_electrodes=self.num_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
+        # 注意：左右特征提取器的输入大小需要根据实际左右脑区的通道数量调整
+        self.l_extractor = BiDANNFeatureExtractor(num_electrodes=self.left_num_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
+        self.r_extractor = BiDANNFeatureExtractor(num_electrodes=self.right_num_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
         self.classifer = BiDANNClassifer(input_size=8*128, hidden_size1=256, hideen_size2=64,num_classes=3)
         self.r_discriminator = LocalDiscriminator(input_size = 8*128, hidden_size1 = 256, hidden_size2 = 64,domain_classes = self.domain_classes, lambda_=self.lambda_)
         self.l_discriminator = LocalDiscriminator(input_size = 8*128, hidden_size1 = 256, hidden_size2 = 64,domain_classes = self.domain_classes, lambda_=self.lambda_)
@@ -53,8 +84,12 @@ class BiDANN(nn.Module):
     def forward(self, source_data, target_data):
         # x: (batch_size, sample_length, num_electrodes, in_channels)
         # get left and right features  
-        l_source_data, r_source_data = divide_r_l(source_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
-        l_target_data, r_target_data = divide_r_l(target_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
+        l_source_data, r_source_data = divide_r_l(source_data, columns=self.channel_names, 
+                                                   l_columns=self.left_channel_names, r_columns=self.right_channel_names,
+                                                   l_indices=self.left_channel_indices, r_indices=self.right_channel_indices)
+        l_target_data, r_target_data = divide_r_l(target_data, columns=self.channel_names,
+                                                   l_columns=self.left_channel_names, r_columns=self.right_channel_names,
+                                                   l_indices=self.left_channel_indices, r_indices=self.right_channel_indices)
         l_source_data = l_source_data.to(self.device)
         r_source_data = r_source_data.to(self.device)
         l_target_data = l_target_data.to(self.device)
@@ -79,32 +114,55 @@ class BiDANN(nn.Module):
         return label_predict, l_domain_predict, r_domain_predict, global_domain_predict
 
 #Dividing the features into left and right parts
-def divide_r_l(features,columns,l_columns, r_columns):#batch_size*9*62*5
-    features = features.transpose(2, 3)
-    features_reshaped = features.reshape(features.shape[0]*features.shape[1]*features.shape[2], -1)
+def divide_r_l(features, columns, l_columns, r_columns, l_indices=None, r_indices=None):#batch_size*9*num_electrodes*5
+    """
+    Divide features into left and right hemisphere parts.
+    
+    Args:
+        features: (batch_size, sample_length, num_electrodes, in_channels)
+        columns: List of channel names corresponding to the features
+        l_columns: List of left hemisphere channel names
+        r_columns: List of right hemisphere channel names
+        l_indices: List of indices in columns that correspond to left channels (optional, for optimization)
+        r_indices: List of indices in columns that correspond to right channels (optional, for optimization)
+    
+    Returns:
+        left_features: (batch_size, sample_length, left_num_electrodes * in_channels)
+        right_features: (batch_size, sample_length, right_num_electrodes * in_channels)
+    """
+    features = features.transpose(2, 3)  # (batch_size, sample_length, in_channels, num_electrodes)
+    features_reshaped = features.reshape(features.shape[0]*features.shape[1]*features.shape[2], -1)  # (batch*sample*in_channels, num_electrodes)
     features_reshaped_copy = features_reshaped.cpu()
     features_array = features_reshaped_copy.numpy()
     df_features = pd.DataFrame(features_array, columns = columns)
     
-    df_left = df_features[l_columns]
-    df_right = df_features[r_columns]
+    # 使用索引直接选择，如果提供了索引的话（更高效）
+    if l_indices is not None and r_indices is not None:
+        # 直接使用索引选择
+        df_left = df_features.iloc[:, l_indices]
+        df_right = df_features.iloc[:, r_indices]
+    else:
+        # 使用列名选择（向后兼容）
+        df_left = df_features[l_columns]
+        df_right = df_features[r_columns]
     
     left_features = torch.tensor(np.array(df_left))
-    left_features = left_features.reshape(features.shape[0], features.shape[1],features.shape[2], -1)
-    left_features = left_features.transpose(2,3)
-    left_features = left_features.reshape(features.shape[0], features.shape[1], -1)
+    left_features = left_features.reshape(features.shape[0], features.shape[1], features.shape[2], -1)
+    left_features = left_features.transpose(2,3)  # (batch_size, sample_length, left_num_electrodes, in_channels)
+    left_features = left_features.reshape(features.shape[0], features.shape[1], -1)  # (batch_size, sample_length, left_num_electrodes * in_channels)
 
     right_features = torch.tensor(np.array(df_right))
     right_features = right_features.reshape(features.shape[0], features.shape[1], features.shape[2], -1)
-    right_features = right_features.transpose(1,2)
-    right_features = right_features.reshape(features.shape[0], features.shape[1], -1)
-    return left_features, right_features #batchh_size*9*155
+    right_features = right_features.transpose(2,3)  # (batch_size, sample_length, right_num_electrodes, in_channels)
+    right_features = right_features.reshape(features.shape[0], features.shape[1], -1)  # (batch_size, sample_length, right_num_electrodes * in_channels)
+    return left_features, right_features
 
 
-class BiDANNFeatureExtractor(nn.Module):#Input: batch_size*9*155, 
+class BiDANNFeatureExtractor(nn.Module):#Input: batch_size*9*(num_electrodes*in_channels), 
     def __init__(self, num_electrodes=62, in_channels=5, sample_length=9, hidden_size = 128,output_size=8):
         super(BiDANNFeatureExtractor, self).__init__()
-        self.input = num_electrodes * in_channels // 2
+        # num_electrodes 已经是单个脑区的通道数，不需要除以2
+        self.input = num_electrodes * in_channels
         self.out_lstm = hidden_size 
         self.length = sample_length
         self.output = output_size

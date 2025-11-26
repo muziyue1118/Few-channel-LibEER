@@ -7,6 +7,7 @@ from data_utils.split import merge_to_part, index_to_data, get_split_index
 from utils.args import get_args_parser
 from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
+from utils.channel_selector import apply_channel_name_selection
 from Trainer.FBSTCTraining import train
 import torch
 import torch.optim as optim
@@ -14,6 +15,9 @@ import torch.nn as nn
 
 
 def main(args):
+    # 应用通道名称选择转换
+    apply_channel_name_selection(args)
+    
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
     else:
@@ -55,6 +59,19 @@ def main(args):
             if len(val_data) == 0:
                 val_data = test_data
                 val_label = test_label
+                
+            # 应用选定的通道（如果有）
+            if args.selected_channels is not None:
+                # 打印选定的通道信息
+                print(f"使用选定的通道: {args.selected_channels}")
+                print(f"通道数量: {len(args.selected_channels)}")
+                # 应用通道选择
+                train_data = train_data[:, args.selected_channels, :]
+                val_data = val_data[:, args.selected_channels, :]
+                test_data = test_data[:, args.selected_channels, :]
+                # 更新通道数量
+                channels = len(args.selected_channels)
+            
             train_data, val_data, test_data = normalize(train_data, val_data, test_data, dim='sample', method="z-score")
             # model to train
             filterRange = [(4, 8), (8, 12), (12, 16), (16, 20), (20, 24), (24, 28), (28, 32), (32, 36), (36, 40),
@@ -65,8 +82,8 @@ def main(args):
             elif setting.dataset.startswith("hci") or setting.dataset.startswith("deap"):
                 freq = 128
 
-            model = Model['FBSTCNet'](channels , num_classes, fs=freq, filterRange=filterRange,
-                                      input_window_samples=feature_dim, same_filters_for_features = False).to(device)
+            model = Model['FBSTCNet'](channels, num_classes, fs=freq, filterRange=filterRange,
+                                      input_window_samples=feature_dim, same_filters_for_features=False).to(device)
             # Train one round using the train one round function defined in the model
             dataset_train = torch.utils.data.TensorDataset(torch.tensor(train_data).to(device), torch.tensor(train_label).to(device))
             dataset_val = torch.utils.data.TensorDataset(torch.tensor(val_data).to(device), torch.tensor(val_label).to(device))

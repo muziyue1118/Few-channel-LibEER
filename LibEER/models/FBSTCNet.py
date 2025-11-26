@@ -19,14 +19,64 @@ from skorch.callbacks import LRScheduler
 from torch.optim import AdamW
 from braindecode.training import CroppedLoss
 from braindecode.util import set_random_seeds
-from braindecode.models import get_output_shape
 from sklearn.metrics import confusion_matrix
 
 from braindecode.util import np_to_th
-from braindecode.models.modules import Expression, Ensure4d
-from braindecode.models.functions import (
-    safe_log, square, transpose_time_to_spat
-)
+
+# 自定义braindecode.models.functions中的函数
+import torch
+
+def safe_log(x):
+    """Safe logarithm, avoiding log(0)."""
+    return torch.log(torch.clamp(x, min=1e-6))
+
+def square(x):
+    """Square function."""
+    return torch.square(x)
+
+def transpose_time_to_spat(x):
+    """Transpose time to spatial dimension for compatibility."""
+    return x.permute(0, 3, 2, 1)
+
+# 自定义模块，因为当前braindecode版本中不存在这些模块
+class Expression(nn.Module):
+    """Module that applies an expression to the input tensor."""
+    def __init__(self, func):
+        super(Expression, self).__init__()
+        self.func = func
+    
+    def forward(self, x):
+        return self.func(x)
+
+class Ensure4d(nn.Module):
+    """Module that ensures the input is 4-dimensional."""
+    def forward(self, x):
+        while len(x.shape) < 4:
+            x = x.unsqueeze(-1)
+        return x
+
+# 自定义get_output_shape函数，因为当前braindecode版本中不存在这个函数
+def get_output_shape(model, input_shape):
+    """Get the output shape of a PyTorch model.
+    
+    Parameters
+    ----------
+    model : torch.nn.Module
+        The model to get the output shape from.
+    input_shape : tuple
+        The shape of the input tensor, (batch_size, channels, time, ...).
+    
+    Returns
+    -------
+    tuple
+        The shape of the output tensor, (batch_size, ...).
+    """
+    # Create a dummy input tensor with the given shape
+    dummy_input = torch.zeros(*input_shape)
+    # Forward pass to get the output shape
+    with torch.no_grad():
+        output = model(dummy_input)
+    return output.shape
 
 def get_padding(kernel_size, stride=1, dilation=1, **_):
     if isinstance(kernel_size, tuple):
@@ -99,104 +149,79 @@ class PowerAndConneMixedNet(nn.Module):
 
         # filter bank
         if self.filterRange is not None:
-            self.add_module("filterbank",
-                            filterbank(fs=self.fs, frequency_bands=self.filterRange, filterStop=self.filterStop,
-                                       f_trans=self.f_trans))
+            self.filterbank = filterbank(fs=self.fs, frequency_bands=self.filterRange, filterStop=self.filterStop,
+                                       f_trans=self.f_trans)
         else:
-            self.add_module("filterbank", Ensure4d())  # [numSample × numChannel × numPoint × 1]
+            self.filterbank = Ensure4d()  # [numSample × numChannel × numPoint × 1]
         pool_class = dict(max=nn.MaxPool2d, mean=nn.AvgPool2d)[self.pool_mode]
         padding_size = get_padding((self.filter_time_length, 1))
 
-        self.add_module("dimshuffle", Expression(transpose_time_to_spat))  # [numSample × 1 × numPoint × numChannel]
+        self.dimshuffle = Expression(transpose_time_to_spat)  # [numSample × 1 × numPoint × numChannel]
 
         # temporal convolution
-        self.add_module(
-            "conv_time",
-            nn.Conv2d(
-                self.n_filterbank,
-                self.n_filters_time,
-                (self.filter_time_length, 1),
-                stride=1,
-                padding=(padding_size, 0),
-            ),
+        self.conv_time = nn.Conv2d(
+            self.n_filterbank,
+            self.n_filters_time,
+            (self.filter_time_length, 1),
+            stride=1,
+            padding=(padding_size, 0),
         )
-        self.add_module("conv_nonlin_exp", Expression(square))
-        self.add_module(
-            "poolfunc",
-            pool_class(
-                kernel_size=(pool_time_length, 1),
-                stride=(pool_time_stride, 1),
-            ),
+        self.conv_nonlin_exp = Expression(square)
+        self.poolfunc = pool_class(
+            kernel_size=(pool_time_length, 1),
+            stride=(pool_time_stride, 1),
         )
 
         # spatial convolutions for power and connectivity-based network, respectively
-        self.add_module(
-            "conv_spat_power",
-            nn.Conv2d(
-                self.n_filters_power,
-                self.n_filters_power,
-                (1, self.in_chans),
-                stride=1,
-                groups=self.n_filters_power,
-                bias=not self.batch_norm,
-            ),
+        self.conv_spat_power = nn.Conv2d(
+            self.n_filters_power,
+            self.n_filters_power,
+            (1, self.in_chans),
+            stride=1,
+            groups=self.n_filters_power,
+            bias=not self.batch_norm,
         )
-        self.add_module(
-            "conv_spat_conne",
-            nn.Conv2d(
-                self.n_filters_coherence,
-                self.n_filters_coherence,
-                (1, self.in_chans),
-                stride=1,
-                groups=self.n_filters_coherence,
-                bias=not self.batch_norm,
-            ),
+        self.conv_spat_conne = nn.Conv2d(
+            self.n_filters_coherence,
+            self.n_filters_coherence,
+            (1, self.in_chans),
+            stride=1,
+            groups=self.n_filters_coherence,
+            bias=not self.batch_norm,
         )
         if self.batch_norm:
-            self.add_module(
-                "bnorm_power",
-                nn.BatchNorm2d(
-                    self.n_filters_power, momentum=self.batch_norm_alpha, affine=True
-                ),
+            self.bnorm_power = nn.BatchNorm2d(
+                self.n_filters_power, momentum=self.batch_norm_alpha, affine=True
             )
-            self.add_module(
-                "bnorm_conne",
-                nn.BatchNorm2d(
-                    self.n_filters_coherence, momentum=self.batch_norm_alpha, affine=True
-                ),
+            self.bnorm_conne = nn.BatchNorm2d(
+                self.n_filters_coherence, momentum=self.batch_norm_alpha, affine=True
             )
         # power-based feature extraction
-        self.add_module("pool_nonlin_exp", Expression(safe_log))
+        self.pool_nonlin_exp = Expression(safe_log)
 
         # connectivity-based feature extraction
         self.connectivity_exp = coherence_cropped(time_length=fs, time_stride=fs)
-        self.add_module("power_drop", nn.Dropout(p=self.drop_prob))
-        self.add_module("conne_drop", nn.Dropout(p=self.drop_prob))
+        self.power_drop = nn.Dropout(p=self.drop_prob)
+        self.conne_drop = nn.Dropout(p=self.drop_prob)
 
         # final convolution
-        self.add_module(
-            "conv_power_classifier",
-            nn.Conv2d(
-                self.n_filters_power,
-                self.n_classes,
-                (self.final_conv_length, 1),
-                stride=(self.final_conv_stride, 1),
-                bias=True,
-            ),
+        self.conv_power_classifier = nn.Conv2d(
+            self.n_filters_power,
+            self.n_classes,
+            (self.final_conv_length, 1),
+            stride=(self.final_conv_stride, 1),
+            bias=True,
         )
-        self.add_module(
-            "conv_conn_classifier",
-            nn.Conv2d(
-                self.n_filters_coherence,
-                self.n_classes,
-                (self.n_filters_coherence, 1),
-                bias=True,
-            ),
+        self.conv_conn_classifier = nn.Conv2d(
+            self.n_filters_coherence,
+            self.n_classes,
+            (self.n_filters_coherence, 1),
+            bias=True,
         )
-        self.add_module("conne_shift", Expression(shift_3rd_dim_output))
+        self.conne_shift = Expression(shift_3rd_dim_output)
 
-        self.add_module("softmax", nn.LogSoftmax(dim=1))
-        self.add_module("squeeze", Expression(squeeze_final_output))
+        self.softmax = nn.LogSoftmax(dim=1)
+        self.squeeze = Expression(squeeze_final_output)
 
         init.xavier_uniform_(self.conv_time.weight, gain=1)
         init.constant_(self.conv_time.bias, 0)

@@ -11,6 +11,7 @@ from Trainer.graphTraining import train
 from models.RGNN_official import SparseL1Regularization
 from data_utils.constants.seed import SEED_RGNN_ADJACENCY_MATRIX
 from data_utils.constants.deap import DEAP_RGNN_ADJACENCY_MATRIX
+from utils.channel_selector import apply_channel_name_selection
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -86,6 +87,9 @@ from torch.utils.data import Dataset
 
 
 def main(args):
+    # 应用通道名称选择
+    apply_channel_name_selection(args)
+    
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
     else:
@@ -126,15 +130,43 @@ def main(args):
             if len(val_data) == 0:
                 val_data = test_data
                 val_label = test_label
-            # model to train
-            model = Model['RGNN_official'](channels, feature_dim, num_classes)
-            # noise label
-            train_label = torch.Tensor(model.noise_label(train_label))
-            # train_label = F.log_softmax(train_label, dim=1)
+            # 加载邻接矩阵并根据选定的通道进行调整
             if args.dataset.startswith("seed") or args.dataset.startswith("mped"):
                 edge_adj = torch.Tensor(SEED_RGNN_ADJACENCY_MATRIX)
             elif args.dataset.startswith("deap") or args.dataset.startswith("hci"):
                 edge_adj = torch.Tensor(DEAP_RGNN_ADJACENCY_MATRIX)
+            
+            # 如果指定了选定的通道，调整邻接矩阵
+            selected_channels = getattr(args, 'selected_channels', None)
+            if selected_channels is not None:
+                # 获取选定通道的索引
+                selected_idx = selected_channels
+                print(f"Selecting channels: {selected_idx}")
+                # 调整邻接矩阵为只包含选定通道的子矩阵
+                edge_adj = edge_adj[selected_idx][:, selected_idx]
+                # 调整通道数量为选定的通道数
+                channels = len(selected_idx)
+                print(f"Number of channels after selection: {channels}")
+            
+            # 创建模型时传递选定的通道数和调整后的邻接矩阵
+            # 首先创建一个自定义的模型初始化函数
+            def create_rgnn_model(num_nodes, num_features, num_classes):
+                import torch.nn as nn
+                from models.RGNN_official import SymSimGCNNet
+                # 直接使用调整后的邻接矩阵初始化模型
+                # 不使用模型内部的初始化，直接从头构建
+                model = SymSimGCNNet(num_nodes=num_nodes, num_features=num_features, num_classes=num_classes, learn_edge_weight=False)
+                # 手动设置边权重为调整后的邻接矩阵的下三角部分
+                xs, ys = torch.tril_indices(num_nodes, num_nodes, offset=0)
+                model.xs, model.ys = xs, ys
+                model.edge_weight = nn.Parameter(edge_adj[xs, ys], requires_grad=True)
+                model.edge_index = edge_adj.to_sparse()._indices()
+                return model
+            
+            # 使用自定义函数创建模型
+            model = create_rgnn_model(channels, feature_dim, num_classes)
+            # noise label
+            train_label = torch.Tensor(model.noise_label(train_label))
             # Train one round using the train one round function defined in the model
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
@@ -146,7 +178,7 @@ def main(args):
             loss_func = SparseL1Regularization(0.01)
             output_dir = make_output_dir(args, "RGNN")
             round_metric = train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, edge_adj=edge_adj, device=device, output_dir=output_dir, metrics=args.metrics, optimizer=optimizer,
-                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, test_sub_label=test_sub_label, loss_func=loss_func, loss_param=model.edge_weight)
+                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, loss_func=loss_func, loss_param=model.edge_weight)
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":
                 subjects_metrics[rridx-1].append(round_metric)

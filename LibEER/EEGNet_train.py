@@ -5,6 +5,7 @@ from data_utils.split import merge_to_part, index_to_data, get_split_index
 from utils.args import get_args_parser
 from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
+from utils.channel_selector import apply_channel_name_selection
 from Trainer.training import train
 import torch
 import torch.optim as optim
@@ -80,6 +81,8 @@ def main(args):
         setting = set_setting_by_args(args)
     setup_seed(args.seed)
     data, label, channels, feature_dim, num_classes = get_data(setting)
+    if setting.selected_channels is not None:
+        print(f"已启用少通道训练，通道索引: {setting.selected_channels}，通道数量: {channels}")
     data, label = merge_to_part(data, label, setting)
     device = torch.device(args.device)
     best_metrics = []
@@ -126,5 +129,6 @@ def main(args):
 if __name__ == '__main__':
     args = get_args_parser()
     args = args.parse_args()
+    apply_channel_name_selection(args)
     # log out train state
     main(args)

@@ -25,6 +25,10 @@ def main(args):
         setting = set_setting_by_args(args)
     setup_seed(args.seed)
     data, label, channels, feature_dim, num_classes = get_data(setting)
+    # channels 变量已经根据 selected_channels 设置自动调整
+    if setting.selected_channels is not None:
+        print(f"使用选择的通道索引: {setting.selected_channels}, 通道数量: {channels}")
+        print(f"注意: BiDANN模型会自动将选择的通道分为左右脑区进行处理")
     data, label = merge_to_part(data, label, setting)
     device = torch.device(args.device)
     best_metrics = []
@@ -61,8 +65,8 @@ def main(args):
                 val_data = test_data
                 val_label = test_label
 
-            model = Model['BiDANN'](channels, feature_dim, num_classes,sample_length=9, 
-                 domain_classes = 2,lambda_ = 0.5, device=device)
+            model = Model['BiDANN'](channels, feature_dim, num_classes, sample_length=9, 
+                 domain_classes = 2, lambda_ = 0.5, device=device, selected_channels=setting.selected_channels)
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
             dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.Tensor(test_label))

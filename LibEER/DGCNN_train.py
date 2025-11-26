@@ -17,6 +17,14 @@ import torch.nn as nn
 #    reproduction
 #    python DGCNN_train.py -onehot -batch_size 16 -lr 0.0015 -sessions 1 2 -epochs 80 -setting seed_sub_dependent_front_back_setting
 #    0.8948/0.0849
+#
+#    跨个体实验（subject-independent）支持通道选择示例：
+#    python DGCNN_train.py -metrics 'acc' 'macro-f1' -metric_choose 'macro-f1' -setting seed_sub_independent_train_val_test_setting -dataset_path /path/to/SEED -dataset seed_de_lds -batch_size 16 -seed 2024 -epochs 150 -selected_channels 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31
+#    
+#    使用少通道（例如只使用前16个通道）：
+#    python DGCNN_train.py -metrics 'acc' 'macro-f1' -metric_choose 'macro-f1' -setting seed_sub_independent_train_val_test_setting -dataset_path /path/to/SEED -dataset seed_de_lds -batch_size 16 -seed 2024 -epochs 150 -selected_channels 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
+#
+#    注意：-selected_channels 参数接受通道索引列表（从0开始），不同实验可以使用不同数量的通道
 
 #    seed dep
 #    python DGCNN_train.py -metrics 'acc' 'macro-f1' -metric_choose 'macro-f1' -setting seed_sub_dependent_train_val_test_setting -dataset_path /data1/cxx/SEED数据集/SEED/ -dataset seed_de_lds -batch_size 32 -seed 2024 -epochs 80 -lr 0.0015 -onehot >DGCNN/b32_lr0.0015.log
@@ -59,9 +67,12 @@ import torch.nn as nn
 #    python DGCNN_train.py -metrics 'acc' 'macro-f1' -model DGCNN -metric_choose 'macro-f1' -setting hci_sub_independent_train_val_test_setting -dataset_path "/data1/cxx/HCI数据集/" -dataset hci -batch_size 512 -epochs 150 -lr 0.005 -time_window 1 -feature_type de_lds -bounds 5 5 -label_used valence arousal -seed 2024 >DGCNN_indep/hci_both_b512e150lr0.005.log
 #    0.4154	0.3808
 
-#    seed indep
+    #    seed indep
 #    python DGCNN_train.py -metrics 'acc' 'macro-f1' -metric_choose 'macro-f1' -setting seed_sub_independent_train_val_test_setting -dataset_path "/date1/yss/data/SEED数据集/SEED" -dataset seed_de_lds -batch_size 16 -seed 2024 -epochs 150 >DGCNN_indep/b16.log
 #    0.6087	0.5722
+#    
+#    跨个体实验使用少通道示例（例如使用前32个通道）：
+#    python DGCNN_train.py -metrics 'acc' 'macro-f1' -metric_choose 'macro-f1' -setting seed_sub_independent_train_val_test_setting -dataset_path "/date1/yss/data/SEED数据集/SEED" -dataset seed_de_lds -batch_size 16 -seed 2024 -epochs 150 -selected_channels 0 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 >DGCNN_indep/b16_ch32.log
 #    seediv indep
 #    CUDA_VISIBLE_DEVICES=2 nohup python DGCNN_train.py -metrics 'acc' 'macro-f1' -model DGCNN -metric_choose 'macro-f1' -setting seediv_sub_independent_train_val_test_setting -dataset_path "/date1/yss/data/SEED数据集/SEED_IV" -dataset seediv_raw -batch_size 32 -epochs 150 -time_window 1 -feature_type de_lds -seed 2024 -lr 0.0015 >DGCNN_indep/s4_b32e150_lr0.0015.log
 #    0.4254	0.431
@@ -76,6 +87,9 @@ def main(args):
         setting = set_setting_by_args(args)
     setup_seed(args.seed)
     data, label, channels, feature_dim, num_classes = get_data(setting)
+    # channels 变量已经根据 selected_channels 设置自动调整
+    if setting.selected_channels is not None:
+        print(f"使用选择的通道: {setting.selected_channels}, 通道数量: {channels}")
     data, label = merge_to_part(data, label, setting)
     device = torch.device(args.device)
     best_metrics = []
@@ -107,6 +121,11 @@ def main(args):
             train_data, train_label, val_data, val_label, test_data, test_label = \
                 index_to_data(data_i, label_i, train_indexes, test_indexes, val_indexes, args.keep_dim)
 
+            # Debug: print data shapes
+            if isinstance(train_data, np.ndarray) and len(train_data) > 0:
+                print(f"Debug: train_data shape after split: {train_data.shape}")
+                print(f"Debug: Expected channels={channels}, feature_dim={feature_dim}")
+
             # model to train
             if len(val_data) == 0:
                 val_data = test_data
@@ -122,7 +141,7 @@ def main(args):
             output_dir = make_output_dir(args, "DGCNN")
             round_metric = train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device,
                                  output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, optimizer=optimizer,
-                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, test_sub_label=test_sub_label, loss_func=loss_func, loss_param=model)
+                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, loss_func=loss_func, loss_param=model)
             # if sub indep, then return
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":

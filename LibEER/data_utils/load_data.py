@@ -1,7 +1,7 @@
 import fnmatch
 import json
 import os
-from symbol import trailer
+# from symbol import trailer  # Removed: symbol module is Python 2 only, not available in Python 3
 
 import scipy.io
 from scipy.io import loadmat
@@ -11,12 +11,73 @@ from functools import partial
 import mne
 import xmltodict
 import pickle
-import mat73
+try:
+    import mat73
+except ImportError:
+    mat73 = None
 from tqdm import tqdm
 from scipy.signal import decimate
 
 from data_utils.preprocess import preprocess, label_process
 from .preprocess import lds
+
+
+def select_channels(data, selected_channels):
+    """
+    Select specific channels from EEG data
+    input shape -> data: (session, subject, trail, channel, original_data) or
+                     data: (session, subject, trail, list_of_time_points) where each time point is (channel, band)
+    output shape -> data: (session, subject, trail, selected_channel, original_data) or
+                     data: (session, subject, trail, list_of_time_points) where each time point is (selected_channel, band)
+    """
+    if selected_channels is None:
+        return data
+    
+    selected_channels = np.array(selected_channels)
+    # Ensure indices are valid
+    if len(selected_channels) == 0:
+        raise ValueError("selected_channels cannot be empty")
+    
+    # Select channels for each trail
+    selected_data = []
+    for ses_data in data:
+        ses_selected = []
+        for sub_data in ses_data:
+            sub_selected = []
+            for trail_data in sub_data:
+                # Check if trail_data is a list of time points (for pre-extracted features)
+                if isinstance(trail_data, list) and len(trail_data) > 0:
+                    # Check if first element is an array (time point data)
+                    if isinstance(trail_data[0], np.ndarray):
+                        # Data format: list of (channel, band) arrays
+                        # Select channels from each time point
+                        if np.max(selected_channels) >= trail_data[0].shape[0]:
+                            raise ValueError(f"Channel index {np.max(selected_channels)} is out of range. "
+                                           f"Data has {trail_data[0].shape[0]} channels.")
+                        trail_selected = [time_point[selected_channels, :] for time_point in trail_data]
+                    else:
+                        # Data format: list of channel data
+                        if np.max(selected_channels) >= len(trail_data):
+                            raise ValueError(f"Channel index {np.max(selected_channels)} is out of range. "
+                                           f"Data has {len(trail_data)} channels.")
+                        trail_selected = [trail_data[i] for i in selected_channels]
+                        # Convert to numpy array if all elements are arrays
+                        if all(isinstance(x, np.ndarray) for x in trail_selected):
+                            trail_selected = np.array(trail_selected)
+                elif isinstance(trail_data, np.ndarray):
+                    # Data format: (channel, original_data) or (channel, time, band)
+                    if np.max(selected_channels) >= trail_data.shape[0]:
+                        raise ValueError(f"Channel index {np.max(selected_channels)} is out of range. "
+                                       f"Data has {trail_data.shape[0]} channels.")
+                    # Select channels along the first dimension
+                    trail_selected = trail_data[selected_channels, :]
+                else:
+                    raise TypeError(f"Unsupported data type: {type(trail_data)}")
+                sub_selected.append(trail_selected)
+            ses_selected.append(sub_selected)
+        selected_data.append(ses_selected)
+    
+    return selected_data
 
 
 def get_data(setting=None):
@@ -25,6 +86,14 @@ def get_data(setting=None):
 
     # obtain data in the uniform formats, which load dataset and integrate into (session, subject, trail) format
     data, baseline, label, sample_rate, channels = get_uniform_data(setting.dataset, setting.dataset_path)
+    
+    # Select channels if specified
+    if setting.selected_channels is not None:
+        print(f"Selecting channels: {setting.selected_channels}")
+        data = select_channels(data, setting.selected_channels)
+        channels = len(setting.selected_channels)
+        print(f"Number of channels after selection: {channels}")
+    
     # preprocess the eeg signal
     all_data, feature_dim = preprocess(data=data, baseline=baseline, sample_rate=sample_rate,
                                      pass_band=setting.pass_band, extract_bands=setting.extract_bands,
@@ -59,6 +128,10 @@ def get_uniform_data(dataset, dataset_path):
     :param dataset_path: the dir of the dataset location
     :return: data, baseline, label, and sample rate of the original dataset
     """
+    # 确保数据集路径以'/'结尾
+    if not dataset_path.endswith('/'):
+        dataset_path = dataset_path + '/'
+    
     func = {
         "seed_raw": read_seed_raw,
         "deap": read_deap_preprocessed,
@@ -118,19 +191,19 @@ def read_seed_raw(dir_path):
 
     # Extract the EEG data of each subject from the SEED dataset, and partition the data of each session
     dir_path += "/Preprocessed_EEG"
-    eeg_files = [['1_20131027.mat', '2_20140404.mat', '3_20140603.mat',
-                  '4_20140621.mat', '5_20140411.mat', '6_20130712.mat',
-                  '7_20131027.mat', '8_20140511.mat', '9_20140620.mat',
+    eeg_files = [['01_20131027.mat', '02_20140404.mat', '03_20140603.mat',
+                  '04_20140621.mat', '05_20140411.mat', '06_20130712.mat',
+                  '07_20131027.mat', '08_20140511.mat', '09_20140620.mat',
                   '10_20131130.mat', '11_20140618.mat', '12_20131127.mat',
                   '13_20140527.mat', '14_20140601.mat', '15_20130709.mat'],
-                 ['1_20131030.mat', '2_20140413.mat', '3_20140611.mat',
-                  '4_20140702.mat', '5_20140418.mat', '6_20131016.mat',
-                  '7_20131030.mat', '8_20140514.mat', '9_20140627.mat',
+                 ['01_20131030.mat', '02_20140413.mat', '03_20140611.mat',
+                  '04_20140702.mat', '05_20140418.mat', '06_20131016.mat',
+                  '07_20131030.mat', '08_20140514.mat', '09_20140627.mat',
                   '10_20131204.mat', '11_20140625.mat', '12_20131201.mat',
                   '13_20140603.mat', '14_20140615.mat', '15_20131016.mat'],
-                 ['1_20131107.mat', '2_20140419.mat', '3_20140629.mat',
-                  '4_20140705.mat', '5_20140506.mat', '6_20131113.mat',
-                  '7_20131106.mat', '8_20140521.mat', '9_20140704.mat',
+                 ['01_20131107.mat', '02_20140419.mat', '03_20140629.mat',
+                  '04_20140705.mat', '05_20140506.mat', '06_20131113.mat',
+                  '07_20131106.mat', '08_20140521.mat', '09_20140704.mat',
                   '10_20131211.mat', '11_20140630.mat', '12_20131207.mat',
                   '13_20140610.mat', '14_20140627.mat', '15_20131105.mat']
                  ]
@@ -171,22 +244,35 @@ def read_seed_feature(dir_path, feature_type="de"):
     """
 
     dir_path += "/ExtractedFeatures"
-    eeg_files = [['1_20131027.mat', '2_20140404.mat', '3_20140603.mat',
-                  '4_20140621.mat', '5_20140411.mat', '6_20130712.mat',
-                  '7_20131027.mat', '8_20140511.mat', '9_20140620.mat',
-                  '10_20131130.mat', '11_20140618.mat', '12_20131127.mat',
-                  '13_20140527.mat', '14_20140601.mat', '15_20130709.mat'],
-                 ['1_20131030.mat', '2_20140413.mat', '3_20140611.mat',
-                  '4_20140702.mat', '5_20140418.mat', '6_20131016.mat',
-                  '7_20131030.mat', '8_20140514.mat', '9_20140627.mat',
-                  '10_20131204.mat', '11_20140625.mat', '12_20131201.mat',
-                  '13_20140603.mat', '14_20140615.mat', '15_20131016.mat'],
-                 ['1_20131107.mat', '2_20140419.mat', '3_20140629.mat',
-                  '4_20140705.mat', '5_20140506.mat', '6_20131113.mat',
-                  '7_20131106.mat', '8_20140521.mat', '9_20140704.mat',
-                  '10_20131211.mat', '11_20140630.mat', '12_20131207.mat',
-                  '13_20140610.mat', '14_20140627.mat', '15_20131105.mat']
-                 ]
+    # Check if files use new naming format (01_1.mat) or old format (1_20131027.mat)
+    test_file_new = f"{dir_path}/01_1.mat"
+    test_file_old = f"{dir_path}/1_20131027.mat"
+    
+    if os.path.exists(test_file_new):
+        # New naming format: {subject:02d}_{session}.mat
+        eeg_files = [[f"{i:02d}_1.mat" for i in range(1, 16)],
+                     [f"{i:02d}_2.mat" for i in range(1, 16)],
+                     [f"{i:02d}_3.mat" for i in range(1, 16)]]
+    elif os.path.exists(test_file_old):
+        # Old naming format
+        eeg_files = [['1_20131027.mat', '2_20140404.mat', '3_20140603.mat',
+                      '4_20140621.mat', '5_20140411.mat', '6_20130712.mat',
+                      '7_20131027.mat', '8_20140511.mat', '9_20140620.mat',
+                      '10_20131130.mat', '11_20140618.mat', '12_20131127.mat',
+                      '13_20140527.mat', '14_20140601.mat', '15_20130709.mat'],
+                     ['1_20131030.mat', '2_20140413.mat', '3_20140611.mat',
+                      '4_20140702.mat', '5_20140418.mat', '6_20131016.mat',
+                      '7_20131030.mat', '8_20140514.mat', '9_20140627.mat',
+                      '10_20131204.mat', '11_20140625.mat', '12_20131201.mat',
+                      '13_20140603.mat', '14_20140615.mat', '15_20131016.mat'],
+                     ['1_20131107.mat', '2_20140419.mat', '3_20140629.mat',
+                      '4_20140705.mat', '5_20140506.mat', '6_20131113.mat',
+                      '7_20131106.mat', '8_20140521.mat', '9_20140704.mat',
+                      '10_20131211.mat', '11_20140630.mat', '12_20131207.mat',
+                      '13_20140610.mat', '14_20140627.mat', '15_20131105.mat']
+                     ]
+    else:
+        raise FileNotFoundError(f"Could not find SEED feature files in {dir_path}. Expected either format: 01_1.mat or 1_20131027.mat")
     feature_index = {
         "de": 0, "de_lds": 1, "psd": 2, "psd_lds": 3, "dasm": 4, "dasm_lds": 5,
         "rasm": 6, "rasm_lds": 7, "asm": 8, "asm_lds": 9, "dcau": 10, "dcau_lds": 11

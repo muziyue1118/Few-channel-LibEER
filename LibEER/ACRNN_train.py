@@ -15,6 +15,33 @@ import torch.nn as nn
 
 import numpy as np
 
+
+def _format_for_acrnn(data, channels):
+    """
+    Ensure data shape -> (samples, channels, timepoints)
+    Supports:
+        - (samples, time, channels)
+        - (samples, channels, time)
+        - (samples, sample_len, channels, feature_dim)
+    """
+    data = np.asarray(data)
+    if data.ndim == 3:
+        if data.shape[1] == channels:
+            return data
+        if data.shape[2] == channels:
+            return np.transpose(data, (0, 2, 1))
+        raise ValueError(f"Unexpected 3D shape {data.shape} for channels={channels}")
+    if data.ndim == 4:
+        # assume (samples, sample_len, channels, feature_dim)
+        if data.shape[2] != channels:
+            raise ValueError(f"Unexpected 4D shape {data.shape} for channels={channels}")
+        data = np.transpose(data, (0, 2, 1, 3))  # -> (samples, channels, sample_len, feature_dim)
+        sample_len = data.shape[2]
+        feature_dim = data.shape[3]
+        data = data.reshape(data.shape[0], channels, sample_len * feature_dim)
+        return data
+    raise ValueError(f"Unsupported data dimensionality: {data.ndim}")
+
 # run this file with
 #   CUDA_VISIBLE_DEVICES=3 nohup python ACRNN_train.py -setting deap_sub_dependent_10fold_setting -only_seg -cross_trail false -dataset_path '/date1/yss/data/DEAP数据集/data_preprocessed_python' -dataset deap -sample_length 384 -stride 384 -bounds 5 5 -fold_num 10 -fold_shuffle false -label_used valence -batch_size 10 -lr 10e-4 -epochs 200 -onehot > ACRNN/valence_reproduction.log
 #   CUDA_VISIBLE_DEVICES=3 nohup python ACRNN_train.py -setting deap_sub_dependent_10fold_setting -only_seg -cross_trail false -dataset_path /data1/cxx/DEAP/data_preprocessed_python -dataset deap -sample_length 384 -stride 384 -bounds 5 5 -fold_num 10 -fold_shuffle false -label_used valence -batch_size 16 -lr 10e-4 -epochs 1000 -onehot > ACRNN/valence_reproduction.log
@@ -83,6 +110,8 @@ def main(args):
     setup_seed(args.seed)
     # setting = deap_sub_dependent_10fold_setting(args)
     data, label, channels, feature_dim, num_classes = get_data(setting)
+    if setting.selected_channels is not None:
+        print(f"使用选择的通道索引: {setting.selected_channels}, 通道数量: {channels}")
     data, label = merge_to_part(data, label, setting)
     device = torch.device(args.device)
     best_metrics = []
@@ -105,11 +134,14 @@ def main(args):
                 val_data = test_data
                 val_label = test_label
             train_data, val_data, test_data = normalize(train_data, val_data, test_data, dim='sample')
-            # print(train_data.shape, train_label.shape)
+            train_data = _format_for_acrnn(train_data, channels)
+            val_data = _format_for_acrnn(val_data, channels)
+            test_data = _format_for_acrnn(test_data, channels)
+            acrnn_timepoints = train_data.shape[2]
             train_data = np.transpose(train_data, (0, 2, 1))[:, np.newaxis, :, :]
             test_data = np.transpose(test_data, (0, 2, 1))[:, np.newaxis, :, :]
             val_data = np.transpose(val_data, (0, 2, 1))[:, np.newaxis, :, :]
-            model = Model['ACRNN'](channels, feature_dim, num_classes)
+            model = Model['ACRNN'](channels, acrnn_timepoints, num_classes)
             # Train one round using the train one round function defined in the model
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))

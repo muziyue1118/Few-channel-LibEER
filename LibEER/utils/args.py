@@ -11,7 +11,11 @@ def get_args_parser():
     # training  parameters
     parser.add_argument('-batch_size', default=128, type=int, help='batch size per GPU')
     parser.add_argument('-epochs', default=40, type=int)
-    parser.add_argument('-device', default='cuda', type=str, choices=['cuda', 'cuda:0', 'cpu'], help='which devices to train')
+    parser.add_argument('-dbn_rbm_epochs', default=10, type=int,
+                        help='DBN阶段：RBM逐层预训练轮数')
+    parser.add_argument('-dbn_unsup_epochs', default=5, type=int,
+                        help='DBN阶段：无监督微调轮数')
+    parser.add_argument('-device', default='cuda', type=str, help='which devices to train (e.g., cuda, cuda:0, cuda:3, cpu)')
     parser.add_argument('-eval', default=False, action='store_true', help='if eval, perform evaluation only')
     parser.add_argument('-seed', default=1, type=int, help='random seed')
     parser.add_argument('-num_workers', default=4, type=int)
@@ -72,4 +76,8 @@ def get_args_parser():
     parser.add_argument('-onehot', default=True, action='store_true', help="if use onehot code")
     parser.add_argument('-label_used', default=None, type=str, nargs='+', help="valence, arousal, dominance, liking")
     parser.add_argument('-keep_dim',default=False, action='store_true')
+    parser.add_argument('-selected_channels', default=None, type=int, nargs='+', 
+                        help="selected channel indices (0-indexed). If not specified, use all channels. Example: -selected_channels 0 1 2 3")
+    parser.add_argument('-selected_channel_names', default=None, type=str, nargs='+',
+                        help="selected channel names (e.g., FP1 F3 CZ). Supported datasets: SEED family, DEAP/HCI. Cannot be used together with -selected_channels.")
     return parser

@@ -7,6 +7,8 @@ from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
 from Trainer.training import train
 from models.DGCNN import NewSparseL2Regularization
+from data_utils.constants.seed import SEED_CHANNEL_NAME
+from data_utils.constants.deap import DEAP_CHANNEL_NAME
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -74,6 +76,40 @@ import torch.nn as nn
 #    CUDA_VISIBLE_DEVICES=2 nohup python CDCN_train.py -metrics 'acc' 'macro-f1' -model CDCN -metric_choose 'macro-f1' -setting seediv_sub_independent_train_val_test_setting -dataset_path /data1/cxx/SEED数据集/SEED_IV -dataset seediv_raw -batch_size 256 -epochs 300 -time_window 1 -feature_type de_lds -seed 2024 -onehot >CDCN_indep/s4_b256e300.log
 #    0.3103	0.2701
 
+def _get_channel_name_list(dataset: str):
+    dataset = (dataset or "").lower()
+    if dataset.startswith("seed"):  # covers seed, seediv, seedv, etc.
+        return SEED_CHANNEL_NAME
+    if dataset.startswith("mped") or dataset.startswith("faced"):
+        return SEED_CHANNEL_NAME
+    if dataset.startswith("deap") or dataset.startswith("hci"):
+        return DEAP_CHANNEL_NAME
+    return None
+
+
+def _apply_channel_name_selection(args):
+    """
+    Convert user provided channel names to indices so that downstream pipeline
+    can reuse the existing selected_channels logic.
+    """
+    if not args.selected_channel_names:
+        return
+    if args.selected_channels is not None:
+        raise ValueError("请勿同时使用 -selected_channels 与 -selected_channel_names 参数")
+    channel_name_list = _get_channel_name_list(args.dataset)
+    if channel_name_list is None:
+        raise ValueError(f"当前数据集 {args.dataset} 暂不支持通道名选择")
+    name_to_index = {name.upper(): idx for idx, name in enumerate(channel_name_list)}
+    selected_indices = []
+    for raw_name in args.selected_channel_names:
+        normalized = raw_name.upper()
+        if normalized not in name_to_index:
+            raise ValueError(f"通道 {raw_name} 不存在于数据集 {args.dataset}，可选通道：{channel_name_list}")
+        selected_indices.append(name_to_index[normalized])
+    args.selected_channels = selected_indices
+    print(f"使用通道名称 {args.selected_channel_names} => 索引 {args.selected_channels}")
+
+
 def main(args):
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
@@ -126,5 +162,6 @@ def main(args):
 if __name__ == '__main__':
     args = get_args_parser()
     args = args.parse_args()
+    _apply_channel_name_selection(args)
     # log out train state
     main(args)

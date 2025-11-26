@@ -33,6 +33,9 @@ class DGCNN(nn.Module):
             self.layers = [64]
         elif num_electrodes == 32:
             self.layers = [128]
+        elif self.layers is None:
+            # Default layers for other channel numbers
+            self.layers = [64]
 
         self.graphConvs = nn.ModuleList()
         self.graphConvs.append(GraphConv(self.k, self.in_channels, self.layers[0]))
@@ -85,8 +88,50 @@ class DGCNN(nn.Module):
         nn.init.zeros_(self.fc2.bias)
 
     def forward(self, x):
+        # Expected input shape: (batch, num_electrodes, in_channels)
+        # Handle different input shapes - automatically fix common issues
+        if len(x.shape) == 3:
+            batch_size, dim1, dim2 = x.shape
+            
+            # Case 1: Correct shape already
+            if dim1 == self.num_electrodes and dim2 == self.in_channels:
+                pass  # No change needed
+            # Case 2: Transposed shape (batch, in_channels, num_electrodes)
+            elif dim1 == self.in_channels and dim2 == self.num_electrodes:
+                x = x.transpose(1, 2)  # (batch, num_electrodes, in_channels)
+            # Case 3: Wrong channel dimension - select first num_electrodes channels
+            elif dim1 > self.num_electrodes and dim2 == self.in_channels:
+                # Input is (batch, more_channels, in_channels) - select first num_electrodes
+                x = x[:, :self.num_electrodes, :]
+            elif dim2 > self.num_electrodes and dim1 == self.in_channels:
+                # Input is (batch, in_channels, more_channels) - transpose then select
+                x = x.transpose(1, 2)[:, :self.num_electrodes, :]
+            # Case 4: Both dimensions wrong - try to infer and fix
+            elif dim1 != self.num_electrodes and dim2 != self.num_electrodes:
+                # Try to identify which dimension is channels
+                # If one dimension matches in_channels, the other is likely channels
+                if dim1 == self.in_channels:
+                    x = x.transpose(1, 2)[:, :self.num_electrodes, :]
+                elif dim2 == self.in_channels:
+                    x = x[:, :self.num_electrodes, :]
+                else:
+                    # Neither matches - assume first dimension is channels if it's larger
+                    if dim1 >= dim2 and dim1 > self.num_electrodes:
+                        x = x[:, :self.num_electrodes, :self.in_channels]
+                    elif dim2 > dim1 and dim2 > self.num_electrodes:
+                        x = x.transpose(1, 2)[:, :self.num_electrodes, :self.in_channels]
+                    else:
+                        # Last resort: select first num_electrodes from first dimension
+                        x = x[:, :self.num_electrodes, :self.in_channels]
+        
         adj = self.relu(self.adj + self.adj_bias)
         lap = laplacian(adj)
+        # Final check: ensure lap and x dimensions match
+        if lap.shape[0] != x.shape[1]:
+            raise ValueError(f"Laplacian matrix size {lap.shape[0]} does not match input channels {x.shape[1]}. "
+                           f"Expected num_electrodes={self.num_electrodes}, got input shape {x.shape}. "
+                           f"Please check that channel selection was applied correctly.")
+        
         for i in range(len(self.layers)):
             x = self.graphConvs[i](x, lap)
             x = self.dropout(x)

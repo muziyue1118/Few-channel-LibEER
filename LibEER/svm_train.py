@@ -19,6 +19,14 @@ def main(args):
         setting = preset_setting[args.setting](args)
     else:
         setting = set_setting_by_args(args)
+    
+    # 显示通道选择信息
+    if args.selected_channels is not None:
+        print(f"使用选定的通道索引: {args.selected_channels}")
+        print(f"通道数量: {len(args.selected_channels)}")
+    else:
+        print("使用所有通道")
+    
     setup_seed(args.seed)
     data, label, channels, feature_dim, num_classes = get_data(setting)
     data, label = merge_to_part(data, label, setting)

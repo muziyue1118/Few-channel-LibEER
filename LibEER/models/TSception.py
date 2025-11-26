@@ -41,9 +41,16 @@ class TSception(nn.Module):
         self.pool = 8
         # by setting the convolutional kernel being (1,lenght) and the strids being 1 we can use conv2d to
         # achieve the 1d convolution operation
-        self.Tception1 = self.conv_block(1, num_T, (1, int(self.inception_window[0] * num_datapoints)), 1, self.pool)
-        self.Tception2 = self.conv_block(1, num_T, (1, int(self.inception_window[1] * num_datapoints)), 1, self.pool)
-        self.Tception3 = self.conv_block(1, num_T, (1, int(self.inception_window[2] * num_datapoints)), 1, self.pool)
+        # 确保卷积核宽度至少为1
+        kernel_size1 = max(1, int(self.inception_window[0] * num_datapoints))
+        kernel_size2 = max(1, int(self.inception_window[1] * num_datapoints))
+        kernel_size3 = max(1, int(self.inception_window[2] * num_datapoints))
+        
+        print(f"卷积核尺寸设置: {kernel_size1}, {kernel_size2}, {kernel_size3} (基于num_datapoints={num_datapoints})")
+        
+        self.Tception1 = self.conv_block(1, num_T, (1, kernel_size1), 1, self.pool)
+        self.Tception2 = self.conv_block(1, num_T, (1, kernel_size2), 1, self.pool)
+        self.Tception3 = self.conv_block(1, num_T, (1, kernel_size3), 1, self.pool)
 
         self.Sception1 = self.conv_block(num_T, num_S, (int(num_electrodes), 1), 1, int(self.pool*0.25))
         self.Sception2 = self.conv_block(num_T, num_S, (int(num_electrodes * 0.5), 1), (int(num_electrodes * 0.5), 1),
@@ -61,6 +68,13 @@ class TSception(nn.Module):
         )
 
     def forward(self, x):
+        # 处理可能的5D输入 [N, 1, T, C, 5]
+        if len(x.shape) == 5:
+            # 先squeeze掉维度1和维度4
+            x = x.squeeze(1)  # [N, T, C, 5]
+            x = x.squeeze(-1)  # [N, T, C]
+            # 转置为 [N, C, T]
+            x = x.permute(0, 2, 1)
         x = x.unsqueeze(1)
         y = self.Tception1(x)
         out = y

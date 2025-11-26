@@ -280,6 +280,18 @@
                 "-seed", "2024",
                 "-selected_channels", "0", "1", "2", "3", "4", "5"
             ]
+        },
+        {
+            "name": "TSception: 少通道跨个体实验 (16通道)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/data/mzy/LibEER/LibEER/run_tsception_few_channels.py",
+            "console": "integratedTerminal",
+            "cwd": "/data/mzy/LibEER/LibEER",
+            // "env": {
+            //     "CUDA_VISIBLE_DEVICES": "1"
+            // },
+            "args": []
         }
     ]
 }

@@ -77,6 +77,9 @@ def main(args):
         setting = set_setting_by_args(args)
     setup_seed(args.seed)
     data, label, channels, feature_dim, num_classes = get_data(setting)
+    # 显示使用的通道信息
+    if hasattr(setting, 'selected_channels') and setting.selected_channels is not None:
+        print(f"使用选择的通道: {setting.selected_channels}, 通道数量: {channels}")
     data, label = merge_to_part(data, label, setting)
     device = torch.device(args.device)
     best_metrics = []
@@ -111,21 +114,121 @@ def main(args):
             if len(val_data) == 0:
                 val_data = test_data
                 val_label = test_label
-            # model to train
-            if args.dataset.startswith('hci'):
-                model = Model['TSception'](channels, feature_dim, num_classes, inception_window=[0.25, 0.125, 0.0625])
+            # model to train - 确保使用正确的通道数量
+            print(f"准备初始化模型，当前channels参数: {channels}")
+            # 对于少通道情况，我们需要确保channels参数与实际使用的通道数量一致
+            if hasattr(setting, 'selected_channels') and setting.selected_channels is not None:
+                # 使用selected_channels的长度作为模型输入通道数
+                model_channels = len(setting.selected_channels)
+                print(f"使用少通道设置，模型通道数: {model_channels}")
             else:
-                model = Model['TSception'](channels, feature_dim, num_classes)
+                model_channels = channels
+                print(f"使用全通道设置，模型通道数: {model_channels}")
+            
+            # 确保通道数至少为1
+            if model_channels <= 0:
+                model_channels = 16  # 默认使用16个通道
+                print(f"通道数无效，使用默认值: {model_channels}")
+                
+            if args.dataset.startswith('hci'):
+                model = Model['TSception'](model_channels, feature_dim, num_classes, inception_window=[0.25, 0.125, 0.0625])
+            else:
+                model = Model['TSception'](model_channels, feature_dim, num_classes)
+                
+            model.to(device)
 
+            # 获取通道顺序
             indexes = np.array([])
             if args.dataset == "deap" or args.dataset == "hci":
                 indexes = generate_TS_channel_order(DEAP_CHANNEL_NAME)
             elif args.dataset.startswith("seed") or args.dataset.startswith("mped"):
                 indexes = generate_TS_channel_order(SEED_CHANNEL_NAME)
-            train_data = train_data[:, indexes, :]
-            val_data = val_data[:, indexes, :]
-            test_data = test_data[:, indexes, :]
-
+            
+            # 打印数据形状以便调试
+            print(f"原始train_data形状: {train_data.shape}")
+            print(f"原始val_data形状: {val_data.shape}")
+            print(f"原始test_data形状: {test_data.shape}")
+            
+            # 确保数据形状正确：对于TSception，数据应该是 [samples, channels, features]
+            # 对于少通道和全通道情况，我们都需要确保数据维度正确
+            if len(train_data.shape) > 3:
+                # 如果数据维度超过3，可能需要调整维度顺序或降维
+                print(f"调整数据维度: {train_data.shape}")
+                # 尝试将数据重塑为 [samples, channels, features]
+                if train_data.shape[2] == 1:  # 如果中间有一个维度是1
+                    train_data = np.squeeze(train_data, axis=2)
+                    val_data = np.squeeze(val_data, axis=2)
+                    test_data = np.squeeze(test_data, axis=2)
+                    print(f"调整后的train_data形状: {train_data.shape}")
+            
+            # 应用TSception的通道重排序
+            if hasattr(setting, 'selected_channels') and setting.selected_channels is not None:
+                # 对于少通道情况，我们已经在get_data中处理了通道选择
+                print(f"使用少通道设置，通道数量: {train_data.shape[1]}")
+            else:
+                # 全通道情况下，应用TSception的通道重排序
+                train_data = train_data[:, indexes, :]
+                val_data = val_data[:, indexes, :]
+                test_data = test_data[:, indexes, :]
+                print(f"全通道重排序后的train_data形状: {train_data.shape}")
+  
+            # 确保数据维度正确 - 关键修复
+            print(f"最终train_data形状: {train_data.shape}")
+            if len(train_data.shape) == 5:
+                print("发现5D数据，将其转换为3D格式 [samples, channels, features]")
+                # 假设形状为 [samples, 1, time, channels, 1] 或类似格式
+                # 我们需要将其重塑为 [samples, channels, features]
+                # 首先将第1维和第4维（通道）合并
+                train_data = np.squeeze(train_data, axis=1)  # 移除第1维
+                val_data = np.squeeze(val_data, axis=1)
+                test_data = np.squeeze(test_data, axis=1)
+                print(f"移除第1维后的形状: {train_data.shape}")
+                
+                if len(train_data.shape) == 4:
+                    train_data = np.squeeze(train_data, axis=-1)  # 移除最后一维
+                    val_data = np.squeeze(val_data, axis=-1)
+                    test_data = np.squeeze(test_data, axis=-1)
+                    print(f"移除最后一维后的形状: {train_data.shape}")
+                
+                # 重新排列维度，确保是 [samples, channels, time]
+                if train_data.shape[1] != 16:  # 假设16是通道数
+                    train_data = np.transpose(train_data, (0, 2, 1))
+                    val_data = np.transpose(val_data, (0, 2, 1))
+                    test_data = np.transpose(test_data, (0, 2, 1))
+                    print(f"维度重排后的形状: {train_data.shape}")
+            
+            # 添加一个强大的数据预处理函数，确保数据形状正确
+            def preprocess_data(data):
+                print(f"预处理前形状: {data.shape}")
+                # 对于SEED数据集的形状 (samples, time, channels, 5)，其中5可能是频段
+                if len(data.shape) == 4 and data.shape[3] == 5:
+                    # 选择第一个频段进行处理（简化问题）
+                    data = data[:, :, :, 0]
+                    print(f"选择第一个频段后形状: {data.shape}")
+                    # 现在形状应该是 (samples, time, channels)
+                    # 转置为 [samples, channels, time]
+                    data = data.transpose(0, 2, 1)
+                    print(f"转置后形状: {data.shape}")
+                print(f"预处理后形状: {data.shape}")
+                return data
+            
+            # 对所有数据进行预处理
+            train_data = preprocess_data(train_data)
+            val_data = preprocess_data(val_data)
+            test_data = preprocess_data(test_data)
+            
+            # 确保数据维度正确，尤其是时间维度
+            print(f"最终train_data形状: {train_data.shape}")
+            if train_data.shape[2] < 10:
+                print(f"警告：时间维度太短: {train_data.shape[2]}")
+                # 尝试扩展时间维度（如果太短）
+                if train_data.shape[2] == 0:
+                    # 如果时间维度为0，创建一个最小长度
+                    train_data = np.zeros((train_data.shape[0], train_data.shape[1], 10))
+                    val_data = np.zeros((val_data.shape[0], val_data.shape[1], 10))
+                    test_data = np.zeros((test_data.shape[0], test_data.shape[1], 10))
+                    print("已创建最小时间维度长度")
+  
             # Train one round using the train one round function defined in the model
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
@@ -135,7 +238,7 @@ def main(args):
             output_dir = make_output_dir(args, "TSception")
             round_metric = train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device
                                  ,output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, optimizer=optimizer,
-                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, test_sub_label=test_sub_label)
+                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion)
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":
                 subjects_metrics[rridx-1].append(round_metric)

@@ -12,10 +12,10 @@ from mpl_toolkits.mplot3d import Axes3D
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score, f1_score, cohen_kappa_score
 class feature_extractor(nn.Module):
-    def __init__(self,hidden_1,hidden_2):
+    def __init__(self, input_dim, hidden_1, hidden_2):
          super(feature_extractor,self).__init__()
-         self.fc1=nn.Linear(310,hidden_1)
-         self.fc2=nn.Linear(hidden_1,hidden_2)
+         self.fc1=nn.Linear(input_dim, hidden_1)
+         self.fc2=nn.Linear(hidden_1, hidden_2)
          self.dropout1 = nn.Dropout(p=0.25)
          self.dropout2 = nn.Dropout(p=0.25)
     def forward(self,x):
@@ -71,11 +71,11 @@ class discriminator(nn.Module):
 
 
 class PRRL(nn.Module):
-    def __init__(self, hidden_1=64, hidden_2=64, hidden_3=64, hidden_4=64, low_rank=32, max_iter=1000, upper_threshold=0.9,
+    def __init__(self, input_dim=310, hidden_1=64, hidden_2=64, hidden_3=64, hidden_4=64, low_rank=32, max_iter=1000, upper_threshold=0.9,
                  lower_threshold=0.5, num_of_class=4):
         super(PRRL, self).__init__()
-        self.fea_extrator_f = feature_extractor(hidden_1, hidden_2)
-        self.fea_extrator_g = feature_extractor(hidden_3, hidden_4)
+        self.fea_extrator_f = feature_extractor(input_dim, hidden_1, hidden_2)
+        self.fea_extrator_g = feature_extractor(input_dim, hidden_3, hidden_4)
         self.U = nn.Parameter(torch.randn(low_rank, hidden_2), requires_grad=True)
         self.V = nn.Parameter(torch.randn(low_rank, hidden_4), requires_grad=True)
         print("YYYYYYYYYYYYYYYYYY",num_of_class)

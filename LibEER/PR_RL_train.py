@@ -8,20 +8,14 @@ from data_utils.split import merge_to_part, index_to_data, get_split_index
 from utils.args import get_args_parser
 from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
-from Trainer.PRPLtraining import train_and_test_GAN
+from Trainer.PRRLTraining import train_and_test_GAN
 import torch
-from models.PRRL import PRRL,discriminator, DomainAdversarialLoss
+from models.PRRL import PRRL,discriminator
 import numpy as np
 from torch.optim import RMSprop
 
 
-def feature_wrap(feature_3d):
-    """将 shape 为 [channel, trial, freq] 的 3D 特征转换为 [trial, 310] 的 2D 特征"""
-    n_trials = feature_3d.shape[1]
-    feature_2d = np.zeros((n_trials, 310))
-    for i in range(n_trials):
-        feature_2d[i, :] = feature_3d[:, i, :].reshape(1, 310)
-    return feature_2d
+# feature_wrap函数已移至PRRL.py文件中并进行了优化
 
 def main(args):
     if args.setting is not None:
@@ -66,10 +60,19 @@ def main(args):
                 val_data = test_data
                 val_label = test_label
             train_data, val_data, test_data = normalize(train_data, val_data, test_data, dim='sample', method="minmax")
+            # 计算输入维度：对于展平后的数据，输入维度就是特征维度
+            input_dim = train_data.shape[1]
+            print(f"使用的通道数量: {channels}")
+            print(f"特征维度: {feature_dim}")
+            print(f"模型输入维度: {input_dim}")
+            
+            # 确保数据是二维的
             train_data = train_data.reshape(train_data.shape[0], -1)
             val_data = val_data.reshape(val_data.shape[0], -1)
             test_data = test_data.reshape(test_data.shape[0], -1)
-            model = Model['PRRL'](channels, feature_dim, num_classes)
+            
+            # 创建PRRL模型，传入正确的输入维度
+            model = Model['PRRL'](input_dim=input_dim, num_of_class=num_classes)
             target_set={'feature':test_data,'label':test_label}
             validation_set={'feature':val_data, 'label':val_label}
             source_set={'feature':train_data,'label':train_label}

@@ -37,34 +37,66 @@ class HSLT(nn.Module):
         self.Lr = Lr
         self.num_electrodes = num_electrodes
         self.get_param()
-        # 定义 Brain Region 的数量
-        if num_electrodes == 32:
-            self.brain_regions = [
-                {"name": "Pre-Frontal", "N": 4},
-                {"name": "Frontal", "N": 5},
-                {"name": "Left Temporal", "N": 3},
-                {"name": "Central", "N": 5},
-                {"name": "Right Temporal", "N": 3},
-                {"name": "Left Parietal", "N": 3},
-                {"name": "Parietal", "N": 3},
-                {"name": "Right Parietal", "N": 3},
-                {"name": "Occipital", "N": 3},
-            ]
-            self.regions_electrodes_num = 3
-        elif num_electrodes == 62:
-            self.brain_regions = [
-                {"name": "Pre-Frontal", "N": 5},
-                {"name": "Frontal", "N": 9},
-                {"name": "Left Temporal", "N": 6},
-                {"name": "Central", "N": 7},
-                {"name": "Right Temporal", "N": 6},
-                {"name": "Left Parietal", "N": 8},
-                {"name": "Parietal", "N": 4},
-                {"name": "Right Parietal", "N": 7},
-                {"name": "Occipital", "N": 10},
-            ]
-            self.regions_electrodes_num = 4
-        self.regions_num = 9
+        
+        # 动态计算脑区配置，支持任意数量的电极
+        # 当电极数量少于等于18时，使用简单的脑区划分
+        if num_electrodes <= 18:
+            # 简单脑区划分：平均分配电极到9个脑区
+            base_electrodes_per_region = num_electrodes // 9
+            extra_electrodes = num_electrodes % 9
+            
+            self.brain_regions = []
+            for i in range(9):
+                electrodes_in_region = base_electrodes_per_region + (1 if i < extra_electrodes else 0)
+                self.brain_regions.append({"name": f"Region_{i+1}", "N": electrodes_in_region})
+            
+            self.regions_electrodes_num = max(1, base_electrodes_per_region)
+        else:
+            # 对于较多电极，使用固定的9个脑区结构
+            if num_electrodes == 32:
+                self.brain_regions = [
+                    {"name": "Pre-Frontal", "N": 4},
+                    {"name": "Frontal", "N": 5},
+                    {"name": "Left Temporal", "N": 3},
+                    {"name": "Central", "N": 5},
+                    {"name": "Right Temporal", "N": 3},
+                    {"name": "Left Parietal", "N": 3},
+                    {"name": "Parietal", "N": 3},
+                    {"name": "Right Parietal", "N": 3},
+                    {"name": "Occipital", "N": 3},
+                ]
+                self.regions_electrodes_num = 3
+            elif num_electrodes == 62:
+                self.brain_regions = [
+                    {"name": "Pre-Frontal", "N": 5},
+                    {"name": "Frontal", "N": 9},
+                    {"name": "Left Temporal", "N": 6},
+                    {"name": "Central", "N": 7},
+                    {"name": "Right Temporal", "N": 6},
+                    {"name": "Left Parietal", "N": 8},
+                    {"name": "Parietal", "N": 4},
+                    {"name": "Right Parietal", "N": 7},
+                    {"name": "Occipital", "N": 10},
+                ]
+                self.regions_electrodes_num = 4
+            else:
+                # 对于其他数量的电极，动态调整脑区配置
+                # 计算每个脑区的电极数量
+                total_regions = 9
+                base_electrodes_per_region = num_electrodes // total_regions
+                extra_electrodes = num_electrodes % total_regions
+                
+                self.brain_regions = []
+                region_names = ["Pre-Frontal", "Frontal", "Left Temporal", "Central", "Right Temporal", 
+                              "Left Parietal", "Parietal", "Right Parietal", "Occipital"]
+                
+                for i in range(total_regions):
+                    electrodes_in_region = base_electrodes_per_region + (1 if i < extra_electrodes else 0)
+                    self.brain_regions.append({"name": region_names[i], "N": electrodes_in_region})
+                
+                self.regions_electrodes_num = base_electrodes_per_region
+        
+        self.regions_num = len(self.brain_regions)
         # Electrode-Level Spatial Learning
         self.transformers = nn.ModuleList()
         for region in self.brain_regions:
@@ -95,18 +127,8 @@ class HSLT(nn.Module):
         else:
             self.activation = nn.Softmax(dim=1)
     def transfer(self, data):
-        new_indices = []
-        regions = {}
-        chan_name = []
-        if self.num_electrodes == 32:
-            regions = HSLT_DEAP_Regions
-            chan_name = DEAP_CHANNEL_NAME
-        elif self.num_electrodes == 62:
-            regions = HSLT_SEED_Regions
-            chan_name = SEED_CHANNEL_NAME
-        for key, value in regions.items():
-            new_indices.extend([chan_name.index(ele) for ele in value])
-        data = data[:,new_indices]
+        # 当使用自定义通道选择时，不需要重新排列通道
+        # 直接返回原始数据，因为通道已经在数据加载阶段被选择
         return data
     def forward(self, inputs):
 

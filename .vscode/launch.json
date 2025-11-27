@@ -324,14 +324,14 @@
             ]
         },
         {
-            "name": "GCBNet: 少通道跨个体实验 (5通道)",
+            "name": "FBSTCNet: 少通道跨个体实验 (5通道)",
             "type": "debugpy",
             "request": "launch",
             "program": "/data/mzy/LibEER/LibEER/FBSTCNet_train.py",
             "console": "integratedTerminal",
             "cwd": "/data/mzy/LibEER/LibEER",
             "args": [
-                "-model", "GCBNet",
+                "-model", "FBSTCNet",
                 "-metrics", "acc", "macro-f1",
                 "-metric_choose", "macro-f1",
                 "-setting", "seed_sub_independent_train_val_test_setting",
@@ -344,6 +344,27 @@
                 "-device", "cuda:1",
                 "-experiment_mode", "subject-independent",
                 "-selected_channels", "0", "1", "2", "3", "4"
+            ]
+        },
+        {
+            "name": "GCBNet_BLS: 少通道跨个体实验 (10通道)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/data/mzy/LibEER/LibEER/GCBNet_BLS_train.py",
+            "console": "integratedTerminal",
+            "cwd": "/data/mzy/LibEER/LibEER",
+            "args": [
+                "-metrics", "acc", "macro-f1",
+                "-metric_choose", "macro-f1",
+                "-setting", "seed_sub_independent_train_val_test_setting",
+                "-dataset_path", "/data/mzy/SEED/",
+                "-dataset", "seed_de_lds",
+                "-batch_size", "16",
+                "-epochs", "150",
+                "-lr", "0.001",
+                "-seed", "2024",
+                "-device", "cuda:1",
+                "-selected_channels", "0", "1", "2", "3", "6", "7", "8", "9"
             ]
         }
     ]

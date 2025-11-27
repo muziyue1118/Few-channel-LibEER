@@ -46,8 +46,11 @@ class GCBNet_BLS(nn.Module):
         self.fea_layer = nn.ModuleList()
         self.enh_layer = nn.ModuleList()
 
+        # Calculate the input dimension for feature layers
+        self.feature_input_dim = self.num_electrodes * (self.layers[0] // 8 * 11)
+        
         for i in range(10):
-            self.fea_layer.append(nn.Linear(self.num_electrodes*(self.layers[0]//8*11), 10))
+            self.fea_layer.append(nn.Linear(self.feature_input_dim, 10))
 
         for i in range(10):
             self.enh_layer.append(nn.Linear(10, 10))
@@ -60,8 +63,10 @@ class GCBNet_BLS(nn.Module):
         self.maxpool = nn.MaxPool1d(kernel_size=2, stride=2, padding=0)
         self.conv2 = nn.Conv1d(in_channels=self.layers[0]//2, out_channels=self.layers[0]//4, stride=1, kernel_size=7, padding='same')
 
-        self.fc = nn.Linear(1100, self.num_classes, bias=True)
-        self.original_fc = nn.Linear(self.num_electrodes*(self.layers[0]//8*11), self.num_classes)
+        # Calculate the input dimension for the final FC layer
+        # 10 feature nodes * 10 dimensions + 10 enhancement nodes * 10 dimensions = 200 dimensions
+        self.fc = nn.Linear(200, self.num_classes, bias=True)
+        self.original_fc = nn.Linear(self.feature_input_dim, self.num_classes)
         self.adj = nn.Parameter(torch.Tensor(self.num_electrodes, self.num_electrodes))
         self.adj_bias = nn.Parameter(torch.Tensor(1))
         self.relu = nn.ReLU(inplace=True)
@@ -127,22 +132,45 @@ class GCBNet_BLS(nn.Module):
         x3 = self.relu((self.conv2(x2)))
         x, x2, x3 = x.reshape(bs, -1), x2.reshape(bs, -1), x3.reshape(bs, -1)
         x = torch.cat((x, x2, x3), dim=1)
+        
+        # 动态调整特征层的输入维度
+        if self.feature_input_dim != x.shape[1]:
+            self.feature_input_dim = x.shape[1]
+            # 重新初始化特征层
+            self.fea_layer = nn.ModuleList()
+            for i in range(10):
+                self.fea_layer.append(nn.Linear(self.feature_input_dim, 10).to(x.device))
+            # 重新初始化权重
+            for i in range(10):
+                nn.init.xavier_uniform_(self.fea_layer[i].weight)
+                nn.init.zeros_(self.fea_layer[i].bias)
+            # 重新初始化原始全连接层
+            self.original_fc = nn.Linear(self.feature_input_dim, self.num_classes).to(x.device)
+            nn.init.xavier_uniform_(self.original_fc.weight)
+            nn.init.zeros_(self.original_fc.bias)
+        
         feature_nodes = []
         for i in range(10):
             feature_nodes.append(self.fea_layer[i](x).unsqueeze(1))
         feature_nodes = torch.cat(feature_nodes, dim=1)
         feature_nodes = feature_nodes.to(x.device)
-        # print(feature_nodes.shape)
+        
         enhancement_nodes = []
         for i in range(10):
             enhancement_nodes.append(torch.tanh(self.enh_layer[i](feature_nodes)))
         enhancement_nodes = torch.cat(enhancement_nodes, dim=1)
         enhancement_nodes = enhancement_nodes.to(x.device)
+        
         summary = torch.cat((feature_nodes, enhancement_nodes), dim=1).reshape(bs,-1)
         summary = self.dropout(summary)
+        
+        # 动态调整输出层的输入维度
+        if self.fc.in_features != summary.shape[1]:
+            self.fc = nn.Linear(summary.shape[1], self.num_classes, bias=True).to(x.device)
+            nn.init.xavier_uniform_(self.fc.weight)
+            nn.init.zeros_(self.fc.bias)
+        
         output = self.fc(summary)
-        # x = self.dropout(x)
-        # output = self.original_fc(x)
         return output
 
 def laplacian(w):

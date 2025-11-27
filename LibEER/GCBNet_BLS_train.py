@@ -132,7 +132,7 @@ def main(args):
             output_dir = make_output_dir(args, "GCBNet_BLS")
             round_metric = train(model=model, dataset_train=dataset_train, dataset_test=dataset_test, dataset_val=dataset_val, device=device,
                                  output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, optimizer=optimizer,
-                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, test_sub_label=test_sub_label, loss_func=loss_func, loss_param=model.fc.weight)
+                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, loss_func=loss_func, loss_param=model.fc.weight)
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":
                 subjects_metrics[rridx-1].append(round_metric)

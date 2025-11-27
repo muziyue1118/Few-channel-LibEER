@@ -9,6 +9,7 @@ from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
 from Trainer.training import train
 from models.GCBNet import SparseL2Regularization
+from utils.channel_selector import apply_channel_name_selection
 import torch
 import torch.optim as optim
 import torch.nn as nn
@@ -75,6 +76,9 @@ import torch.nn as nn
 # s5_b16e150lr0.0015
 
 def main(args):
+    # 应用通道名称选择转换
+    apply_channel_name_selection(args)
+    
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
     else:
@@ -124,11 +128,10 @@ def main(args):
             dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.Tensor(test_label))
             optimizer = optim.AdamW(model.parameters(), lr=args.lr, weight_decay=1e-4, eps=1e-4)
             criterion = nn.CrossEntropyLoss()
-            loss_func = SparseL2Regularization(0.001).to(device)
             output_dir = make_output_dir(args, "GCBNet")
             round_metric = train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device
                                  , output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, optimizer=optimizer,
-                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion, test_sub_label=test_sub_label, loss_func=loss_func, loss_param=model.original_fc.weight)
+                                 batch_size=args.batch_size, epochs=args.epochs, criterion=criterion)
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":
                 subjects_metrics[rridx-1].append(round_metric)
@@ -140,7 +143,11 @@ def main(args):
         result_log(args, best_metrics)
 
 if __name__ == '__main__':
-    args = get_args_parser()
-    args = args.parse_args()
+    parser = get_args_parser()
+    # 设置默认设备为cuda:1
+    parser.set_defaults(device='cuda:1')
+    # 设置默认SEED数据集路径
+    parser.set_defaults(dataset_path='/data/mzy/SEED/')
+    args = parser.parse_args()
     # log out train state
     main(args)

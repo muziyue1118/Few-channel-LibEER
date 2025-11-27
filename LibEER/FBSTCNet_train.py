@@ -74,26 +74,26 @@ def main(args):
             
             train_data, val_data, test_data = normalize(train_data, val_data, test_data, dim='sample', method="z-score")
             # model to train
-            if args.model == 'FBSTCNet':
-                filterRange = [(4, 8), (8, 12), (12, 16), (16, 20), (20, 24), (24, 28), (28, 32), (32, 36), (36, 40),
-                               (40, 44), (44, 48), (48, 52)]
+            filterRange = [(4, 8), (8, 12), (12, 16), (16, 20), (20, 24), (24, 28), (28, 32), (32, 36), (36, 40),
+                           (40, 44), (44, 48), (48, 52)]
+            freq = 200
+            if setting.dataset.startswith("seed") or setting.dataset.startswith("mped"):
                 freq = 200
-                if setting.dataset.startswith("seed") or setting.dataset.startswith("mped"):
-                    freq = 200
-                elif setting.dataset.startswith("hci") or setting.dataset.startswith("deap"):
-                    freq = 128
+            elif setting.dataset.startswith("hci") or setting.dataset.startswith("deap"):
+                freq = 128
 
-                model = Model[args.model](channels, num_classes, fs=freq, filterRange=filterRange,
-                                          input_window_samples=feature_dim, same_filters_for_features=False).to(device)
-            elif args.model == 'GCBNet':
-                # GCBNet参数设置
-                in_channels = 5  # 根据GCBNet的实现，in_channels是每个电极的特征维度
-                model = Model[args.model](num_electrodes=channels, in_channels=in_channels, num_classes=num_classes).to(device)
-            else:
-                # 其他模型的默认参数设置
-                model = Model[args.model](channels, num_classes).to(device)
-            # Train one round using the train one round function defined in the model
-            # 不在这里移动到GPU，而是在训练循环中移动
+            # 根据输入窗口大小动态调整池化参数
+            # 确保所有参数都是正数
+            pool_time_length = max(2, min(80, feature_dim // 2))
+            pool_time_stride = max(1, min(5, pool_time_length // 2))
+            final_conv_length = max(2, min(35, feature_dim // 4))
+            final_conv_stride = max(1, min(25, final_conv_length // 2))
+            
+            model = Model[args.model](channels, num_classes, fs=freq, filterRange=filterRange,
+                                      input_window_samples=feature_dim, same_filters_for_features=False,
+                                      pool_time_length=pool_time_length, pool_time_stride=pool_time_stride,
+                                      final_conv_length=final_conv_length, final_conv_stride=final_conv_stride).to(device)
+            
             # 将数据转换为float32类型，目标转换为long类型，与模型期望的类型一致
             dataset_train = torch.utils.data.TensorDataset(torch.tensor(train_data, dtype=torch.float32), torch.tensor(train_label, dtype=torch.long))
             dataset_val = torch.utils.data.TensorDataset(torch.tensor(val_data, dtype=torch.float32), torch.tensor(val_label, dtype=torch.long))
@@ -102,18 +102,10 @@ def main(args):
             weight_decay = 1e-4
             output_dir = make_output_dir(args, args.model)
             
-            if args.model == 'FBSTCNet':
-                # 使用FBSTC特定的训练器
-                round_metric = fbstc_train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device
-                                     ,output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, lr = lr, weight_decay=weight_decay,
-                                     batch_size=args.batch_size, epochs=args.epochs, n_classes=num_classes, test_sub_label=test_sub_label)
-            else:
-                # 使用通用训练器
-                optimizer = optim.AdamW(model.parameters(), lr=lr, weight_decay=weight_decay)
-                criterion = nn.CrossEntropyLoss()
-                round_metric = general_train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device
-                                     ,output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, optimizer=optimizer,
-                                     batch_size=args.batch_size, epochs=args.epochs, criterion=criterion)
+            # 使用FBSTC特定的训练器
+            round_metric = fbstc_train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device
+                                 ,output_dir=output_dir, metrics=args.metrics, metric_choose=args.metric_choose, lr = lr, weight_decay=weight_decay,
+                                 batch_size=args.batch_size, epochs=args.epochs, n_classes=num_classes, test_sub_label=test_sub_label)
             best_metrics.append(round_metric)
             if setting.experiment_mode == "subject-dependent":
                 subjects_metrics[rridx-1].append(round_metric)
@@ -125,7 +117,11 @@ def main(args):
         result_log(args, best_metrics)
 
 if __name__ == '__main__':
-    args = get_args_parser()
-    args = args.parse_args()
+    parser = get_args_parser()
+    # 设置默认设备为cuda:1
+    parser.set_defaults(device='cuda:1')
+    # 设置默认SEED数据集路径
+    parser.set_defaults(dataset_path='/data/mzy/SEED/')
+    args = parser.parse_args()
     # log out train state
     main(args)

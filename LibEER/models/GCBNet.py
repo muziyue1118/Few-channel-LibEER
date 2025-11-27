@@ -49,7 +49,8 @@ class GCBNet(nn.Module):
         self.maxpool = nn.MaxPool1d(kernel_size=2, stride=2, padding=0)
         self.conv2 = nn.Conv1d(in_channels=self.layers[0]//2, out_channels=self.layers[0]//4, stride=1, kernel_size=7, padding='same')
 
-        self.original_fc = nn.Linear(self.num_electrodes*(self.layers[0]//8*11), self.num_classes)
+        # 动态计算全连接层输入维度，将在forward中根据实际特征图大小初始化
+        self.original_fc = None
         self.adj = nn.Parameter(torch.Tensor(self.num_electrodes, self.num_electrodes))
         self.adj_bias = nn.Parameter(torch.Tensor(1))
         self.relu = nn.ReLU(inplace=True)
@@ -109,6 +110,15 @@ class GCBNet(nn.Module):
         x, x2, x3 = x.reshape(bs, -1), x2.reshape(bs, -1), x3.reshape(bs, -1)
         x = torch.cat((x, x2, x3), dim=1)
         x = self.dropout(x)
+        
+        # 动态初始化全连接层
+        if self.original_fc is None:
+            in_features = x.shape[1]
+            self.original_fc = nn.Linear(in_features, self.num_classes).to(x.device)
+            # 初始化全连接层权重
+            nn.init.kaiming_uniform_(self.original_fc.weight, mode='fan_in', nonlinearity='relu')
+            nn.init.zeros_(self.original_fc.bias)
+        
         output = self.original_fc(x)
         return output
 

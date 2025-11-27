@@ -322,6 +322,29 @@
                 "-batch_size", "64",
                 "-lr", "0.001"
             ]
+        },
+        {
+            "name": "GCBNet: 少通道跨个体实验 (5通道)",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "/data/mzy/LibEER/LibEER/FBSTCNet_train.py",
+            "console": "integratedTerminal",
+            "cwd": "/data/mzy/LibEER/LibEER",
+            "args": [
+                "-model", "GCBNet",
+                "-metrics", "acc", "macro-f1",
+                "-metric_choose", "macro-f1",
+                "-setting", "seed_sub_independent_train_val_test_setting",
+                "-dataset", "seed_de_lds",
+                "-dataset_path", "/data/mzy/SEED/",
+                "-batch_size", "16",
+                "-epochs", "40",
+                "-lr", "0.001",
+                "-seed", "2024",
+                "-device", "cuda:1",
+                "-experiment_mode", "subject-independent",
+                "-selected_channels", "0", "1", "2", "3", "4"
+            ]
         }
     ]
 }

@@ -28,7 +28,10 @@ if __name__ == '__main__':
         '-device', 'cuda:3',
         '-selected_channels', '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11'
     ]
-    args = parser.parse_args(test_args)
+    # 解析参数：合并默认参数和命令行参数，命令行参数优先
+    cli_args = sys.argv[1:]
+    merged_args = test_args + cli_args
+    args = parser.parse_args(merged_args)
 
     print("=" * 80)
     print("开始运行少通道跨个体 DBN 实验")

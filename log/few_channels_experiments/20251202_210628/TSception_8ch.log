@@ -1,0 +1,866 @@
+================================================================================
+开始运行少通道跨个体TSception实验
+================================================================================
+实验模式: 跨个体 (subject-independent)
+使用通道: [0, 1, 24, 31, 5, 13, 33, 40]
+通道数量: 8
+数据集: seed_de_lds
+数据集路径: /data/mzy/SEED/
+批次大小: 32
+学习率: 0.001
+训练轮数: 200
+使用设备: cuda:0
+================================================================================
+Using train-val-test SEED subject independent experiment mode,
+The random nine subjects' data are taken as training set, random three subjects' data are taken as validation set, random three subject's data are taken as test set. We choose the best results in validation set,and test it in test set
+Selecting channels: [0, 1, 24, 31, 5, 13, 33, 40]
+Number of channels after selection: 8
+使用选择的通道: [0, 1, 24, 31, 5, 13, 33, 40], 通道数量: 8
+train indexes:[14, 10, 6, 3, 4, 9, 11, 2, 7], val indexes:[13, 12, 1], test indexes:[8, 0, 5]
+准备初始化模型，当前channels参数: 8
+使用少通道设置，模型通道数: 8
+卷积核尺寸设置: 2, 1, 1 (基于num_datapoints=5)
+原始train_data形状: (117, 200, 8, 5)
+原始val_data形状: (39, 200, 8, 5)
+原始test_data形状: (39, 200, 8, 5)
+调整数据维度: (117, 200, 8, 5)
+使用少通道设置，通道数量: 200
+最终train_data形状: (117, 200, 8, 5)
+预处理前形状: (117, 200, 8, 5)
+选择第一个频段后形状: (117, 200, 8)
+转置后形状: (117, 8, 200)
+预处理后形状: (117, 8, 200)
+预处理前形状: (39, 200, 8, 5)
+选择第一个频段后形状: (39, 200, 8)
+转置后形状: (39, 8, 200)
+预处理后形状: (39, 8, 200)
+预处理前形状: (39, 200, 8, 5)
+选择第一个频段后形状: (39, 200, 8)
+转置后形状: (39, 8, 200)
+预处理后形状: (39, 8, 200)
+最终train_data形状: (117, 8, 200)
+Train Epoch 0/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 0/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 0/200: lr:0.001:  25%|██▌       | 1/4 [00:00<00:01,  2.05it/s, loss: 1.07]Train Epoch 0/200: lr:0.001:  25%|██▌       | 1/4 [00:00<00:01,  2.05it/s, loss: 1.14]Train Epoch 0/200: lr:0.001:  25%|██▌       | 1/4 [00:00<00:01,  2.05it/s, loss: 1.10]Train Epoch 0/200: lr:0.001:  25%|██▌       | 1/4 [00:00<00:01,  2.05it/s, loss: 1.13]Train Epoch 0/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00,  6.65it/s, loss: 1.13]
+[32m train state: acc: 0.333   macro-f1: 0.212   loss: 1.1110
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.23it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1177
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestacc
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 1/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 1/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 1/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 1/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 1/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 1/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.54it/s, loss: 1.10]
+[32m train state: acc: 0.342   macro-f1: 0.243   loss: 1.1072
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.83it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1154
+Train Epoch 2/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 2/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 2/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 2/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 2/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.14]Train Epoch 2/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.71it/s, loss: 1.14]
+[32m train state: acc: 0.308   macro-f1: 0.205   loss: 1.1074
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.16it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1133
+Train Epoch 3/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 3/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 3/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 3/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 3/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 3/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 37.67it/s, loss: 1.07]Train Epoch 3/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.75it/s, loss: 1.07]
+[32m train state: acc: 0.342   macro-f1: 0.249   loss: 1.1005
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.00it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1117
+Train Epoch 4/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 4/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.14]Train Epoch 4/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 4/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 4/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 4/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.49it/s, loss: 1.07]
+[32m train state: acc: 0.308   macro-f1: 0.217   loss: 1.1016
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.95it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1112
+Train Epoch 5/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 5/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 5/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 5/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 5/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 5/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.89it/s, loss: 1.12]
+[32m train state: acc: 0.342   macro-f1: 0.258   loss: 1.1028
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.90it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1099
+Train Epoch 6/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 6/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 6/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 6/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.13]Train Epoch 6/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 6/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.80it/s, loss: 1.07]
+[32m train state: acc: 0.359   macro-f1: 0.284   loss: 1.0993
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.39it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1059
+Train Epoch 7/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 7/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 7/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 7/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 7/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 7/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.99it/s, loss: 1.10]
+[32m train state: acc: 0.333   macro-f1: 0.261   loss: 1.0981
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.71it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1081
+Train Epoch 8/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 8/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 8/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 8/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 8/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 8/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.42it/s, loss: 1.09]
+[32m train state: acc: 0.385   macro-f1: 0.303   loss: 1.0916
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.98it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1022
+Train Epoch 9/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 9/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 9/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 9/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 9/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 9/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.55it/s, loss: 1.09]
+[32m train state: acc: 0.376   macro-f1: 0.294   loss: 1.0851
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.61it/s]
+[34m eval state: acc: 0.436   macro-f1: 0.344   loss: 1.0990
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestacc
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 10/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 10/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 10/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 10/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 10/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 10/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.88it/s, loss: 1.04]
+[32m train state: acc: 0.393   macro-f1: 0.323   loss: 1.0831
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.77it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.364   loss: 1.0997
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestacc
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 11/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 11/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 11/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 11/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 11/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 11/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 35.41it/s, loss: 1.06]Train Epoch 11/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.23it/s, loss: 1.06]
+[32m train state: acc: 0.385   macro-f1: 0.303   loss: 1.0798
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.55it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.364   loss: 1.0954
+Train Epoch 12/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 12/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 12/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 12/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 12/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 12/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.48it/s, loss: 1.04]
+[32m train state: acc: 0.419   macro-f1: 0.330   loss: 1.0642
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.06it/s]
+[34m eval state: acc: 0.436   macro-f1: 0.333   loss: 1.0962
+Train Epoch 13/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 13/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 13/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 13/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 13/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 13/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.37it/s, loss: 1.11]
+[32m train state: acc: 0.427   macro-f1: 0.339   loss: 1.0817
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.72it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1220
+Train Epoch 14/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 14/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 14/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 14/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 14/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 14/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.54it/s, loss: 1.06]
+[32m train state: acc: 0.402   macro-f1: 0.317   loss: 1.0730
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.76it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.275   loss: 1.1082
+Train Epoch 15/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 15/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 15/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 15/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 15/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 15/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.01it/s, loss: 1.05]
+[32m train state: acc: 0.359   macro-f1: 0.281   loss: 1.0766
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.21it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.270   loss: 1.0864
+Train Epoch 16/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 16/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 16/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 16/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 16/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 16/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 37.58it/s, loss: 1.12]Train Epoch 16/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 18.69it/s, loss: 1.12]
+[32m train state: acc: 0.436   macro-f1: 0.352   loss: 1.0803
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.53it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1096
+Train Epoch 17/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 17/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 17/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 17/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 17/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 17/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.93it/s, loss: 1.09]
+[32m train state: acc: 0.342   macro-f1: 0.267   loss: 1.0821
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.46it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1207
+Train Epoch 18/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 18/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 18/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 18/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 18/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 18/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.41it/s, loss: 1.08]
+[32m train state: acc: 0.410   macro-f1: 0.307   loss: 1.0844
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.35it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.241   loss: 1.1224
+Train Epoch 19/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 19/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 19/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 19/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 19/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 19/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.83it/s, loss: 1.04]
+[32m train state: acc: 0.444   macro-f1: 0.374   loss: 1.0643
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.59it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1019
+Train Epoch 20/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 20/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 20/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 20/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 20/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 20/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 35.42it/s, loss: 1.09]Train Epoch 20/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.54it/s, loss: 1.09]
+[32m train state: acc: 0.427   macro-f1: 0.351   loss: 1.0701
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.41it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0980
+Train Epoch 21/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 21/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 21/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 21/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 21/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 21/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.53it/s, loss: 0.99]
+[32m train state: acc: 0.462   macro-f1: 0.365   loss: 1.0554
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.77it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0856
+Train Epoch 22/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 22/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 22/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 22/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 22/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 22/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 33.88it/s, loss: 1.01]Train Epoch 22/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 18.79it/s, loss: 1.01]
+[32m train state: acc: 0.444   macro-f1: 0.363   loss: 1.0557
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.14it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0875
+Train Epoch 23/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 23/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 23/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 23/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 23/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 23/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.92it/s, loss: 1.03]
+[32m train state: acc: 0.410   macro-f1: 0.337   loss: 1.0353
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.23it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.275   loss: 1.1028
+Train Epoch 24/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 24/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 24/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 24/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 24/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 24/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.11it/s, loss: 1.03]
+[32m train state: acc: 0.479   macro-f1: 0.402   loss: 1.0460
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.93it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1275
+Train Epoch 25/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 25/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 25/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 25/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 25/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 25/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.73it/s, loss: 0.96]
+[32m train state: acc: 0.419   macro-f1: 0.330   loss: 1.0303
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.87it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.307   loss: 1.0827
+Train Epoch 26/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 26/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 26/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 26/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 26/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 26/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 26.31it/s, loss: 1.02]
+[32m train state: acc: 0.436   macro-f1: 0.344   loss: 1.0076
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.50it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0552
+Train Epoch 27/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 27/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 27/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 27/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 27/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 27/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.50it/s, loss: 1.04]
+[32m train state: acc: 0.444   macro-f1: 0.368   loss: 1.0308
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.38it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1222
+Train Epoch 28/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 28/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 28/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 28/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 28/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 28/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.70it/s, loss: 1.04]
+[32m train state: acc: 0.453   macro-f1: 0.370   loss: 1.0422
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.63it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1303
+Train Epoch 29/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 29/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 29/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 29/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 29/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 29/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.98it/s, loss: 1.06]
+[32m train state: acc: 0.402   macro-f1: 0.311   loss: 1.0451
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.45it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.384   loss: 1.0462
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestacc
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 30/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 30/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 30/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 30/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 30/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 30/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.55it/s, loss: 1.04]
+[32m train state: acc: 0.427   macro-f1: 0.340   loss: 1.0253
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.11it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.2140
+Train Epoch 31/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 31/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 31/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 31/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 31/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 31/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.68it/s, loss: 1.03]
+[32m train state: acc: 0.436   macro-f1: 0.357   loss: 1.0569
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.57it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.241   loss: 1.1252
+Train Epoch 32/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 32/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 32/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 32/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 32/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 32/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.21it/s, loss: 1.10]
+[32m train state: acc: 0.419   macro-f1: 0.330   loss: 1.0409
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.32it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.295   loss: 1.0425
+Train Epoch 33/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 33/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 33/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 33/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 33/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 33/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.45it/s, loss: 1.11]
+[32m train state: acc: 0.462   macro-f1: 0.373   loss: 1.0282
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.72it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0529
+Train Epoch 34/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 34/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 34/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 34/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 34/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 34/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.98it/s, loss: 1.02]
+[32m train state: acc: 0.402   macro-f1: 0.315   loss: 1.0293
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.47it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0726
+Train Epoch 35/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 35/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 35/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 35/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 35/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 35/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.54it/s, loss: 1.01]
+[32m train state: acc: 0.462   macro-f1: 0.376   loss: 1.0124
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.65it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.325   loss: 1.0436
+Train Epoch 36/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 36/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 36/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 36/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 36/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 36/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.19it/s, loss: 0.94]
+[32m train state: acc: 0.496   macro-f1: 0.403   loss: 1.0100
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.88it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0306
+Train Epoch 37/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 37/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 37/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 37/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 37/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 37/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.66it/s, loss: 1.05]
+[32m train state: acc: 0.479   macro-f1: 0.395   loss: 1.0216
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.87it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.241   loss: 1.1032
+Train Epoch 38/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 38/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 38/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 38/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 38/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 38/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.85it/s, loss: 1.04]
+[32m train state: acc: 0.453   macro-f1: 0.374   loss: 1.0452
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.36it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.2132
+Train Epoch 39/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 39/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 39/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 39/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 39/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 39/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.85it/s, loss: 1.07]
+[32m train state: acc: 0.436   macro-f1: 0.332   loss: 1.0608
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.99it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.2586
+Train Epoch 40/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 40/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 40/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 40/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 40/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 40/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 26.27it/s, loss: 1.07]
+[32m train state: acc: 0.436   macro-f1: 0.330   loss: 1.0603
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.08it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1053
+Train Epoch 41/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 41/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 41/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 41/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 41/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 41/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.47it/s, loss: 1.05]
+[32m train state: acc: 0.436   macro-f1: 0.344   loss: 1.0494
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.94it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0947
+Train Epoch 42/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 42/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 42/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 42/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 42/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.13]Train Epoch 42/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.42it/s, loss: 1.13]
+[32m train state: acc: 0.410   macro-f1: 0.299   loss: 1.0765
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.80it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1329
+Train Epoch 43/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 43/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 43/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 43/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 43/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 43/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.64it/s, loss: 1.05]
+[32m train state: acc: 0.368   macro-f1: 0.286   loss: 1.0652
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.81it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.2086
+Train Epoch 44/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 44/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 44/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 44/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 44/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 44/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.83it/s, loss: 1.05]
+[32m train state: acc: 0.359   macro-f1: 0.255   loss: 1.0589
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.29it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1685
+Train Epoch 45/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 45/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 45/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 45/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 45/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 45/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.84it/s, loss: 0.99]
+[32m train state: acc: 0.444   macro-f1: 0.339   loss: 1.0593
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 15.95it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1758
+Train Epoch 46/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 46/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 46/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 46/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 46/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 46/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.89it/s, loss: 1.09]
+[32m train state: acc: 0.444   macro-f1: 0.335   loss: 1.0577
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.48it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1228
+Train Epoch 47/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 47/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 47/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 47/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 47/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 47/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.26it/s, loss: 1.06]
+[32m train state: acc: 0.385   macro-f1: 0.304   loss: 1.0671
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.00it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0926
+Train Epoch 48/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 48/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 48/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 48/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 48/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 48/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.89it/s, loss: 1.12]
+[32m train state: acc: 0.436   macro-f1: 0.358   loss: 1.0661
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.78it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0820
+Train Epoch 49/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 49/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 49/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 49/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 49/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 49/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.13it/s, loss: 1.10]
+[32m train state: acc: 0.436   macro-f1: 0.334   loss: 1.0474
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.86it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0775
+Train Epoch 50/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 50/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 50/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 50/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 50/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 50/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.67it/s, loss: 1.10]
+[32m train state: acc: 0.410   macro-f1: 0.322   loss: 1.0472
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.12it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0806
+Train Epoch 51/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 51/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 51/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 51/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 51/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 51/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.38it/s, loss: 1.09]
+[32m train state: acc: 0.436   macro-f1: 0.380   loss: 1.0458
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.18it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.363   loss: 1.0892
+Train Epoch 52/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 52/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 52/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 52/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 52/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 52/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.49it/s, loss: 1.00]
+[32m train state: acc: 0.419   macro-f1: 0.338   loss: 1.0375
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.18it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1584
+Train Epoch 53/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 53/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 53/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 53/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 53/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.13]Train Epoch 53/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.66it/s, loss: 1.13]
+[32m train state: acc: 0.393   macro-f1: 0.331   loss: 1.0485
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.67it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.2308
+Train Epoch 54/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 54/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 54/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 54/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 54/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.15]Train Epoch 54/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.08it/s, loss: 1.15]
+[32m train state: acc: 0.427   macro-f1: 0.371   loss: 1.0590
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.52it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.2333
+Train Epoch 55/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 55/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 55/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 55/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 55/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 55/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.47it/s, loss: 1.04]
+[32m train state: acc: 0.427   macro-f1: 0.323   loss: 1.0518
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.03it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1776
+Train Epoch 56/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 56/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 56/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 56/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 56/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 56/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.79it/s, loss: 1.05]
+[32m train state: acc: 0.470   macro-f1: 0.387   loss: 1.0253
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.04it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1919
+Train Epoch 57/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 57/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 57/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 57/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 57/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 57/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.92it/s, loss: 1.09]
+[32m train state: acc: 0.427   macro-f1: 0.345   loss: 1.0399
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.33it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.241   loss: 1.1160
+Train Epoch 58/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 58/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 58/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 58/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 58/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 58/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.19it/s, loss: 0.96]
+[32m train state: acc: 0.462   macro-f1: 0.360   loss: 1.0329
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.50it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1680
+Train Epoch 59/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 59/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 59/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 59/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 59/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 59/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.44it/s, loss: 0.93]
+[32m train state: acc: 0.393   macro-f1: 0.342   loss: 1.0209
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.05it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.2352
+Train Epoch 60/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 60/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 60/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 60/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 60/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 60/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.47it/s, loss: 0.93]
+[32m train state: acc: 0.419   macro-f1: 0.368   loss: 1.0179
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.82it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.202   loss: 1.1338
+Train Epoch 61/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 61/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 61/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 61/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 61/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 61/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.18it/s, loss: 1.04]
+[32m train state: acc: 0.470   macro-f1: 0.419   loss: 1.0028
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.71it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.294   loss: 1.0294
+Train Epoch 62/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 62/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 62/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 62/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 62/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 62/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.32it/s, loss: 1.11]
+[32m train state: acc: 0.470   macro-f1: 0.392   loss: 1.0105
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.52it/s]
+[34m eval state: acc: 0.513   macro-f1: 0.404   loss: 1.0249
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestacc
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 63/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 63/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 63/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 63/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 63/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 63/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.15it/s, loss: 1.01]
+[32m train state: acc: 0.470   macro-f1: 0.390   loss: 1.0059
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.17it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.1899
+Train Epoch 64/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 64/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 64/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 64/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 64/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 64/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.58it/s, loss: 1.00]
+[32m train state: acc: 0.487   macro-f1: 0.411   loss: 1.0152
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.22it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.202   loss: 1.1568
+Train Epoch 65/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 65/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 65/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 65/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 65/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 65/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.83it/s, loss: 1.06]
+[32m train state: acc: 0.444   macro-f1: 0.364   loss: 1.0364
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.91it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.256   loss: 1.0499
+Train Epoch 66/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 66/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 66/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 66/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 66/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 66/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.39it/s, loss: 1.06]
+[32m train state: acc: 0.419   macro-f1: 0.354   loss: 1.0349
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.01it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.193   loss: 1.0763
+Train Epoch 67/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 67/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 67/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 67/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 67/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 67/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.96it/s, loss: 1.02]
+[32m train state: acc: 0.462   macro-f1: 0.369   loss: 1.0299
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.12it/s]
+[34m eval state: acc: 0.282   macro-f1: 0.147   loss: 1.3114
+Train Epoch 68/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 68/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 68/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 68/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 68/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 68/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.36it/s, loss: 1.04]
+[32m train state: acc: 0.436   macro-f1: 0.378   loss: 1.0548
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.96it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.202   loss: 3.1451
+Train Epoch 69/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 69/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 69/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 69/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 69/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 69/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.83it/s, loss: 1.08]
+[32m train state: acc: 0.427   macro-f1: 0.328   loss: 1.0481
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.03it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 2.0417
+Train Epoch 70/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 70/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 70/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 70/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 70/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 70/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.21it/s, loss: 1.12]
+[32m train state: acc: 0.427   macro-f1: 0.359   loss: 1.0521
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.27it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.3672
+Train Epoch 71/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 71/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 71/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 71/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 71/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 71/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.87it/s, loss: 0.98]
+[32m train state: acc: 0.427   macro-f1: 0.331   loss: 1.0313
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.40it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1136
+Train Epoch 72/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 72/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 72/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 72/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 72/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 72/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.00it/s, loss: 1.07]
+[32m train state: acc: 0.436   macro-f1: 0.342   loss: 1.0460
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.91it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.277   loss: 1.0810
+Train Epoch 73/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 73/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 73/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 73/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 73/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 73/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.37it/s, loss: 1.01]
+[32m train state: acc: 0.462   macro-f1: 0.420   loss: 1.0434
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.67it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0855
+Train Epoch 74/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 74/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 74/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 74/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 74/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 74/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.73it/s, loss: 1.00]
+[32m train state: acc: 0.453   macro-f1: 0.369   loss: 1.0276
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.86it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.0817
+Train Epoch 75/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 75/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 75/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 75/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 75/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 75/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.37it/s, loss: 0.94]
+[32m train state: acc: 0.427   macro-f1: 0.368   loss: 1.0089
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.12it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0567
+Train Epoch 76/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 76/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 76/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 76/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 76/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 76/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.10it/s, loss: 1.01]
+[32m train state: acc: 0.444   macro-f1: 0.370   loss: 1.0181
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.10it/s]
+[34m eval state: acc: 0.436   macro-f1: 0.333   loss: 1.0672
+Train Epoch 77/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 77/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 77/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 77/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 77/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 77/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.51it/s, loss: 1.00]
+[32m train state: acc: 0.470   macro-f1: 0.400   loss: 1.0037
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.18it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.294   loss: 1.0361
+Train Epoch 78/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 78/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 78/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 78/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 78/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 78/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.42it/s, loss: 1.07]
+[32m train state: acc: 0.479   macro-f1: 0.394   loss: 0.9898
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.32it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.170   loss: 1.1270
+Train Epoch 79/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 79/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 79/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 79/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 79/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 79/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.26it/s, loss: 0.91]
+[32m train state: acc: 0.496   macro-f1: 0.421   loss: 0.9901
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.55it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.183   loss: 1.0967
+Train Epoch 80/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 80/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 80/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 80/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 80/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 80/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.51it/s, loss: 1.07]
+[32m train state: acc: 0.444   macro-f1: 0.392   loss: 1.0419
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.45it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.189   loss: 1.1544
+Train Epoch 81/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 81/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 81/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 81/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 81/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 81/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.03it/s, loss: 1.10]
+[32m train state: acc: 0.444   macro-f1: 0.369   loss: 1.0224
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.48it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.179   loss: 1.0951
+Train Epoch 82/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 82/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 82/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 82/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 82/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 82/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.38it/s, loss: 1.02]
+[32m train state: acc: 0.462   macro-f1: 0.380   loss: 1.0053
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.16it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.269   loss: 1.0701
+Train Epoch 83/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 83/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 83/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 83/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 83/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 83/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.76it/s, loss: 1.00]
+[32m train state: acc: 0.479   macro-f1: 0.424   loss: 1.0133
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.41it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0329
+Train Epoch 84/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 84/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 84/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 84/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 84/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.15]Train Epoch 84/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.31it/s, loss: 1.15]
+[32m train state: acc: 0.444   macro-f1: 0.376   loss: 1.0384
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.22it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.318   loss: 1.0365
+Train Epoch 85/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 85/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 85/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 85/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 85/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 85/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.27it/s, loss: 1.03]
+[32m train state: acc: 0.453   macro-f1: 0.392   loss: 0.9935
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.20it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.385   loss: 1.1124
+Train Epoch 86/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 86/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 86/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 86/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 86/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.14]Train Epoch 86/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 38.77it/s, loss: 1.14]Train Epoch 86/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.96it/s, loss: 1.14]
+[32m train state: acc: 0.530   macro-f1: 0.485   loss: 1.0032
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.65it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.1546
+Train Epoch 87/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 87/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 87/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 87/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 87/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 87/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.73it/s, loss: 0.89]
+[32m train state: acc: 0.436   macro-f1: 0.375   loss: 0.9885
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.90it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.7746
+Train Epoch 88/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 88/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 88/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 88/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 88/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 88/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.16it/s, loss: 1.01]
+[32m train state: acc: 0.470   macro-f1: 0.410   loss: 1.0210
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.49it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.6101
+Train Epoch 89/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 89/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 89/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 89/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 89/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 89/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.79it/s, loss: 1.11]
+[32m train state: acc: 0.521   macro-f1: 0.439   loss: 1.0019
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.89it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.3568
+Train Epoch 90/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 90/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 90/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 90/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 90/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 90/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.57it/s, loss: 1.10]
+[32m train state: acc: 0.496   macro-f1: 0.456   loss: 1.0190
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.81it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.185   loss: 1.3242
+Train Epoch 91/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 91/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 91/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 91/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 91/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 91/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.39it/s, loss: 1.10]
+[32m train state: acc: 0.444   macro-f1: 0.392   loss: 1.0368
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.57it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.189   loss: 1.1187
+Train Epoch 92/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 92/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 92/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 92/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 92/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 92/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.85it/s, loss: 1.00]
+[32m train state: acc: 0.513   macro-f1: 0.484   loss: 1.0074
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.01it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.258   loss: 1.0566
+Train Epoch 93/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 93/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 93/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 93/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 93/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 93/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.20it/s, loss: 0.88]
+[32m train state: acc: 0.470   macro-f1: 0.446   loss: 1.0002
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.91it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0252
+Train Epoch 94/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 94/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 94/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 94/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 94/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 94/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.62it/s, loss: 0.99]
+[32m train state: acc: 0.479   macro-f1: 0.439   loss: 1.0047
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.79it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.363   loss: 1.0150
+Train Epoch 95/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 95/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 95/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 95/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 95/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 95/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.34it/s, loss: 0.96]
+[32m train state: acc: 0.513   macro-f1: 0.471   loss: 0.9990
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.10it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.382   loss: 1.0450
+Train Epoch 96/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 96/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 96/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 96/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 96/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 96/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.38it/s, loss: 0.96]
+[32m train state: acc: 0.496   macro-f1: 0.454   loss: 0.9927
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.13it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.382   loss: 1.0651
+Train Epoch 97/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 97/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 97/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 97/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 97/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 97/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.45it/s, loss: 0.93]
+[32m train state: acc: 0.513   macro-f1: 0.479   loss: 0.9657
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.25it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.382   loss: 1.0664
+Train Epoch 98/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 98/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 98/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 98/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 98/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 98/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.89it/s, loss: 1.00]
+[32m train state: acc: 0.470   macro-f1: 0.427   loss: 1.0003
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.84it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.363   loss: 0.9976
+Train Epoch 99/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 99/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 99/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 99/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 99/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 99/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.61it/s, loss: 1.03]
+[32m train state: acc: 0.462   macro-f1: 0.436   loss: 0.9931
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.47it/s]
+[34m eval state: acc: 0.436   macro-f1: 0.341   loss: 0.9971
+Train Epoch 100/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 100/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 100/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 100/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 100/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 100/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.08it/s, loss: 1.01]
+[32m train state: acc: 0.496   macro-f1: 0.470   loss: 0.9874
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 15.67it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.294   loss: 1.0058
+Train Epoch 101/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 101/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 101/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 101/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 101/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 101/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.89it/s, loss: 0.95]
+[32m train state: acc: 0.436   macro-f1: 0.415   loss: 1.0013
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.84it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.325   loss: 1.0367
+Train Epoch 102/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 102/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 102/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 102/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 102/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 102/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.59it/s, loss: 0.99]
+[32m train state: acc: 0.504   macro-f1: 0.470   loss: 0.9724
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.83it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0736
+Train Epoch 103/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 103/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 103/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 103/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 103/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 103/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.12it/s, loss: 1.03]
+[32m train state: acc: 0.470   macro-f1: 0.449   loss: 0.9953
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.78it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.313   loss: 1.0649
+Train Epoch 104/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 104/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 104/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 104/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 104/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 104/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 38.72it/s, loss: 0.98]Train Epoch 104/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.96it/s, loss: 0.98]
+[32m train state: acc: 0.513   macro-f1: 0.471   loss: 0.9789
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.13it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0946
+Train Epoch 105/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 105/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 105/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 105/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 105/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 105/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 38.58it/s, loss: 1.04]Train Epoch 105/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.01it/s, loss: 1.04]
+[32m train state: acc: 0.504   macro-f1: 0.469   loss: 0.9760
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.07it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.274   loss: 1.1123
+Train Epoch 106/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 106/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 106/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 106/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 106/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 106/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 36.17it/s, loss: 0.99]Train Epoch 106/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.33it/s, loss: 0.99]
+[32m train state: acc: 0.547   macro-f1: 0.513   loss: 0.9575
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.42it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.297   loss: 1.0055
+Train Epoch 107/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 107/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 107/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 107/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 107/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 107/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.70it/s, loss: 1.06]
+[32m train state: acc: 0.513   macro-f1: 0.495   loss: 1.0006
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.75it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.448   loss: 1.0019
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 108/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 108/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 108/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 108/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 108/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 108/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.22it/s, loss: 0.92]
+[32m train state: acc: 0.427   macro-f1: 0.398   loss: 0.9874
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.25it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.316   loss: 1.0020
+Train Epoch 109/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 109/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 109/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 109/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 109/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 109/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.00it/s, loss: 1.06]
+[32m train state: acc: 0.487   macro-f1: 0.467   loss: 0.9975
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.43it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0254
+Train Epoch 110/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 110/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 110/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 110/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 110/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 110/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.81it/s, loss: 1.07]
+[32m train state: acc: 0.496   macro-f1: 0.484   loss: 0.9991
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.75it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.333   loss: 1.0097
+Train Epoch 111/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 111/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 111/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 111/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 111/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 111/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.89it/s, loss: 0.91]
+[32m train state: acc: 0.538   macro-f1: 0.527   loss: 0.9779
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.59it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.215   loss: 1.1373
+Train Epoch 112/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 112/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 112/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 112/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 112/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 112/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.42it/s, loss: 0.94]
+[32m train state: acc: 0.504   macro-f1: 0.499   loss: 0.9929
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.62it/s]
+[34m eval state: acc: 0.256   macro-f1: 0.259   loss: 1.0436
+Train Epoch 113/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 113/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 113/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 113/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 113/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 113/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.40it/s, loss: 0.89]
+[32m train state: acc: 0.462   macro-f1: 0.442   loss: 0.9992
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.10it/s]
+[34m eval state: acc: 0.282   macro-f1: 0.279   loss: 1.0202
+Train Epoch 114/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 114/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 114/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 114/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 114/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 114/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.69it/s, loss: 1.00]
+[32m train state: acc: 0.470   macro-f1: 0.444   loss: 0.9972
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.76it/s]
+[34m eval state: acc: 0.436   macro-f1: 0.427   loss: 1.0198
+Train Epoch 115/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 115/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.85]Train Epoch 115/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 115/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 115/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 115/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.43it/s, loss: 0.89]
+[32m train state: acc: 0.513   macro-f1: 0.491   loss: 0.9540
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.07it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.382   loss: 1.0916
+Train Epoch 116/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 116/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 116/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 116/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 116/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 116/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.27it/s, loss: 0.99]
+[32m train state: acc: 0.427   macro-f1: 0.413   loss: 0.9674
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 15.76it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.307   loss: 1.1151
+Train Epoch 117/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 117/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 117/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 117/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 117/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 117/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.92it/s, loss: 0.98]
+[32m train state: acc: 0.487   macro-f1: 0.476   loss: 0.9905
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.68it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.274   loss: 1.0916
+Train Epoch 118/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 118/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 118/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 118/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 118/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 118/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.16it/s, loss: 0.92]
+[32m train state: acc: 0.462   macro-f1: 0.436   loss: 0.9842
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.18it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.240   loss: 1.0982
+Train Epoch 119/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 119/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 119/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 119/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 119/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 119/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.34it/s, loss: 1.04]
+[32m train state: acc: 0.573   macro-f1: 0.568   loss: 0.9974
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.25it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.163   loss: 1.1905
+Train Epoch 120/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 120/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 120/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 120/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 120/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 120/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.92it/s, loss: 0.99]
+[32m train state: acc: 0.530   macro-f1: 0.524   loss: 0.9993
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.50it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.379   loss: 1.0178
+Train Epoch 121/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 121/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 121/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 121/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 121/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 121/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.48it/s, loss: 0.97]
+[32m train state: acc: 0.462   macro-f1: 0.452   loss: 0.9932
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.17it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.339   loss: 1.0177
+Train Epoch 122/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 122/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 122/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 122/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 122/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 122/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.45it/s, loss: 1.06]
+[32m train state: acc: 0.521   macro-f1: 0.503   loss: 0.9911
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.84it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.293   loss: 1.0206
+Train Epoch 123/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 123/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 123/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 123/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 123/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 123/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.47it/s, loss: 1.02]
+[32m train state: acc: 0.547   macro-f1: 0.529   loss: 0.9816
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.83it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.384   loss: 1.0426
+Train Epoch 124/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 124/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 124/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 124/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 124/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 124/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.47it/s, loss: 0.90]
+[32m train state: acc: 0.547   macro-f1: 0.526   loss: 0.9669
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.97it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.303   loss: 1.1327
+Train Epoch 125/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 125/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 125/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 125/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 125/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 125/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.80it/s, loss: 0.88]
+[32m train state: acc: 0.487   macro-f1: 0.470   loss: 0.9641
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.61it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.241   loss: 1.1599
+Train Epoch 126/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 126/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 126/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 126/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 126/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 126/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.23it/s, loss: 1.03]
+[32m train state: acc: 0.453   macro-f1: 0.427   loss: 0.9810
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.19it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.242   loss: 1.2348
+Train Epoch 127/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 127/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 127/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 127/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 127/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.11]Train Epoch 127/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.27it/s, loss: 1.11]
+[32m train state: acc: 0.504   macro-f1: 0.485   loss: 0.9936
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.88it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.242   loss: 1.2638
+Train Epoch 128/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 128/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 128/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 128/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 128/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 128/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.77it/s, loss: 0.94]
+[32m train state: acc: 0.513   macro-f1: 0.477   loss: 0.9680
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.60it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.242   loss: 1.2798
+Train Epoch 129/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 129/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 129/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 129/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 129/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 129/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.35it/s, loss: 0.98]
+[32m train state: acc: 0.504   macro-f1: 0.472   loss: 0.9589
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.52it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.157   loss: 1.3349
+Train Epoch 130/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 130/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 130/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.10]Train Epoch 130/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 130/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.82]Train Epoch 130/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.94it/s, loss: 0.82]
+[32m train state: acc: 0.573   macro-f1: 0.547   loss: 0.9395
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.89it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.286   loss: 1.0781
+Train Epoch 131/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 131/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 131/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 131/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 131/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 131/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.01it/s, loss: 0.98]
+[32m train state: acc: 0.513   macro-f1: 0.497   loss: 0.9633
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.99it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.218   loss: 1.1721
+Train Epoch 132/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 132/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 132/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 132/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 132/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 132/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 35.41it/s, loss: 1.07]Train Epoch 132/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.93it/s, loss: 1.07]
+[32m train state: acc: 0.479   macro-f1: 0.475   loss: 0.9806
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.39it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.324   loss: 1.1119
+Train Epoch 133/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 133/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 133/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 133/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 133/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 133/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.89it/s, loss: 1.06]
+[32m train state: acc: 0.547   macro-f1: 0.540   loss: 0.9752
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 15.91it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.330   loss: 1.0884
+Train Epoch 134/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 134/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 134/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 134/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 134/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 134/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 37.73it/s, loss: 0.88]Train Epoch 134/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.99it/s, loss: 0.88]
+[32m train state: acc: 0.556   macro-f1: 0.551   loss: 0.9295
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.85it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.355   loss: 1.0942
+Train Epoch 135/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 135/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 135/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 135/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 135/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 135/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.81it/s, loss: 0.90]
+[32m train state: acc: 0.556   macro-f1: 0.556   loss: 0.9394
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.21it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.351   loss: 1.0406
+Train Epoch 136/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 136/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 136/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 136/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 136/200: lr:0.001:  75%|███████▌  | 3/4 [00:00<00:00, 27.71it/s, loss: 1.09]Train Epoch 136/200: lr:0.001:  75%|███████▌  | 3/4 [00:00<00:00, 27.71it/s, loss: 0.93]Train Epoch 136/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 17.95it/s, loss: 0.93]
+[32m train state: acc: 0.564   macro-f1: 0.550   loss: 0.9922
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.78it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.354   loss: 1.0050
+Train Epoch 137/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 137/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 137/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 137/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 137/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 137/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 36.75it/s, loss: 0.89]Train Epoch 137/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.28it/s, loss: 0.89]
+[32m train state: acc: 0.462   macro-f1: 0.437   loss: 0.9741
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.72it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.312   loss: 1.0335
+Train Epoch 138/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 138/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 138/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 138/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 138/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 138/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.48it/s, loss: 0.87]
+[32m train state: acc: 0.496   macro-f1: 0.485   loss: 0.9628
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.36it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.397   loss: 1.1845
+Train Epoch 139/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 139/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 139/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 139/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 139/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 139/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.76it/s, loss: 0.97]
+[32m train state: acc: 0.504   macro-f1: 0.495   loss: 0.9682
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.29it/s]
+[34m eval state: acc: 0.513   macro-f1: 0.439   loss: 1.1102
+Train Epoch 140/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 140/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 140/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 140/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 140/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 140/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 36.15it/s, loss: 0.96]Train Epoch 140/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.39it/s, loss: 0.96]
+[32m train state: acc: 0.513   macro-f1: 0.502   loss: 0.9856
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.14it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.343   loss: 1.0412
+Train Epoch 141/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 141/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 141/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 141/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 141/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 141/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.55it/s, loss: 1.00]
+[32m train state: acc: 0.496   macro-f1: 0.485   loss: 0.9587
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.48it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.298   loss: 1.0523
+Train Epoch 142/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 142/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 142/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 142/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 142/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 142/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.67it/s, loss: 0.95]
+[32m train state: acc: 0.521   macro-f1: 0.504   loss: 0.9478
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.51it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.291   loss: 1.0864
+Train Epoch 143/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 143/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 143/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 143/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 143/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 143/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.45it/s, loss: 0.96]
+[32m train state: acc: 0.513   macro-f1: 0.500   loss: 0.9717
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.54it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.261   loss: 1.0621
+Train Epoch 144/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 144/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 144/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 144/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 144/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 144/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.77it/s, loss: 1.07]
+[32m train state: acc: 0.513   macro-f1: 0.501   loss: 0.9764
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.44it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.261   loss: 1.0567
+Train Epoch 145/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 145/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 145/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 145/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 145/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 145/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.00it/s, loss: 0.96]
+[32m train state: acc: 0.496   macro-f1: 0.474   loss: 0.9416
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.12it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0606
+Train Epoch 146/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 146/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 146/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 146/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 146/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.76]Train Epoch 146/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.90it/s, loss: 0.76]
+[32m train state: acc: 0.538   macro-f1: 0.528   loss: 0.9058
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.17it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.294   loss: 1.0261
+Train Epoch 147/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 147/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 147/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 147/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 147/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.09]Train Epoch 147/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.18it/s, loss: 1.09]
+[32m train state: acc: 0.504   macro-f1: 0.495   loss: 0.9825
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.14it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.360   loss: 1.0344
+Train Epoch 148/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 148/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 148/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 148/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 148/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 148/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.41it/s, loss: 0.93]
+[32m train state: acc: 0.513   macro-f1: 0.502   loss: 0.9482
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.87it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.316   loss: 1.0370
+Train Epoch 149/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 149/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 149/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 149/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.19]Train Epoch 149/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 149/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.61it/s, loss: 0.95]
+[32m train state: acc: 0.521   macro-f1: 0.517   loss: 0.9856
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.53it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.189   loss: 1.5813
+Train Epoch 150/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 150/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 150/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 150/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 150/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 150/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.53it/s, loss: 1.07]
+[32m train state: acc: 0.487   macro-f1: 0.483   loss: 0.9889
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.37it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.246   loss: 1.8148
+Train Epoch 151/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 151/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 151/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 151/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 151/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 151/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.66it/s, loss: 0.87]
+[32m train state: acc: 0.513   macro-f1: 0.503   loss: 0.9259
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.96it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.259   loss: 1.6799
+Train Epoch 152/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 152/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 152/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.80]Train Epoch 152/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 152/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.13]Train Epoch 152/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.52it/s, loss: 1.13]
+[32m train state: acc: 0.487   macro-f1: 0.460   loss: 0.9960
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.14it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.247   loss: 1.4875
+Train Epoch 153/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 153/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 153/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 153/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 153/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 153/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.45it/s, loss: 0.92]
+[32m train state: acc: 0.513   macro-f1: 0.506   loss: 0.9584
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.63it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.276   loss: 1.3152
+Train Epoch 154/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 154/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 154/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 154/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 154/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 154/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.04it/s, loss: 0.96]
+[32m train state: acc: 0.538   macro-f1: 0.529   loss: 0.9632
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.93it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.293   loss: 1.3228
+Train Epoch 155/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 155/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 155/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 155/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 155/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 155/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.44it/s, loss: 0.97]
+[32m train state: acc: 0.547   macro-f1: 0.544   loss: 0.9674
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 18.06it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.333   loss: 1.2009
+Train Epoch 156/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 156/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 156/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 156/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 156/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.13]Train Epoch 156/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.58it/s, loss: 1.13]
+[32m train state: acc: 0.547   macro-f1: 0.535   loss: 0.9737
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.00it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.342   loss: 1.1173
+Train Epoch 157/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 157/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 157/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 157/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 157/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 157/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.26it/s, loss: 0.87]
+[32m train state: acc: 0.564   macro-f1: 0.556   loss: 0.9246
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.97it/s]
+[34m eval state: acc: 0.282   macro-f1: 0.278   loss: 1.0944
+Train Epoch 158/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 158/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 158/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 158/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 158/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 158/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.75it/s, loss: 0.97]
+[32m train state: acc: 0.521   macro-f1: 0.515   loss: 0.9258
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.64it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.400   loss: 1.1192
+Train Epoch 159/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 159/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 159/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 159/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 159/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 159/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.14it/s, loss: 1.02]
+[32m train state: acc: 0.573   macro-f1: 0.564   loss: 0.9597
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.39it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.362   loss: 1.1650
+Train Epoch 160/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 160/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 160/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 160/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 160/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.84]Train Epoch 160/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.48it/s, loss: 0.84]
+[32m train state: acc: 0.556   macro-f1: 0.536   loss: 0.9094
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.76it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.385   loss: 1.2476
+Train Epoch 161/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 161/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 161/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 161/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 161/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 161/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.59it/s, loss: 1.07]
+[32m train state: acc: 0.521   macro-f1: 0.498   loss: 0.9755
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.94it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.365   loss: 1.2217
+Train Epoch 162/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 162/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 162/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.84]Train Epoch 162/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 162/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 162/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.34it/s, loss: 1.12]
+[32m train state: acc: 0.521   macro-f1: 0.509   loss: 0.9519
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.79it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.281   loss: 1.1384
+Train Epoch 163/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 163/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 163/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 163/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 163/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 163/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.50it/s, loss: 0.99]
+[32m train state: acc: 0.538   macro-f1: 0.521   loss: 0.9568
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.63it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.334   loss: 1.1342
+Train Epoch 164/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 164/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 164/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 164/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 164/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 164/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.86it/s, loss: 0.86]
+[32m train state: acc: 0.530   macro-f1: 0.515   loss: 0.9005
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.49it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.295   loss: 1.2033
+Train Epoch 165/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 165/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 165/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 165/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 165/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.83]Train Epoch 165/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.85it/s, loss: 0.83]
+[32m train state: acc: 0.556   macro-f1: 0.541   loss: 0.9168
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.10it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.376   loss: 1.2015
+Train Epoch 166/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 166/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 166/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 166/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.77]Train Epoch 166/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.16]Train Epoch 166/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.82it/s, loss: 1.16]
+[32m train state: acc: 0.521   macro-f1: 0.519   loss: 0.9375
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.00it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.333   loss: 1.1648
+Train Epoch 167/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 167/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.14]Train Epoch 167/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 167/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 167/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.80]Train Epoch 167/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.57it/s, loss: 0.80]
+[32m train state: acc: 0.496   macro-f1: 0.490   loss: 0.9426
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.94it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.274   loss: 1.2119
+Train Epoch 168/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 168/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 168/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 168/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 168/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.80]Train Epoch 168/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.62it/s, loss: 0.80]
+[32m train state: acc: 0.564   macro-f1: 0.555   loss: 0.8922
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.63it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.341   loss: 1.2385
+Train Epoch 169/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 169/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 169/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 169/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 169/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 169/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.70it/s, loss: 1.02]
+[32m train state: acc: 0.556   macro-f1: 0.554   loss: 0.9624
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.00it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.352   loss: 1.3506
+Train Epoch 170/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 170/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 170/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 170/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.82]Train Epoch 170/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 170/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.68it/s, loss: 0.99]
+[32m train state: acc: 0.547   macro-f1: 0.549   loss: 0.9431
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.18it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.320   loss: 1.3555
+Train Epoch 171/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 171/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.79]Train Epoch 171/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 171/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 171/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 171/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.82it/s, loss: 1.03]
+[32m train state: acc: 0.632   macro-f1: 0.631   loss: 0.9356
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.97it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.448   loss: 1.3334
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 172/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 172/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 172/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 172/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.75]Train Epoch 172/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 172/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.41it/s, loss: 1.03]
+[32m train state: acc: 0.547   macro-f1: 0.546   loss: 0.9152
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.23it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.483   loss: 1.3624
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Train Epoch 173/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 173/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 173/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 173/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 173/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.80]Train Epoch 173/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.45it/s, loss: 0.80]
+[32m train state: acc: 0.547   macro-f1: 0.542   loss: 0.9257
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.73it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.387   loss: 1.3622
+Train Epoch 174/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 174/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 174/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 174/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.85]Train Epoch 174/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.84]Train Epoch 174/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 23.49it/s, loss: 0.84]
+[32m train state: acc: 0.530   macro-f1: 0.517   loss: 0.9190
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.61it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.363   loss: 1.4227
+Train Epoch 175/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 175/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 175/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 175/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.83]Train Epoch 175/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 175/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 26.02it/s, loss: 0.95]
+[32m train state: acc: 0.547   macro-f1: 0.542   loss: 0.9118
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.77it/s]
+[34m eval state: acc: 0.462   macro-f1: 0.453   loss: 1.4666
+Train Epoch 176/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 176/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 176/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 176/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 176/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 176/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.35it/s, loss: 0.88]
+[32m train state: acc: 0.538   macro-f1: 0.525   loss: 0.9257
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.02it/s]
+[34m eval state: acc: 0.282   macro-f1: 0.147   loss: 1.9690
+Train Epoch 177/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 177/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 177/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.01]Train Epoch 177/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.84]Train Epoch 177/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 177/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.20it/s, loss: 0.90]
+[32m train state: acc: 0.547   macro-f1: 0.535   loss: 0.9318
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.09it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.296   loss: 1.2077
+Train Epoch 178/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 178/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 178/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 178/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 178/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 178/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 25.09it/s, loss: 1.04]
+[32m train state: acc: 0.530   macro-f1: 0.515   loss: 0.9695
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.54it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.325   loss: 1.0314
+Train Epoch 179/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 179/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 179/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 179/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.82]Train Epoch 179/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.06]Train Epoch 179/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 21.77it/s, loss: 1.06]
+[32m train state: acc: 0.496   macro-f1: 0.485   loss: 0.9531
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.47it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.269   loss: 1.0640
+Train Epoch 180/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 180/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 180/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 180/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 180/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 180/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 33.46it/s, loss: 1.02]Train Epoch 180/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 18.30it/s, loss: 1.02]
+[32m train state: acc: 0.496   macro-f1: 0.481   loss: 0.9815
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.63it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.384   loss: 1.0391
+Train Epoch 181/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 181/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 181/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 181/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 181/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 181/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 36.80it/s, loss: 0.94]Train Epoch 181/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.43it/s, loss: 0.94]
+[32m train state: acc: 0.581   macro-f1: 0.566   loss: 0.9242
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.89it/s]
+[34m eval state: acc: 0.513   macro-f1: 0.406   loss: 1.0712
+Train Epoch 182/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 182/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 182/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 182/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 182/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.13]Train Epoch 182/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 37.15it/s, loss: 1.13]Train Epoch 182/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.54it/s, loss: 1.13]
+[32m train state: acc: 0.487   macro-f1: 0.484   loss: 0.9936
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.11it/s]
+[34m eval state: acc: 0.513   macro-f1: 0.446   loss: 1.0813
+Train Epoch 183/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 183/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.85]Train Epoch 183/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 183/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 183/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.16]Train Epoch 183/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 37.44it/s, loss: 1.16]Train Epoch 183/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.66it/s, loss: 1.16]
+[32m train state: acc: 0.504   macro-f1: 0.502   loss: 0.9937
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.98it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.368   loss: 1.0178
+Train Epoch 184/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 184/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 184/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 184/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 184/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 184/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.82it/s, loss: 0.98]
+[32m train state: acc: 0.556   macro-f1: 0.555   loss: 0.9516
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.06it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.364   loss: 1.0117
+Train Epoch 185/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 185/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 185/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 185/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.97]Train Epoch 185/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 185/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 39.89it/s, loss: 0.93]Train Epoch 185/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.99it/s, loss: 0.93]
+[32m train state: acc: 0.538   macro-f1: 0.528   loss: 0.9707
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.72it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.326   loss: 1.0276
+Train Epoch 186/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 186/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.90]Train Epoch 186/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.05]Train Epoch 186/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 186/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 186/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.76it/s, loss: 0.92]
+[32m train state: acc: 0.530   macro-f1: 0.514   loss: 0.9678
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.66it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.331   loss: 1.0449
+Train Epoch 187/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 187/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 187/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.02]Train Epoch 187/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 187/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 187/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.14it/s, loss: 1.03]
+[32m train state: acc: 0.547   macro-f1: 0.541   loss: 0.9836
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.79it/s]
+[34m eval state: acc: 0.385   macro-f1: 0.299   loss: 1.1656
+Train Epoch 188/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 188/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 188/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 188/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 188/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.99]Train Epoch 188/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 39.04it/s, loss: 0.99]Train Epoch 188/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.18it/s, loss: 0.99]
+[32m train state: acc: 0.581   macro-f1: 0.579   loss: 0.9242
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.14it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.259   loss: 1.2456
+Train Epoch 189/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 189/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 189/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 189/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 189/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 189/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 37.90it/s, loss: 1.00]Train Epoch 189/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.47it/s, loss: 1.00]
+[32m train state: acc: 0.538   macro-f1: 0.533   loss: 0.9610
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.58it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.259   loss: 1.2683
+Train Epoch 190/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 190/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 190/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 190/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 190/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.82]Train Epoch 190/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.98it/s, loss: 0.82]
+[32m train state: acc: 0.564   macro-f1: 0.562   loss: 0.9277
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.54it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.259   loss: 1.2753
+Train Epoch 191/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 191/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.87]Train Epoch 191/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.04]Train Epoch 191/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 191/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.86]Train Epoch 191/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.90it/s, loss: 0.86]
+[32m train state: acc: 0.556   macro-f1: 0.555   loss: 0.9256
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.58it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.259   loss: 1.3185
+Train Epoch 192/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 192/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 192/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 192/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 192/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 192/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.71it/s, loss: 0.92]
+[32m train state: acc: 0.513   macro-f1: 0.507   loss: 0.9465
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.34it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.259   loss: 1.3140
+Train Epoch 193/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 193/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.91]Train Epoch 193/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.95]Train Epoch 193/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 193/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.08]Train Epoch 193/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 22.43it/s, loss: 1.08]
+[32m train state: acc: 0.513   macro-f1: 0.501   loss: 0.9636
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.65it/s]
+[34m eval state: acc: 0.487   macro-f1: 0.416   loss: 1.2041
+Train Epoch 194/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 194/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 194/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 194/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.85]Train Epoch 194/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 194/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 35.70it/s, loss: 0.96]Train Epoch 194/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.02it/s, loss: 0.96]
+[32m train state: acc: 0.564   macro-f1: 0.547   loss: 0.9442
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.82it/s]
+[34m eval state: acc: 0.359   macro-f1: 0.340   loss: 1.1246
+Train Epoch 195/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 195/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.07]Train Epoch 195/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 195/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.88]Train Epoch 195/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.79]Train Epoch 195/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 38.84it/s, loss: 0.79]Train Epoch 195/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.26it/s, loss: 0.79]
+[32m train state: acc: 0.538   macro-f1: 0.528   loss: 0.9218
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.61it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.274   loss: 1.1602
+Train Epoch 196/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 196/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.80]Train Epoch 196/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 196/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.89]Train Epoch 196/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.12]Train Epoch 196/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 38.08it/s, loss: 1.12]Train Epoch 196/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 19.67it/s, loss: 1.12]
+[32m train state: acc: 0.598   macro-f1: 0.588   loss: 0.9322
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.01it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.195   loss: 1.9766
+Train Epoch 197/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 197/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.03]Train Epoch 197/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 197/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.80]Train Epoch 197/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 197/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 35.83it/s, loss: 0.92]Train Epoch 197/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 18.93it/s, loss: 0.92]
+[32m train state: acc: 0.556   macro-f1: 0.548   loss: 0.9211
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.03it/s]
+[34m eval state: acc: 0.308   macro-f1: 0.305   loss: 1.3296
+Train Epoch 198/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 198/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 198/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 198/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.98]Train Epoch 198/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.96]Train Epoch 198/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 39.26it/s, loss: 0.96]Train Epoch 198/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 20.28it/s, loss: 0.96]
+[32m train state: acc: 0.556   macro-f1: 0.547   loss: 0.9500
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.04it/s]
+[34m eval state: acc: 0.333   macro-f1: 0.327   loss: 1.1854
+Train Epoch 199/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s]Train Epoch 199/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.92]Train Epoch 199/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 1.00]Train Epoch 199/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.94]Train Epoch 199/200: lr:0.001:   0%|          | 0/4 [00:00<?, ?it/s, loss: 0.93]Train Epoch 199/200: lr:0.001: 100%|██████████| 4/4 [00:00<00:00, 24.84it/s, loss: 0.93]
+[32m train state: acc: 0.590   macro-f1: 0.581   loss: 0.9471
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 17.31it/s]
+[34m eval state: acc: 0.590   macro-f1: 0.506   loss: 1.1372
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestacc
+save model to result/TSception/seed_sub_independent_train_val_test_setting/checkpoint-bestmacro-f1
+Evaluating :   0%|          | 0/2 [00:00<?, ?it/s]Evaluating : 100%|██████████| 2/2 [00:00<00:00, 16.86it/s]
+[34m eval state: acc: 0.410   macro-f1: 0.399   loss: 1.1832
+best_val_acc: 0.59
+best_test_acc: 0.41
+best_val_macro-f1: 0.51
+best_test_macro-f1: 0.40
+|  Result  |      acc      |   macro-f1    |
+|    1     |    0.4103     |    0.3987     |
+ALLRound Mean and Std of acc : 0.4103/0.0000
+ALLRound Mean and Std of macro-f1 : 0.3987/0.0000

@@ -1,0 +1,23 @@
+================================================================================
+开始运行少通道跨个体 SVM 实验
+================================================================================
+实验模式: 跨个体 (subject-independent)
+使用通道索引: [0, 1, 24, 31]
+通道数量: 4
+数据集: seed_raw
+数据集路径: /data/mzy/SEED/
+随机种子: 2024
+================================================================================
+Using train-val-test SEED subject independent experiment mode,
+The random nine subjects' data are taken as training set, random three subjects' data are taken as validation set, random three subject's data are taken as test set. We choose the best results in validation set,and test it in test set
+使用选定的通道索引: [0, 1, 24, 31]
+通道数量: 4
+Selecting channels: [0, 1, 24, 31]
+Number of channels after selection: 4
+train indexes:[14, 10, 6, 3, 4, 9, 11, 2, 7], val indexes:[13, 12, 1], test indexes:[8, 0, 5]
+best_test_acc: 0.38
+best_test_macro-f1: 0.35
+|  Result  |      acc      |   macro-f1    |
+|    1     |    0.3835     |    0.3503     |
+ALLRound Mean and Std of acc : 0.3835/0.0000
+ALLRound Mean and Std of macro-f1 : 0.3503/0.0000

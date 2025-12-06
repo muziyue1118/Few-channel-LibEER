@@ -19,6 +19,7 @@ from models.BiDANN import BiDANN
 from models.FBSTCNet import PowerAndConneMixedNet
 from models.PRRL import PRRL
 from models.NSAL_DGAT import Domain_adaption_model
+from models.MLP import MLP
 
 Model = {
     'DGCNN': DGCNN,
@@ -41,5 +42,6 @@ Model = {
     "NSAL_DGAT": Domain_adaption_model,
     "PRRL" : PRRL,
     'svm' : SVM,
+    'MLP': MLP,
 
 }

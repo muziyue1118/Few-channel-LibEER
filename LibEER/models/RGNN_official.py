@@ -192,21 +192,32 @@ class SymSimGCNNet(torch.nn.Module):
         x, edge_index = X.x, X.edge_index
         x = x.reshape(-1, x.shape[-1])
         edge_index, data_batch = self.append(edge_index, batch_size)
-        edge_weight = torch.zeros(
-            (self.num_nodes, self.num_nodes), device=edge_index.device)
-        edge_weight[self.xs.to(edge_weight.device), self.ys.to(
-            edge_weight.device)] = self.edge_weight
-        edge_weight = edge_weight + \
-            edge_weight.transpose(1, 0) - torch.diag(edge_weight.diagonal())
-        edge_weight = edge_weight.reshape(-1).repeat(batch_size)
+        
+        # 优化edge_weight处理：使用更高效的方式构建完整的邻接矩阵
+        # 直接在原始的下三角边权重基础上构建完整的对称邻接矩阵
+        edge_weight_full = torch.zeros(
+            (self.num_nodes, self.num_nodes), device=self.edge_weight.device)
+        # 将下三角边权重填充到完整矩阵中
+        edge_weight_full[self.xs, self.ys] = self.edge_weight
+        # 利用已经存储在设备上的xs和ys，避免重复转换设备
+        
+        # 构建对称邻接矩阵，避免不必要的diag计算
+        # 只需要将下三角矩阵与其转置相加，然后减去对角线部分（因为对角线会被计算两次）
+        edge_weight_full = edge_weight_full + edge_weight_full.transpose(1, 0) - torch.diag(edge_weight_full.diagonal())
+        
+        # 优化重复操作：使用expand而不是repeat，避免不必要的数据复制
+        edge_weight = edge_weight_full.reshape(-1).expand(batch_size, -1).reshape(-1)
+        
         # edge_index: (2,self.num_nodes*self.num_nodes*batch_size)  edge_weight: (self.num_nodes*self.num_nodes*batch_size,)
         x = F.relu(self.conv1(x, edge_index, edge_weight))
+        
         # domain classification
         domain_output = None
-        if need_dat == True:
+        if need_dat:
             reverse_x = ReverseLayerF.apply(x, alpha)
             domain_output = self.domain_classifier(reverse_x)
-        if need_pred == True:
+        
+        if need_pred:
             x = global_add_pool(x, data_batch, size=batch_size)
             x = F.dropout(x, p=self.dropout, training=self.training)
             x = self.fc(x)
@@ -215,9 +226,6 @@ class SymSimGCNNet(torch.nn.Module):
         # domain_output.shape->(batch_size*num_nodes,2)
 
         # NO softmax!!!
-        # x=torch.softmax(x,dim=-1)
-        # if domain_output is not None:
-        #     domain_output=torch.softmax(domain_output,dim=-1)
         if domain_output is not None:
             return  x, domain_output
         else:

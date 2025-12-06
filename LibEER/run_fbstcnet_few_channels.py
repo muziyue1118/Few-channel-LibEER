@@ -34,20 +34,14 @@ if __name__ == '__main__':
         '-only_seg'
     ]
     
-    # 解析命令行参数，使用默认参数作为基础
-    args = parser.parse_args()
+    # 解析命令行参数：合并默认参数和命令行参数，命令行参数优先
+    cli_args = sys.argv[1:]
+    merged_args = default_args + cli_args
+    args = parser.parse_args(merged_args)
     
-    # 强制设置所有关键参数，确保正确的值被传递
-    args.dataset_path = '/data/mzy/SEED/'
-    args.data_dir = '/data/mzy/SEED/'
-    args.dataset = 'seed_raw'
-    args.batch_size = 4  # 小批量，避免显存不足
-    args.epochs = 10
-    args.lr = 0.001
-    args.device = 'cuda:3'
-    args.sample_length = 200
-    args.stride = 200
-    args.setting = 'seed_sub_independent_train_val_test_setting'  # 设置跨个体训练模式
+    # 强制设置跨个体训练模式
+    args.setting = 'seed_sub_independent_train_val_test_setting'
+    args.experiment_mode = 'subject-independent'  # 明确设置实验模式为跨个体
     
     # 设置默认通道（如果没有指定）
     if args.selected_channels is None:
@@ -57,7 +51,11 @@ if __name__ == '__main__':
         args.selected_channels = list(map(int, args.selected_channels))
     
     # 确保GPU设备可用
-    os.environ["CUDA_VISIBLE_DEVICES"] = args.device.split(':')[1] if args.device.startswith('cuda:') else args.device
+    # 注意：设置CUDA_VISIBLE_DEVICES后，Python进程只能看到指定GPU，所以使用cuda:0
+    if args.device.startswith('cuda:'):
+        os.environ["CUDA_VISIBLE_DEVICES"] = args.device.split(':')[1]
+        # 重置设备为cuda:0，因为CUDA_VISIBLE_DEVICES会重新映射GPU索引
+        args.device = 'cuda:0'
     
     # 打印实际使用的命令行参数
     print(f"实际使用的通道索引: {args.selected_channels}")

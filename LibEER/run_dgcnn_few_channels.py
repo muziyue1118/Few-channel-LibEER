@@ -32,8 +32,10 @@ if __name__ == '__main__':
                              '8', '9', '10', '11', '12', '13', '14', '15'  # 使用前16个通道
     ]
     
-    # 解析参数
-    args = parser.parse_args(test_args)
+    # 解析参数：合并默认参数和命令行参数，命令行参数优先
+    cli_args = sys.argv[1:]
+    merged_args = test_args + cli_args
+    args = parser.parse_args(merged_args)
     
     print("=" * 80)
     print("开始运行少通道跨个体DGCNN实验")

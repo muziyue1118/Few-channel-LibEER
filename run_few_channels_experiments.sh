@@ -81,6 +81,8 @@ get_free_gpu() {
 CHANNELS_4="FP1 FP2 T7 T8"
 # 8通道配置：FP1 FP2 T7 T8 F7 F8 CP5 CP6
 CHANNELS_8="FP1 FP2 T7 T8 F7 F8 CP5 CP6"
+# 全通道配置：所有62个通道
+CHANNELS_FULL="FP1 FPZ FP2 AF3 AF4 F7 F5 F3 F1 FZ F2 F4 F6 F8 FT7 FC5 FC3 FC1 FCZ FC2 FC4 FC6 FT8 T7 C5 C3 C1 CZ C2 C4 C6 T8 TP7 CP5 CP3 CP1 CPZ CP2 CP4 CP6 TP8 P7 P5 P3 P1 PZ P2 P4 P6 P8 PO7 PO5 PO3 POZ PO4 PO6 PO8 CB1 O1 OZ O2 CB2"
 
 # 定义网络配置
 # 格式：网络名称 训练脚本 批量大小 训练轮数 学习率 GPU设备 数据集 其他参数
@@ -172,16 +174,70 @@ run_experiment() {
     cmd=()
     
     # 将通道名称转换为索引
-    # FP1:0, FP2:1, T7:24, T8:31, F7:5, F8:13, CP5:33, CP6:40
+    # 完整的62通道映射，使用if-else语句避免语法问题
     channel_indices=$(echo "$channels" | tr ' ' '\n' | awk '{
         if ($1 == "FP1") print "0";
-        else if ($1 == "FP2") print "1";
-        else if ($1 == "T7") print "24";
-        else if ($1 == "T8") print "31";
+        else if ($1 == "FPZ") print "1";
+        else if ($1 == "FP2") print "2";
+        else if ($1 == "AF3") print "3";
+        else if ($1 == "AF4") print "4";
         else if ($1 == "F7") print "5";
+        else if ($1 == "F5") print "6";
+        else if ($1 == "F3") print "7";
+        else if ($1 == "F1") print "8";
+        else if ($1 == "FZ") print "9";
+        else if ($1 == "F2") print "10";
+        else if ($1 == "F4") print "11";
+        else if ($1 == "F6") print "12";
         else if ($1 == "F8") print "13";
+        else if ($1 == "FT7") print "14";
+        else if ($1 == "FC5") print "15";
+        else if ($1 == "FC3") print "16";
+        else if ($1 == "FC1") print "17";
+        else if ($1 == "FCZ") print "18";
+        else if ($1 == "FC2") print "19";
+        else if ($1 == "FC4") print "20";
+        else if ($1 == "FC6") print "21";
+        else if ($1 == "FT8") print "22";
+        else if ($1 == "T7") print "23";
+        else if ($1 == "C5") print "24";
+        else if ($1 == "C3") print "25";
+        else if ($1 == "C1") print "26";
+        else if ($1 == "CZ") print "27";
+        else if ($1 == "C2") print "28";
+        else if ($1 == "C4") print "29";
+        else if ($1 == "C6") print "30";
+        else if ($1 == "T8") print "31";
+        else if ($1 == "TP7") print "32";
         else if ($1 == "CP5") print "33";
-        else if ($1 == "CP6") print "40";
+        else if ($1 == "CP3") print "34";
+        else if ($1 == "CP1") print "35";
+        else if ($1 == "CPZ") print "36";
+        else if ($1 == "CP2") print "37";
+        else if ($1 == "CP4") print "38";
+        else if ($1 == "CP6") print "39";
+        else if ($1 == "TP8") print "40";
+        else if ($1 == "P7") print "41";
+        else if ($1 == "P5") print "42";
+        else if ($1 == "P3") print "43";
+        else if ($1 == "P1") print "44";
+        else if ($1 == "PZ") print "45";
+        else if ($1 == "P2") print "46";
+        else if ($1 == "P4") print "47";
+        else if ($1 == "P6") print "48";
+        else if ($1 == "P8") print "49";
+        else if ($1 == "PO7") print "50";
+        else if ($1 == "PO5") print "51";
+        else if ($1 == "PO3") print "52";
+        else if ($1 == "POZ") print "53";
+        else if ($1 == "PO4") print "54";
+        else if ($1 == "PO6") print "55";
+        else if ($1 == "PO8") print "56";
+        else if ($1 == "CB1") print "57";
+        else if ($1 == "O1") print "58";
+        else if ($1 == "OZ") print "59";
+        else if ($1 == "O2") print "60";
+        else if ($1 == "CB2") print "61";
     }' | tr '\n' ' ' | sed 's/ $//')
     
     # 特殊处理某些网络
@@ -241,8 +297,7 @@ run_experiment() {
                 -device cuda:0 \
                 $other_params)
             ;;
-        
-    esac
+        esac
     
     # 构建日志文件路径
     log_file="$LOG_DIR/${network}_${channel_count}ch.log"
@@ -304,16 +359,16 @@ TEST_MODE = false
 
 if [ "$TEST_MODE" = true ]; then
     # 测试单个网络
-    network="RGNN"
+    network="ACRNN"
     echo "\n========================================="
     echo "测试模式：处理网络: $network"
     echo "========================================="
     
-    # 运行4通道配置
-    run_experiment "$network" "$CHANNELS_4" 4
+    # 测试全通道配置
+    run_experiment "$network" "$CHANNELS_FULL" 62
 else
     # 定义固定的网络运行顺序
-NETWORK_ORDER=("ACRNN" "BiDANN" "DBN" "DGCNN" "EEGNet" "FBSTCNet" "R2GSTNN" "RGNN" "TSception" "SVM" "MLP" )
+    NETWORK_ORDER=("ACRNN" "BiDANN" "DBN" "DGCNN" "EEGNet" "FBSTCNet" "R2GSTNN" "RGNN" "TSception" "SVM" "MLP" )
 
 # 主循环：运行所有网络，按照固定顺序
     for network in "${NETWORK_ORDER[@]}"; do
@@ -321,11 +376,14 @@ NETWORK_ORDER=("ACRNN" "BiDANN" "DBN" "DGCNN" "EEGNet" "FBSTCNet" "R2GSTNN" "RGN
         echo "处理网络: $network"
         echo "========================================="
         
-        # 运行4通道配置
-        run_experiment "$network" "$CHANNELS_4" 4
+        # # 运行4通道配置
+        # run_experiment "$network" "$CHANNELS_4" 4
         
-        # 运行8通道配置
-        run_experiment "$network" "$CHANNELS_8" 8
+        # # 运行8通道配置
+        # run_experiment "$network" "$CHANNELS_8" 8
+        
+        # 运行全通道配置
+        run_experiment "$network" "$CHANNELS_FULL" 62
     done
 fi
 

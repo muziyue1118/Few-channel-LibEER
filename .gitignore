@@ -1,4 +1,52 @@
-/result
-/log
+# 模型权重和结果文件
+result/
+LibEER/result/
+*.pth
+*.pt
+*.ckpt
+checkpoint-*
+best_model.*
+best_metrics.*
+
+# 日志文件
+log/
 *.log
+
+# Python 缓存和编译文件
 __pycache__/
+*.pyc
+*.pyo
+.Python
+
+# 虚拟环境
+venv/
+.env/
+.env.local
+.env.production
+
+# IDE 和编辑器
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 临时文件
+*.tmp
+*.temp
+
+# 数据文件
+*.npy
+*.npz
+
+# 构建和编译输出
+dist/
+build/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints/

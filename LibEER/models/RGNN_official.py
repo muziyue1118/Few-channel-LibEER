@@ -137,6 +137,8 @@ class SymSimGCNNet(torch.nn.Module):
             edge_weight = torch.Tensor(SEED_RGNN_ADJACENCY_MATRIX)
         elif num_nodes == 32:
             edge_weight = torch.Tensor(DEAP_RGNN_ADJACENCY_MATRIX)
+        else:
+            edge_weight = torch.ones(self.num_nodes, self.num_nodes)
         self.edge_index = edge_weight.to_sparse()._indices()
         self.edge_weight = nn.Parameter(edge_weight[self.xs, self.ys], requires_grad=learn_edge_weight)
         self.dropout = dropout

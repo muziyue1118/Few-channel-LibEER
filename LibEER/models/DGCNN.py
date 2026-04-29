@@ -2,8 +2,9 @@ import torch
 import torch.nn as nn
 import torch.utils.data
 import yaml
+import os
 
-param_path = 'config/model_param/DGCNN.yaml'
+param_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'model_param', 'DGCNN.yaml')
 
 
 # EEG Emotion Recognition Using Dynamical Graph Convolutional Neural Networks

@@ -1,22 +1,39 @@
 import fnmatch
 import json
 import os
-from symbol import trailer
 
 import scipy.io
 from scipy.io import loadmat
 import numpy as np
 import multiprocessing as mp
 from functools import partial
-import mne
-import xmltodict
 import pickle
-import mat73
 from tqdm import tqdm
 from scipy.signal import decimate
 
 from data_utils.preprocess import preprocess, label_process
 from .preprocess import lds
+
+
+def _first_array(data):
+    if isinstance(data, np.ndarray):
+        return data
+    if isinstance(data, (list, tuple)):
+        for item in data:
+            found = _first_array(item)
+            if found is not None:
+                return found
+    return None
+
+
+def _infer_channels_from_processed(data, fallback):
+    sample = _first_array(data)
+    if sample is None:
+        return fallback
+    sample = np.asarray(sample)
+    if sample.ndim < 2:
+        return fallback
+    return int(sample.shape[-2])
 
 
 def get_data(setting=None):
@@ -34,6 +51,7 @@ def get_data(setting=None):
                                      feature_type=setting.feature_type,
                                      eog_clean=setting.eog_clean)
 
+    channels = _infer_channels_from_processed(all_data, channels)
     all_data, all_label, num_classes = label_process(data=all_data, label=label, bounds=setting.bounds, onehot=setting.onehot, label_used=setting.label_used)
     return all_data, all_label, channels, feature_dim, num_classes
 
@@ -345,6 +363,8 @@ def parallel_read_seedIV_feature(fi, dir_path, label, file):
     return trail_datas
 
 def read_seedV_raw(dir_path):
+    import mne
+
     mne.set_log_level("ERROR")
     dir_path = dir_path + "EEG_raw/"
     eeg_files = [[
@@ -543,6 +563,8 @@ def read_deap_preprocessed(dir_path):
     return data, None, label, 128, 32
 
 def read_deap_raw(dir_path):
+    import mne
+
     # 读取deap原始数据集
     # input file : 32 bdf files contains 32 subjects' eeg data
     # output shape : (session(1), subject, trail, channel, raw_data), (session(1), subject, trail, label)
@@ -640,6 +662,9 @@ def read_dreamer(dir_path, last_seconds = 60, base_seconds = 4):
     return all_stimuli, all_base, all_labels, 128, 14
 
 def read_hci(dir_path):
+    import mne
+    import xmltodict
+
     # 30 subjects, [20, 20, 17, 20, 20, 20, 20, 20, 14, 20, 20, 0, 20, 20, 0, 16, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20, 20]
     # input : 1 dir ( contains 1200 file )
     # output shape (session(1), subject, trail, channel, raw_data)

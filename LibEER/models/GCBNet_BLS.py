@@ -6,13 +6,14 @@ import torch.optim as optim
 from tqdm import tqdm
 import yaml
 import torch.nn.functional as F
+import os
 
 from utils.store import save_state
 from utils.metric import Metric
 
 
 
-param_path = 'config/model_param/GCBNet_BLS.yaml'
+param_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'model_param', 'GCBNet_BLS.yaml')
 
 # GCB-Net: Graph Convolutional Broad Network and Its Application in Emotion Recognition
 # GCB-Net bls paper link : https://ieeexplore.ieee.org/document/8815811
@@ -45,9 +46,10 @@ class GCBNet_BLS(nn.Module):
         self.graphConvs = nn.ModuleList()
         self.fea_layer = nn.ModuleList()
         self.enh_layer = nn.ModuleList()
+        self.broad_feature_dim = self._broad_feature_dim()
 
         for i in range(10):
-            self.fea_layer.append(nn.Linear(self.num_electrodes*(self.layers[0]//8*11), 10))
+            self.fea_layer.append(nn.Linear(self.broad_feature_dim, 10))
 
         for i in range(10):
             self.enh_layer.append(nn.Linear(10, 10))
@@ -61,7 +63,7 @@ class GCBNet_BLS(nn.Module):
         self.conv2 = nn.Conv1d(in_channels=self.layers[0]//2, out_channels=self.layers[0]//4, stride=1, kernel_size=7, padding='same')
 
         self.fc = nn.Linear(1100, self.num_classes, bias=True)
-        self.original_fc = nn.Linear(self.num_electrodes*(self.layers[0]//8*11), self.num_classes)
+        self.original_fc = nn.Linear(self.broad_feature_dim, self.num_classes)
         self.adj = nn.Parameter(torch.Tensor(self.num_electrodes, self.num_electrodes))
         self.adj_bias = nn.Parameter(torch.Tensor(1))
         self.relu = nn.ReLU(inplace=True)
@@ -74,6 +76,14 @@ class GCBNet_BLS(nn.Module):
                 self.b_relus.append(B2ReLU(self.adj.shape[0], self.layers[i]))
         self.dropout = nn.Dropout(p=self.dropout_rate)
         self.init_weight()
+
+    def _broad_feature_dim(self):
+        pooled_electrodes = self.num_electrodes // 2
+        return (
+            self.num_electrodes * self.layers[0]
+            + pooled_electrodes * (self.layers[0] // 2)
+            + pooled_electrodes * (self.layers[0] // 4)
+        )
 
     def get_param(self):
         try:

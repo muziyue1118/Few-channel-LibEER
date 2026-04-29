@@ -1,45 +1,54 @@
-from models.CoralDgcnn import CoralDgcnn
-from models.DGCNN import DGCNN
-from models.DannDgcnn import DannDgcnn
-# from models.RGNN import RGNN
-from models.RGNN_official import SymSimGCNNet
-from models.EEGNet import EEGNet
-from models.STRNN import STRNN
-from models.GCBNet import GCBNet
-from models.DBN import DBN
-from models.TSception import TSception
-from models.SVM import SVM
-from models.CDCN import CDCN
-from models.HSLT import HSLT
-from models.ACRNN import ACRNN
-from models.GCBNet_BLS import GCBNet_BLS
-from models.MsMda import MSMDA
-from models.R2GSTNN import R2GSTNN
-from models.BiDANN import BiDANN
-from models.FBSTCNet import PowerAndConneMixedNet
-from models.PRRL import PRRL
-from models.NSAL_DGAT import Domain_adaption_model
+from importlib import import_module
+from collections.abc import Mapping
 
-Model = {
-    'DGCNN': DGCNN,
-    'CoralDgcnn': CoralDgcnn,
-    'DannDgcnn': DannDgcnn,
-    'R2GSTNN': R2GSTNN,
-    'BiDANN': BiDANN,
-    'RGNN_official': SymSimGCNNet,
-    'GCBNet': GCBNet,
-    'GCBNet_BLS': GCBNet_BLS,
-    'CDCN': CDCN,
-    'DBN': DBN,
-    'STRNN': STRNN,
-    'EEGNet': EEGNet,
-    'HSLT': HSLT,
-    'ACRNN': ACRNN,
-    'TSception': TSception,
-    'MsMda': MSMDA,
-    "FBSTCNet": PowerAndConneMixedNet,
-    "NSAL_DGAT": Domain_adaption_model,
-    "PRRL" : PRRL,
-    'svm' : SVM,
 
+_MODEL_SPECS = {
+    "DGCNN": ("models.DGCNN", "DGCNN"),
+    "CoralDgcnn": ("models.CoralDgcnn", "CoralDgcnn"),
+    "DannDgcnn": ("models.DannDgcnn", "DannDgcnn"),
+    "R2GSTNN": ("models.R2GSTNN", "R2GSTNN"),
+    "BiDANN": ("models.BiDANN", "BiDANN"),
+    "RGNN_official": ("models.RGNN_official", "SymSimGCNNet"),
+    "GCBNet": ("models.GCBNet", "GCBNet"),
+    "GCBNet_BLS": ("models.GCBNet_BLS", "GCBNet_BLS"),
+    "CDCN": ("models.CDCN", "CDCN"),
+    "DBN": ("models.DBN", "DBN"),
+    "STRNN": ("models.STRNN", "STRNN"),
+    "EEGNet": ("models.EEGNet", "EEGNet"),
+    "HSLT": ("models.HSLT", "HSLT"),
+    "ACRNN": ("models.ACRNN", "ACRNN"),
+    "TSception": ("models.TSception", "TSception"),
+    "MsMda": ("models.MsMda", "MSMDA"),
+    "FBSTCNet": ("models.FBSTCNet", "PowerAndConneMixedNet"),
+    "NSAL_DGAT": ("models.NSAL_DGAT", "Domain_adaption_model"),
+    "PRRL": ("models.PRRL", "PRRL"),
+    "svm": ("models.SVM", "SVM"),
 }
+
+
+class LazyModelRegistry(Mapping):
+    def __init__(self, specs):
+        self._specs = dict(specs)
+        self._cache = {}
+
+    def __getitem__(self, name):
+        if name not in self._specs:
+            raise KeyError(name)
+        if name not in self._cache:
+            module_name, attr_name = self._specs[name]
+            module = import_module(module_name)
+            self._cache[name] = getattr(module, attr_name)
+        return self._cache[name]
+
+    def __iter__(self):
+        return iter(self._specs)
+
+    def __len__(self):
+        return len(self._specs)
+
+    def __repr__(self):
+        names = ", ".join(self._specs)
+        return f"{self.__class__.__name__}([{names}])"
+
+
+Model = LazyModelRegistry(_MODEL_SPECS)

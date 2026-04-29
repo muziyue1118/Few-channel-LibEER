@@ -207,6 +207,11 @@ class ACRNN(nn.Module): #  model = Model[args.model](args.sample_length, channel
         self.cnn = CNN(self.H,self.C,self.W,self.kernel_height,self.kernel_width,self.kernel_stride,self.pooling_height,self.pooling_width,self.pooling_stride,self.output_channel)
         self.hidden_dim = 64
         c_width = int((((n_timepoints - self.kernel_width)/self.kernel_stride+1)-self.pooling_width)/self.pooling_stride + 1)
+        if c_width <= 0:
+            min_timepoints = self.kernel_width + self.pooling_width - 1
+            raise ValueError(
+                f"ACRNN requires at least {min_timepoints} time points, got {n_timepoints}."
+            )
         # print("c_width: {}".format(c_width))
         self.lstm = LSTM(self.output_channel * c_width, self.hidden_dim)
         self.hidden = 512

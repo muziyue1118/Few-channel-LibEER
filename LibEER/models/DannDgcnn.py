@@ -49,22 +49,19 @@ class Discriminator(torch.nn.Module):
 
 class DannDgcnn(DGCNN):
     def __init__(self, num_electrodes=62, in_channels=5, num_classes=3, k=2, relu_is=1, layers=None, dropout_rate=0.5, num_sources=14):
-        super(DannDgcnn,self).__init__()
+        super(DannDgcnn,self).__init__(
+            num_electrodes=num_electrodes,
+            in_channels=in_channels,
+            num_classes=num_classes,
+            k=k,
+            relu_is=relu_is,
+            layers=layers,
+            dropout_rate=dropout_rate,
+        )
         self.alpha = 0.1
-        self.dropout_rate = dropout_rate
-        self.layers = layers
-        self.k = k
-        self.in_channels = in_channels
-        self.num_electrodes = num_electrodes
-        self.num_classes = num_classes
-        self.relu_is = relu_is
-        if num_electrodes == 62:
-            self.layers = [64]
-        elif num_electrodes == 32:
-            self.layers = [128]
         self.num_sources = num_sources
         self.discriminator = Discriminator(self.num_electrodes * self.layers[-1], 256, self.num_sources)
-        self.leaky_relus = []
+        self.leaky_relus = torch.nn.ModuleList()
         for _ in range(len(self.layers)):
             self.leaky_relus.append(torch.nn.LeakyReLU())
 

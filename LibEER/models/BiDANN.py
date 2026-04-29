@@ -41,11 +41,17 @@ class BiDANN(nn.Module):
         self.lambda_ = lambda_
         self.length = sample_length
         self.device = device
+        self.hemi_electrodes = (
+            len(LEFT_CHANNEL_NAME)
+            if self.num_electrodes == len(SEED_CHANNEL_NAME)
+            else max(1, (self.num_electrodes + 1) // 2)
+        )
        
         #2 feature extractor， 1 classifier， 2 local discriminators， 1 global discriminator
-        self.l_extractor = BiDANNFeatureExtractor(num_electrodes=self.num_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
-        self.r_extractor = BiDANNFeatureExtractor(num_electrodes=self.num_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
-        self.classifer = BiDANNClassifer(input_size=8*128, hidden_size1=256, hideen_size2=64,num_classes=3)
+        extractor_electrodes = self.hemi_electrodes * 2
+        self.l_extractor = BiDANNFeatureExtractor(num_electrodes=extractor_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
+        self.r_extractor = BiDANNFeatureExtractor(num_electrodes=extractor_electrodes, in_channels=self.in_channels, sample_length=self.length, hidden_size = 128,output_size=8)
+        self.classifer = BiDANNClassifer(input_size=8*128, hidden_size1=256, hideen_size2=64,num_classes=self.num_classes)
         self.r_discriminator = LocalDiscriminator(input_size = 8*128, hidden_size1 = 256, hidden_size2 = 64,domain_classes = self.domain_classes, lambda_=self.lambda_)
         self.l_discriminator = LocalDiscriminator(input_size = 8*128, hidden_size1 = 256, hidden_size2 = 64,domain_classes = self.domain_classes, lambda_=self.lambda_)
         self.global_discriminator = GlobalDiscriminator(input_size = 8*128, hidden_size1 = 256, hidden_size2 = 64,domain_classes = self.domain_classes, lambda_=self.lambda_)
@@ -53,8 +59,12 @@ class BiDANN(nn.Module):
     def forward(self, source_data, target_data):
         # x: (batch_size, sample_length, num_electrodes, in_channels)
         # get left and right features  
-        l_source_data, r_source_data = divide_r_l(source_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
-        l_target_data, r_target_data = divide_r_l(target_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
+        if source_data.shape[2] == len(SEED_CHANNEL_NAME):
+            l_source_data, r_source_data = divide_r_l(source_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
+            l_target_data, r_target_data = divide_r_l(target_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
+        else:
+            l_source_data, r_source_data = divide_current_channels(source_data, self.hemi_electrodes)
+            l_target_data, r_target_data = divide_current_channels(target_data, self.hemi_electrodes)
         l_source_data = l_source_data.to(self.device)
         r_source_data = r_source_data.to(self.device)
         l_target_data = l_target_data.to(self.device)
@@ -99,6 +109,27 @@ def divide_r_l(features,columns,l_columns, r_columns):#batch_size*9*62*5
     right_features = right_features.transpose(1,2)
     right_features = right_features.reshape(features.shape[0], features.shape[1], -1)
     return left_features, right_features #batchh_size*9*155
+
+
+def divide_current_channels(features, hemi_electrodes):
+    left_count = min(hemi_electrodes, features.shape[2])
+    right_count = min(hemi_electrodes, features.shape[2])
+    left = features[:, :, :left_count, :]
+    right = features[:, :, features.shape[2] - right_count:, :]
+    left = _pad_hemi(left, hemi_electrodes)
+    right = _pad_hemi(right, hemi_electrodes)
+    return (
+        left.reshape(features.shape[0], features.shape[1], -1),
+        right.reshape(features.shape[0], features.shape[1], -1),
+    )
+
+
+def _pad_hemi(features, hemi_electrodes):
+    missing = hemi_electrodes - features.shape[2]
+    if missing <= 0:
+        return features
+    pad = features.new_zeros(features.shape[0], features.shape[1], missing, features.shape[3])
+    return torch.cat((features, pad), dim=2)
 
 
 class BiDANNFeatureExtractor(nn.Module):#Input: batch_size*9*155, 

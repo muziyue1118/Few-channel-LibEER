@@ -6,6 +6,7 @@ from utils.args import get_args_parser
 from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
 from Trainer.R2GSTNNTraing import train
+from models.R2GSTNN import DEAP_REGION_INDEX
 
 import torch
 import torch.optim as optim
@@ -21,6 +22,14 @@ REGION_INDEX = [[3,0,1,2,4],[7,8,9,10,11],[5,6],[13,12],[14,15,23,24,32,33],
                 [22,21,31,30,40,39],[16,17,18,19,20],[25,26,27,28,29],
                 [34,35,36,37,38],[41,42],[49,48],[43,44,45,46,47],
                 [50,51,57],[56,55,61],[52,53,54],[58,59,60]]
+
+
+def get_region_index(channels):
+    if channels == 62:
+        return REGION_INDEX
+    if channels == 32:
+        return DEAP_REGION_INDEX
+    return [[i] for i in range(channels)]
 
 
 def main(args):
@@ -52,9 +61,10 @@ def main(args):
                 val_data = test_data
                 val_label = test_label
 
-            model = Model['R2GSTNN'](input_size=feature_dim,  num_classes=num_classes, regions=16, region_index=REGION_INDEX, k=3, t=9,
+            region_index = get_region_index(channels)
+            model = Model['R2GSTNN'](input_size=feature_dim,  num_classes=num_classes, regions=len(region_index), region_index=region_index, k=3, t=9,
                  regional_size=100, global_size = 150,regional_temporal_size=200, global_temporal_size=250,
-                 domain_classes=2, lambda_ = 1,dropout=0.5)
+                 domain_classes=2, lambda_ = 1,dropout=0.5, num_electrodes=channels)
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
             dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.Tensor(test_label))

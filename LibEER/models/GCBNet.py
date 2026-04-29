@@ -6,13 +6,14 @@ import torch.optim as optim
 from tqdm import tqdm
 import yaml
 import torch.nn.functional as F
+import os
 
 from utils.store import save_state
 from utils.metric import Metric
 
 
 
-param_path = 'config/model_param/GCBNet.yaml'
+param_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'model_param', 'GCBNet.yaml')
 
 # GCB-Net: Graph Convolutional Broad Network and Its Application in Emotion Recognition
 # GCB-Net paper link : https://ieeexplore.ieee.org/document/8815811
@@ -49,7 +50,8 @@ class GCBNet(nn.Module):
         self.maxpool = nn.MaxPool1d(kernel_size=2, stride=2, padding=0)
         self.conv2 = nn.Conv1d(in_channels=self.layers[0]//2, out_channels=self.layers[0]//4, stride=1, kernel_size=7, padding='same')
 
-        self.original_fc = nn.Linear(self.num_electrodes*(self.layers[0]//8*11), self.num_classes)
+        self.broad_feature_dim = self._broad_feature_dim()
+        self.original_fc = nn.Linear(self.broad_feature_dim, self.num_classes)
         self.adj = nn.Parameter(torch.Tensor(self.num_electrodes, self.num_electrodes))
         self.adj_bias = nn.Parameter(torch.Tensor(1))
         self.relu = nn.ReLU(inplace=True)
@@ -62,6 +64,14 @@ class GCBNet(nn.Module):
                 self.b_relus.append(B2ReLU(self.adj.shape[0], self.layers[i]))
         self.dropout = nn.Dropout(p=self.dropout_rate)
         self.init_weight()
+
+    def _broad_feature_dim(self):
+        pooled_electrodes = self.num_electrodes // 2
+        return (
+            self.num_electrodes * self.layers[0]
+            + pooled_electrodes * (self.layers[0] // 2)
+            + pooled_electrodes * (self.layers[0] // 4)
+        )
 
     def get_param(self):
         try:

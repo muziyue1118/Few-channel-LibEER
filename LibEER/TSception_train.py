@@ -17,6 +17,15 @@ import torch.nn as nn
 import numpy as np
 
 
+def generate_few_channel_TS_order(num_channels):
+    """Order pairwise few-channel inputs as left hemisphere then right hemisphere."""
+    if num_channels not in (2, 4, 8):
+        return None
+    left = list(range(0, num_channels, 2))
+    right = list(range(1, num_channels, 2))
+    return np.array(left + right)
+
+
 # run this file with
 # deap batch 64 hci batch 32
 
@@ -117,14 +126,17 @@ def main(args):
             else:
                 model = Model['TSception'](channels, feature_dim, num_classes)
 
-            indexes = np.array([])
-            if args.dataset == "deap" or args.dataset == "hci":
+            indexes = None
+            if channels == 32 and (args.dataset == "deap" or args.dataset == "hci"):
                 indexes = generate_TS_channel_order(DEAP_CHANNEL_NAME)
-            elif args.dataset.startswith("seed") or args.dataset.startswith("mped"):
+            elif channels == 62 and (args.dataset.startswith("seed") or args.dataset.startswith("mped")):
                 indexes = generate_TS_channel_order(SEED_CHANNEL_NAME)
-            train_data = train_data[:, indexes, :]
-            val_data = val_data[:, indexes, :]
-            test_data = test_data[:, indexes, :]
+            elif channels in (2, 4, 8):
+                indexes = generate_few_channel_TS_order(channels)
+            if indexes is not None:
+                train_data = train_data[:, indexes, :]
+                val_data = val_data[:, indexes, :]
+                test_data = test_data[:, indexes, :]
 
             # Train one round using the train one round function defined in the model
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))

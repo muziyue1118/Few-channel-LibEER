@@ -98,7 +98,8 @@ class DBN(nn.Module):
         print("Starting......")
 
     def forward(self,v):
-        #v=v.view(v.shape[0],-1).type(torch.FloatTensor)
+        if v.dim() > 2:
+            v = v.reshape(v.shape[0], -1)
         h1_prob,h1=self.rbm1(v)
         h2_prob,h2=self.rbm2(h1)
         output=self.fc(h2)

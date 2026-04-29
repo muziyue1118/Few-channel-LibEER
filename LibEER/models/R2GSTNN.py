@@ -25,10 +25,13 @@ DEAP_REGION_INDEX = [
 class R2GSTNN(nn.Module):
     def __init__(self, input_size=5,  num_classes=3, regions=16, region_index=SEED_REGION_INDEX, k=3, t=9,
                  regional_size=100, global_size = 150,regional_temporal_size=200, global_temporal_size=250,
-                 domain_classes=2, lambda_ = 1,dropout=0.5):
+                 domain_classes=2, lambda_ = 1,dropout=0.5, num_electrodes=None):
         super(R2GSTNN, self).__init__()
         self.input_size = input_size
         self.num_classes = num_classes
+        if num_electrodes is not None and _region_index_exceeds(region_index, num_electrodes):
+            region_index = [[i] for i in range(num_electrodes)]
+            regions = len(region_index)
         self.regions = regions
         self.region_index = region_index
         self.k = k
@@ -68,6 +71,15 @@ class R2GSTNN(nn.Module):
         domain_prediction = self.discriminator(source_temporal_feature, target_temporal_feature)
 
         return source_label_prediction, domain_prediction
+
+
+def _region_index_exceeds(region_index, num_electrodes):
+    if not region_index:
+        return True
+    non_empty_regions = [region for region in region_index if region]
+    if not non_empty_regions:
+        return True
+    return max(max(region) for region in non_empty_regions) >= num_electrodes
 
 
 class RegionFeatureLearner(nn.Module):#input: (batch_size*T, num_electrodes, d)

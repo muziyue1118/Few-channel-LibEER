@@ -38,6 +38,14 @@ class TSception(nn.Module):
             self.inception_window = inception_window
         else:
             self.inception_window = [0.5, 0.25, 0.125]
+        if num_electrodes < 2:
+            raise ValueError(
+                f"TSception requires at least 2 electrodes after channel ordering, got {num_electrodes}."
+            )
+        if int(min(self.inception_window) * num_datapoints) < 1:
+            raise ValueError(
+                f"TSception temporal kernels are empty for {num_datapoints} time points."
+            )
         self.pool = 8
         # by setting the convolutional kernel being (1,lenght) and the strids being 1 we can use conv2d to
         # achieve the 1d convolution operation

@@ -14,13 +14,22 @@ import torch.nn.functional as F
 from torch.nn import MultiheadAttention, Linear, LayerNorm, Dropout
 
 import pickle
+import os
 from torch.optim.lr_scheduler import CosineAnnealingLR
 from torch.utils.data import DataLoader, TensorDataset
 
 from data_utils.constants.deap import HSLT_DEAP_Regions, DEAP_CHANNEL_NAME
 from data_utils.constants.seed import HSLT_SEED_Regions, SEED_CHANNEL_NAME
 
-param_path = 'config/model_param/HSLT.yaml'
+param_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'model_param', 'HSLT.yaml')
+
+
+def _balanced_region_sizes(num_electrodes, max_regions=9):
+    regions_num = max(1, min(max_regions, num_electrodes))
+    base = num_electrodes // regions_num
+    extra = num_electrodes % regions_num
+    return [base + (1 if i < extra else 0) for i in range(regions_num)]
+
 
 # Transformers for EEG-Based Emotion Recognition: A Hierarchical Spatial Information Learning Model
 # HSLT paper link : https://www.researchgate.net/publication/357923204_Transformers_for_EEG-based_emotion_recognition_A_hierarchical_spatial_information_learning_model
@@ -64,7 +73,14 @@ class HSLT(nn.Module):
                 {"name": "Occipital", "N": 10},
             ]
             self.regions_electrodes_num = 4
-        self.regions_num = 9
+        else:
+            region_sizes = _balanced_region_sizes(num_electrodes)
+            self.brain_regions = [
+                {"name": f"Region-{idx + 1}", "N": size}
+                for idx, size in enumerate(region_sizes)
+            ]
+            self.regions_electrodes_num = max(region_sizes)
+        self.regions_num = len(self.brain_regions)
         # Electrode-Level Spatial Learning
         self.transformers = nn.ModuleList()
         for region in self.brain_regions:
@@ -104,6 +120,8 @@ class HSLT(nn.Module):
         elif self.num_electrodes == 62:
             regions = HSLT_SEED_Regions
             chan_name = SEED_CHANNEL_NAME
+        else:
+            return data
         for key, value in regions.items():
             new_indices.extend([chan_name.index(ele) for ele in value])
         data = data[:,new_indices]

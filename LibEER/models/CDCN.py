@@ -9,11 +9,12 @@ from torch.optim.lr_scheduler import StepLR, CosineAnnealingLR
 
 from tqdm import tqdm
 import yaml
+import os
 
 from utils.store import save_state
 from utils.metric import Metric
 
-param_path = '../config/model_param/CDCN.yaml'
+param_path = os.path.join(os.path.dirname(__file__), '..', 'config', 'model_param', 'CDCN.yaml')
 
 
 # A Channel-Fused Dense Convolutional Network for EEG-Based Emotion Recognition

@@ -13,10 +13,11 @@ class ChannelAttention(nn.Module):
         super().__init__()
         self.maxpool = nn.AdaptiveMaxPool2d(1)
         self.avgpool = nn.AdaptiveAvgPool2d(1)
+        hidden = max(1, channel // reduction)
         self.se = nn.Sequential(
-            nn.Conv2d(channel, channel // reduction, 1, bias=False),
+            nn.Conv2d(channel, hidden, 1, bias=False),
             nn.ReLU(),
-            nn.Conv2d(channel // reduction, channel, 1, bias=False)
+            nn.Conv2d(hidden, channel, 1, bias=False)
         )
         self.sigmoid = nn.Sigmoid()
 
@@ -80,9 +81,10 @@ class CBAMBlock(nn.Module):
 class GATENet(nn.Module):
     def __init__(self, inc, reduction_ratio=128):
         super(GATENet, self).__init__()
-        self.fc = nn.Sequential(nn.Linear(inc, inc // reduction_ratio, bias=False),
+        hidden = max(1, inc // reduction_ratio)
+        self.fc = nn.Sequential(nn.Linear(inc, hidden, bias=False),
                                 nn.ELU(inplace=False),
-                                nn.Linear(inc // reduction_ratio, inc, bias=False),
+                                nn.Linear(hidden, inc, bias=False),
                                 nn.Tanh(),
                                 nn.ReLU(inplace=False))
 
@@ -92,13 +94,16 @@ class GATENet(nn.Module):
 
 
 class resGCN(nn.Module):
-    def __init__(self, inc, outc, band_num):
+    def __init__(self, inc, outc, band_num, chan_num):
         super(resGCN, self).__init__()
+        kernel_width = 3 if chan_num >= 3 else chan_num
+        conv1_padding = (0, 0) if chan_num >= 3 else "same"
+        conv2_padding = (0, 1) if chan_num >= 3 else (0, 0)
         self.GConv1 = nn.Conv2d(in_channels=inc,
                                 out_channels=outc,
-                                kernel_size=(1, 3),
+                                kernel_size=(1, kernel_width),
                                 stride=(1, 1),
-                                padding=(0, 0),
+                                padding=conv1_padding,
                                 groups=band_num,
                                 bias=False)
         self.bn1 = nn.BatchNorm2d(outc)
@@ -106,7 +111,7 @@ class resGCN(nn.Module):
                                 out_channels=outc,
                                 kernel_size=(1, 1),
                                 stride=(1, 1),
-                                padding=(0, 1),
+                                padding=conv2_padding,
                                 groups=band_num,
                                 bias=False)
         self.bn2 = nn.BatchNorm2d(outc)
@@ -134,7 +139,7 @@ class HGCN(nn.Module):
         self.chan_num = chan_num
         self.dim = dim
         self.resGCN = resGCN(inc=dim * band_num,
-                             outc=dim * band_num, band_num=band_num)
+                             outc=dim * band_num, band_num=band_num, chan_num=chan_num)
         self.ELU = nn.ELU(inplace=False)
         self.initialize()
 
@@ -151,7 +156,8 @@ class HGCN(nn.Module):
                         nn.init.xavier_uniform_(j.weight, gain=1)
 
     def forward(self, x, A_ds):
-        L = torch.einsum('ik,kp->ip', (A_ds, torch.diag(torch.reciprocal(sum(A_ds)))))
+        degree = torch.sum(A_ds, dim=0).clamp_min(1e-6)
+        L = torch.einsum('ik,kp->ip', (A_ds, torch.diag(torch.reciprocal(degree))))
         G = self.resGCN(x, x, L).contiguous()
         return G
 
@@ -209,7 +215,7 @@ class Encoder(nn.Module):
         self.dropout2 = nn.Dropout(p=0.25)
 
     def forward(self, x):
-        x = x.reshape(x.size(0), 5, 62)
+        x = x.reshape(x.size(0), self.band_num, self.chan_num)
         x = x.unsqueeze(2)
         g_feat, g_adj = self.GGCN(x)
         g_feat, ca, sa = self.CBAM(g_feat)
@@ -284,13 +290,14 @@ class Domain_adaption_model(nn.Module):
 
         output_f_ = torch.nn.functional.normalize(feature_target_f).cpu().detach().clone()
         distance = output_f_ @ self.source_f_bank.T
-        _, idx_near = torch.topk(distance, dim=-1, largest=True, k=7)
-        score_near = self.source_score_bank[idx_near]  # batch x K x num_class
+        k = min(7, self.source_f_bank.shape[0])
+        _, idx_near = torch.topk(distance, dim=-1, largest=True, k=k)
+        score_near = self.source_score_bank[idx_near.to(self.source_score_bank.device)]  # batch x K x num_class
         score_near_weight = self.get_weight(score_near)
         score_near_sum_weight = torch.einsum('ijk,ij->ik', score_near, score_near_weight)
         # score_near_sum_weight = torch.mean(score_near, dim=1)  # batch x num_class
         target_predict = torch.nn.functional.softmax(score_near_sum_weight, dim=1)
-        return target_predict
+        return target_predict.to(feature_target_f.device)
 
     def get_init_banks(self, source, source_index):
         self.eval()

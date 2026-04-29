@@ -23,6 +23,10 @@ param_path = 'config/model_param/EEGNet.yaml'
 class EEGNet(nn.Module):
     def __init__(self, num_electrodes=62, datapoints=128, num_classes=3, F1=8, D=2, dropout=0.5):
         super().__init__()
+        if datapoints < 32:
+            raise ValueError(
+                f"EEGNet requires at least 32 time points, got {datapoints}."
+            )
         self.F1 = F1
         self.D = D
         self.dropout = dropout

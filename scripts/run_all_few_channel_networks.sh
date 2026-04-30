@@ -93,6 +93,9 @@ model_arg_for_network() {
     RGNN_official) echo "RGNN_official" ;;
     PRRL) echo "PRRL" ;;
     MsMda) echo "MsMda" ;;
+    NSAL_DGAT) echo "NSAL_DGAT" ;;
+    FBSTCNet) echo "FBSTCNet" ;;
+    CoralDgcnn) echo "CoralDgcnn" ;;
     svm) echo "svm" ;;
     *) echo "$1" ;;
   esac

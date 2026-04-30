@@ -2,16 +2,44 @@
 set -u
 
 # Master launcher for:
-#   SEED / SEEDV / FACED x 2ch / 4ch / 8ch x networks x seeds x multi-GPU queue
+#   SEED / SEEDIV / SEEDV / FACED x 2ch / 4ch / 8ch x networks x seeds x multi-GPU queue
 #
 # This script schedules one atomic job per dataset/channel/network/seed.  Each
 # atomic job calls scripts/run_all_few_channel_networks.sh with a single
 # DATASET, CHANNELS, NETWORKS, SEEDS, and GPU value.
 #
+# Example usage:
+#   cd /data/mzy/LibEER
+#
+#   export GPUS="0 1 2 3"
+#   export MAX_JOBS_PER_GPU=1
+#   export SEEDS="2024"
+#   export EPOCHS=80
+#   export BATCH_SIZE=32
+#   export LR=0.001
+#
+#   export SEED_PATH_2CH=/data/mzy/SEED/ExtractedFeatures/ext_fea/fea_r512/2ch
+#   export SEED_PATH_4CH=/data/mzy/SEED/ExtractedFeatures/ext_fea/fea_r512/4ch
+#   export SEED_PATH_8CH=/data/mzy/SEED/ExtractedFeatures/ext_fea/fea_r512/8ch
+#   export SEEDIV_PATH_2CH=/data/mzy/EEG_EMOTION_DATA/SEED-IV/SEED_IV/eeg_feature_smooth/2ch
+#   export SEEDIV_PATH_4CH=/data/mzy/EEG_EMOTION_DATA/SEED-IV/SEED_IV/eeg_feature_smooth/4ch
+#   export SEEDIV_PATH_8CH=/data/mzy/EEG_EMOTION_DATA/SEED-IV/SEED_IV/eeg_feature_smooth/8ch
+#   export SEEDV_PATH_2CH=/data/mzy/EEG_EMOTION_DATA/SEED-V/EEG_DE_features/2ch
+#   export SEEDV_PATH_4CH=/data/mzy/EEG_EMOTION_DATA/SEED-V/EEG_DE_features/4ch
+#   export SEEDV_PATH_8CH=/data/mzy/EEG_EMOTION_DATA/SEED-V/EEG_DE_features/8ch
+#   export FACED_PATH_2CH=/data/mzy/DDSI/EEG_emotion_data/FACED/EEG_Features/2ch
+#   export FACED_PATH_4CH=/data/mzy/DDSI/EEG_emotion_data/FACED/EEG_Features/4ch
+#   export FACED_PATH_8CH=/data/mzy/DDSI/EEG_emotion_data/FACED/EEG_Features/8ch
+#
+#   bash scripts/run_all_datasets_few_channel_networks.sh
+#
 # Required dataset path variables. Set the ones for datasets/channels you run:
 #   SEED_PATH_2CH=/path/to/seed_2ch
 #   SEED_PATH_4CH=/path/to/seed_4ch
 #   SEED_PATH_8CH=/path/to/seed_8ch
+#   SEEDIV_PATH_2CH=/path/to/seediv_2ch
+#   SEEDIV_PATH_4CH=/path/to/seediv_4ch
+#   SEEDIV_PATH_8CH=/path/to/seediv_8ch
 #   SEEDV_PATH_2CH=/path/to/seedv_2ch
 #   SEEDV_PATH_4CH=/path/to/seedv_4ch
 #   SEEDV_PATH_8CH=/path/to/seedv_8ch
@@ -20,7 +48,7 @@ set -u
 #   FACED_PATH_8CH=/path/to/faced_8ch
 #
 # Common controls:
-#   DATASETS="SEED SEEDV FACED"
+#   DATASETS="SEED SEEDIV SEEDV FACED"
 #   CHANNELS="2ch 4ch 8ch"
 #   GPUS="0 1 2 3"
 #   MAX_JOBS_PER_GPU=1
@@ -36,7 +64,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
 WORKER_SCRIPT="$SCRIPT_DIR/run_all_few_channel_networks.sh"
 
-DATASETS="${DATASETS:-SEED SEEDV FACED}"
+DATASETS="${DATASETS:-SEED SEEDIV SEEDV FACED}"
 CHANNELS="${CHANNELS:-2ch 4ch 8ch}"
 GPUS="${GPUS:-0}"
 MAX_JOBS_PER_GPU="${MAX_JOBS_PER_GPU:-1}"
@@ -88,10 +116,11 @@ fi
 dataset_name_for_key() {
   case "$1" in
     SEED) printf "%s" "${SEED_DATASET:-seed_de_lds}" ;;
+    SEEDIV) printf "%s" "${SEEDIV_DATASET:-seediv_de_lds}" ;;
     SEEDV) printf "%s" "${SEEDV_DATASET:-seedv_raw}" ;;
     FACED) printf "%s" "${FACED_DATASET:-faced_de_lds}" ;;
     *)
-      echo "Unsupported dataset key '$1'. Use SEED, SEEDV, FACED." >&2
+      echo "Unsupported dataset key '$1'. Use SEED, SEEDIV, SEEDV, FACED." >&2
       return 1
       ;;
   esac
@@ -100,10 +129,11 @@ dataset_name_for_key() {
 setting_for_key() {
   case "$1" in
     SEED) printf "%s" "${SEED_SETTING:-seed_sub_dependent_train_val_test_setting}" ;;
+    SEEDIV) printf "%s" "${SEEDIV_SETTING:-seediv_sub_dependent_train_val_test_setting}" ;;
     SEEDV) printf "%s" "${SEEDV_SETTING:-seedv_sub_dependent_train_val_test_setting}" ;;
     FACED) printf "%s" "${FACED_SETTING:-faced_sub_independent_train_val_test_setting}" ;;
     *)
-      echo "Unsupported dataset key '$1'. Use SEED, SEEDV, FACED." >&2
+      echo "Unsupported dataset key '$1'. Use SEED, SEEDIV, SEEDV, FACED." >&2
       return 1
       ;;
   esac
@@ -112,6 +142,7 @@ setting_for_key() {
 extra_args_for_key() {
   case "$1" in
     SEED) printf "%s" "${SEED_EXTRA_ARGS:-$EXTRA_ARGS}" ;;
+    SEEDIV) printf "%s" "${SEEDIV_EXTRA_ARGS:-$EXTRA_ARGS}" ;;
     SEEDV) printf "%s" "${SEEDV_EXTRA_ARGS:-$EXTRA_ARGS}" ;;
     FACED) printf "%s" "${FACED_EXTRA_ARGS:-$EXTRA_ARGS}" ;;
     *) printf "%s" "$EXTRA_ARGS" ;;
@@ -125,6 +156,9 @@ path_for_key_channel() {
     SEED:2ch) printf "%s" "${SEED_PATH_2CH:-}" ;;
     SEED:4ch) printf "%s" "${SEED_PATH_4CH:-}" ;;
     SEED:8ch) printf "%s" "${SEED_PATH_8CH:-}" ;;
+    SEEDIV:2ch) printf "%s" "${SEEDIV_PATH_2CH:-}" ;;
+    SEEDIV:4ch) printf "%s" "${SEEDIV_PATH_4CH:-}" ;;
+    SEEDIV:8ch) printf "%s" "${SEEDIV_PATH_8CH:-}" ;;
     SEEDV:2ch) printf "%s" "${SEEDV_PATH_2CH:-}" ;;
     SEEDV:4ch) printf "%s" "${SEEDV_PATH_4CH:-}" ;;
     SEEDV:8ch) printf "%s" "${SEEDV_PATH_8CH:-}" ;;
@@ -145,6 +179,9 @@ path_var_name_for_key_channel() {
     SEED:2ch) echo "SEED_PATH_2CH" ;;
     SEED:4ch) echo "SEED_PATH_4CH" ;;
     SEED:8ch) echo "SEED_PATH_8CH" ;;
+    SEEDIV:2ch) echo "SEEDIV_PATH_2CH" ;;
+    SEEDIV:4ch) echo "SEEDIV_PATH_4CH" ;;
+    SEEDIV:8ch) echo "SEEDIV_PATH_8CH" ;;
     SEEDV:2ch) echo "SEEDV_PATH_2CH" ;;
     SEEDV:4ch) echo "SEEDV_PATH_4CH" ;;
     SEEDV:8ch) echo "SEEDV_PATH_8CH" ;;

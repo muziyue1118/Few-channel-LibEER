@@ -15,6 +15,9 @@ from data_utils.preprocess import preprocess, label_process
 from .preprocess import lds
 
 
+LIBEER_CACHE_FILE_NAME = "libeer_cache.pkl"
+
+
 def _first_array(data):
     if isinstance(data, np.ndarray):
         return data
@@ -36,9 +39,49 @@ def _infer_channels_from_processed(data, fallback):
     return int(sample.shape[-2])
 
 
+def _resolve_libeer_cache_path(dataset_path):
+    if dataset_path is None:
+        return None
+    path = os.path.abspath(os.path.expanduser(str(dataset_path)))
+    if os.path.isdir(path):
+        cache_path = os.path.join(path, LIBEER_CACHE_FILE_NAME)
+        return cache_path if os.path.isfile(cache_path) else None
+    if os.path.basename(path) == LIBEER_CACHE_FILE_NAME:
+        if not os.path.isfile(path):
+            raise FileNotFoundError(f"LibEER cache file not found: {path}")
+        return path
+    return None
+
+
+def _load_libeer_cache(dataset_path):
+    cache_path = _resolve_libeer_cache_path(dataset_path)
+    if cache_path is None:
+        return None
+    with open(cache_path, "rb") as cache_file:
+        payload = pickle.load(cache_file)
+    if not isinstance(payload, dict) or payload.get("format") != "libeer_few_channel_cache":
+        raise ValueError(f"{cache_path} is not a LibEER few-channel cache.")
+    required_keys = {"all_data", "all_label", "channels", "feature_dim", "num_classes"}
+    missing_keys = sorted(required_keys - set(payload))
+    if missing_keys:
+        raise ValueError(f"{cache_path} is missing cache fields: {missing_keys}")
+    print(f"Loading LibEER few-channel cache: {cache_path}")
+    return (
+        payload["all_data"],
+        payload["all_label"],
+        int(payload["channels"]),
+        payload["feature_dim"],
+        int(payload["num_classes"]),
+    )
+
+
 def get_data(setting=None):
     if setting is None:
         print(f"Error: Setting not set")
+
+    cached = _load_libeer_cache(setting.dataset_path)
+    if cached is not None:
+        return cached
 
     # obtain data in the uniform formats, which load dataset and integrate into (session, subject, trail) format
     data, baseline, label, sample_rate, channels = get_uniform_data(setting.dataset, setting.dataset_path)
@@ -366,7 +409,7 @@ def read_seedV_raw(dir_path):
     import mne
 
     mne.set_log_level("ERROR")
-    dir_path = dir_path + "EEG_raw/"
+    dir_path = os.path.join(dir_path, "EEG_raw")
     eeg_files = [[
                   '1_1_20180804.cnt', '2_1_20180416.cnt', '3_1_20180414.cnt', '4_1_20180414.cnt',
                   '5_1_20180719.cnt', '6_1_20180713.cnt', '7_1_20180411.cnt', '8_1_20180717.cnt',
@@ -409,7 +452,7 @@ def read_seedV_raw(dir_path):
         with tqdm(total=len(ses_file), desc=f"Session {ses_id + 1}", leave=False) as pbar_session:
             for sub_file in ses_file:
                 sub_data = []
-                eeg_raw = mne.io.read_raw_cnt(dir_path + sub_file, verbose=False)
+                eeg_raw = mne.io.read_raw_cnt(os.path.join(dir_path, sub_file), verbose=False)
                 useless_ch = ['M1', 'M2', 'VEO', 'HEO']
                 eeg_raw.drop_channels(useless_ch)
                 ch = eeg_raw.ch_names

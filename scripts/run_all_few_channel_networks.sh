@@ -1,12 +1,14 @@
 #!/usr/bin/env bash
 set -u
 
-# Run all LibEER model training entrypoints on already-cropped few-channel data.
+# Run all LibEER model training entrypoints on already-cropped few-channel
+# LibEER caches. Each DATASET_PATH_* value may point either to libeer_cache.pkl
+# or to a directory containing libeer_cache.pkl.
 #
 # Required environment variables:
-#   DATASET_PATH_2CH=/path/to/2ch/data
-#   DATASET_PATH_4CH=/path/to/4ch/data
-#   DATASET_PATH_8CH=/path/to/8ch/data
+#   DATASET_PATH_2CH=/path/to/2ch/libeer_cache.pkl
+#   DATASET_PATH_4CH=/path/to/4ch/libeer_cache.pkl
+#   DATASET_PATH_8CH=/path/to/8ch/libeer_cache.pkl
 #
 # Common optional variables:
 #   DATASET=seed_de_lds

@@ -1,2 +1,4 @@
 /log
 /result
+__pycache__/
+*.pyc

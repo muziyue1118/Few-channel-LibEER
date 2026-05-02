@@ -1,0 +1,7 @@
+Command: python FBSTCNet_train.py -model FBSTCNet -dataset seed_de_lds -dataset_path /data/mzy/libeer_few_channel_cache/SEED/seed_de_lds/seed_sub_dependent_train_val_test_setting/2ch/libeer_cache.pkl -setting seed_sub_dependent_train_val_test_setting -metrics acc macro-f1 -metric_choose macro-f1 -batch_size 32 -epochs 80 -lr 0.001 -seed 2024 -device cuda -output_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/FBSTCNet/seed2024/results/seed_de_lds/2ch/FBSTCNet/seed2024 -log_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/FBSTCNet/seed2024/state_logs -data_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/FBSTCNet/seed2024/processed/seed_de_lds/2ch/FBSTCNet/seed2024
+Traceback (most recent call last):
+  File "/data/mzy/LibEER/LibEER/FBSTCNet_train.py", line 10, in <module>
+    from Trainer.FBSTCTraining import train
+  File "/data/mzy/LibEER/LibEER/Trainer/FBSTCTraining.py", line 24, in <module>
+    from braindecode.models import get_output_shape
+ImportError: cannot import name 'get_output_shape' from 'braindecode.models' (/home/mzy/anaconda3/lib/python3.11/site-packages/braindecode/models/__init__.py)

@@ -1,0 +1,14 @@
+Command: python TSception_train.py -model TSception -dataset seed_de_lds -dataset_path /data/mzy/libeer_few_channel_cache/SEED/seed_de_lds/seed_sub_dependent_train_val_test_setting/2ch/libeer_cache.pkl -setting seed_sub_dependent_train_val_test_setting -metrics acc macro-f1 -metric_choose macro-f1 -batch_size 32 -epochs 80 -lr 0.001 -seed 2024 -device cuda -output_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/TSception/seed2024/results/seed_de_lds/2ch/TSception/seed2024 -log_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/TSception/seed2024/state_logs -data_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/TSception/seed2024/processed/seed_de_lds/2ch/TSception/seed2024
+Using Seed subject dependent train val test experiment mode, 
+For each subject, nine random trails were used as training set, three random trails were used as verification set, last three trails were used as test, we choose best results in verification set and test results in test
+Loading LibEER few-channel cache: /data/mzy/libeer_few_channel_cache/SEED/seed_de_lds/seed_sub_dependent_train_val_test_setting/2ch/libeer_cache.pkl
+train indexes:[8, 5, 9, 7, 10, 4, 6, 3, 14], val indexes:[13, 12, 11], test indexes:[0, 1, 2]
+Traceback (most recent call last):
+  File "/data/mzy/LibEER/LibEER/TSception_train.py", line 165, in <module>
+    main(args)
+  File "/data/mzy/LibEER/LibEER/TSception_train.py", line 127, in main
+    model = Model['TSception'](channels, feature_dim, num_classes)
+            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/data/mzy/LibEER/LibEER/models/TSception.py", line 46, in __init__
+    raise ValueError(
+ValueError: TSception temporal kernels are empty for 5 time points.

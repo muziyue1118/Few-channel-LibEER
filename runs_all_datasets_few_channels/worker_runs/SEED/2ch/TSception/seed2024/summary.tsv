@@ -1,0 +1,2 @@
+time	channel	seed	network	status	exit_code	seconds	log_file
+2026-05-02 21:36:47	2ch	2024	TSception	failed	1	24	/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/TSception/seed2024/logs/seed_de_lds_2ch_TSception_seed2024.log

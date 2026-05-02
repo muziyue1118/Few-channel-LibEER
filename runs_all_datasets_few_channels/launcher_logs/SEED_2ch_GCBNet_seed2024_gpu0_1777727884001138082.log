@@ -1,0 +1,5 @@
+[2026-05-02 21:18:04] LAUNCH dataset=SEED/seed_de_lds channel=2ch seed=2024 network=GCBNet gpu=0
+[2026-05-02 21:18:04] START channel=2ch seed=2024 network=GCBNet
+Command: python GCBNet_train.py -model GCBNet -dataset seed_de_lds -dataset_path /data/mzy/libeer_few_channel_cache/SEED/seed_de_lds/seed_sub_dependent_train_val_test_setting/2ch/libeer_cache.pkl -setting seed_sub_dependent_train_val_test_setting -metrics acc macro-f1 -metric_choose macro-f1 -batch_size 32 -epochs 80 -lr 0.001 -seed 2024 -device cuda -output_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/GCBNet/seed2024/results/seed_de_lds/2ch/GCBNet/seed2024 -log_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/GCBNet/seed2024/state_logs -data_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/GCBNet/seed2024/processed/seed_de_lds/2ch/GCBNet/seed2024
+[2026-05-02 21:18:29] DONE channel=2ch seed=2024 network=GCBNet status=failed log=/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/GCBNet/seed2024/logs/seed_de_lds_2ch_GCBNet_seed2024.log
+[2026-05-02 21:18:29] EXIT code=1

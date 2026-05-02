@@ -1,0 +1,5 @@
+Command: python PR_RL_train.py -model PRRL -dataset seed_de_lds -dataset_path /data/mzy/libeer_few_channel_cache/SEED/seed_de_lds/seed_sub_dependent_train_val_test_setting/2ch/libeer_cache.pkl -setting seed_sub_dependent_train_val_test_setting -metrics acc macro-f1 -metric_choose macro-f1 -batch_size 32 -epochs 80 -lr 0.001 -seed 2024 -device cuda -output_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/PRRL/seed2024/results/seed_de_lds/2ch/PRRL/seed2024 -log_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/PRRL/seed2024/state_logs -data_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/PRRL/seed2024/processed/seed_de_lds/2ch/PRRL/seed2024
+Traceback (most recent call last):
+  File "/data/mzy/LibEER/LibEER/PR_RL_train.py", line 11, in <module>
+    from Trainer.PRPLtraining import train_and_test_GAN
+ModuleNotFoundError: No module named 'Trainer.PRPLtraining'

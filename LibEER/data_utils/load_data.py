@@ -1,6 +1,7 @@
 import fnmatch
 import json
 import os
+import glob as glob_module
 
 import scipy.io
 from scipy.io import loadmat
@@ -155,14 +156,15 @@ def read_faced_feature(dir_path, feature_type="de", label_type="emotion"):
     :return: EEG features
     """
     is_lds = feature_type.endswith("_lds")
-    dir_path += "/"+ feature_type[:-4].upper() if is_lds else feature_type.upper()
+    feature_dir = feature_type[:-4].upper() if is_lds else feature_type.upper()
+    dir_path = os.path.join(dir_path, "EEG_Features", feature_dir)
     # str(num).zfill(3)
     data = [[[] for _ in range(123)]]
     # emotion : Anger, Disgust, Fear, Sadness, Neutral, Amusement, Inspiration, Joy, Tenderness
     # valence : Negative, Neutral, Positive
     label = [[[0,0,0,1,1,1,2,2,2,3,3,3,4,4,4,4,5,5,5,6,6,6,7,7,7,8,8,8] if label_type =="emotion" else [0,0,0,0,0,0,0,0,0,0,0,0,1,1,1,1,2,2,2,2,2,2,2,2,2,2,2,2]  for _ in range(123)]]
     for i in range(123):
-        file_path = dir_path + f"/sub{str(i).zfill(3)}.pkl.pkl"
+        file_path = os.path.join(dir_path, f"sub{str(i).zfill(3)}.pkl.pkl")
         with open(file_path, "rb") as feature_file:
             sub_feature = pickle.load(feature_file)
             sub_feature = sub_feature.transpose(0,2,1,3)
@@ -172,13 +174,33 @@ def read_faced_feature(dir_path, feature_type="de", label_type="emotion"):
             data[0][i] = sub_feature
     return data, None, label, None, 32
 
+def _resolve_seed_files(dir_path, eeg_files):
+    resolved = []
+    for session_files in eeg_files:
+        resolved_session = []
+        for f in session_files:
+            full_path = os.path.join(dir_path, f)
+            if os.path.isfile(full_path):
+                resolved_session.append(f)
+            else:
+                subject_id = f.split('_')[0]
+                candidates = sorted(glob_module.glob(os.path.join(dir_path, f"{subject_id}_*.mat")))
+                if not candidates:
+                    candidates = sorted(glob_module.glob(os.path.join(dir_path, f"{int(subject_id):02d}_*.mat")))
+                if not candidates:
+                    raise FileNotFoundError(f"Cannot find SEED data file matching '{f}' in {dir_path}")
+                resolved_session.append(os.path.basename(candidates[0]))
+        resolved.append(resolved_session)
+    return resolved
+
+
 def read_seed_raw(dir_path):
     # input : 45 files(3 sessions, 15 round) containing all 15 trails with a sampling rate of 200 Hz
     # output : EEG signal with a trail as the basic unit and sample rate of the original dataset
     # output shape : (session, subject, trail, channel, raw_data), (session, subject, trail, label)
 
     # Extract the EEG data of each subject from the SEED dataset, and partition the data of each session
-    dir_path += "/Preprocessed_EEG"
+    dir_path = os.path.join(dir_path, "Preprocessed_EEG")
     eeg_files = [['1_20131027.mat', '2_20140404.mat', '3_20140603.mat',
                   '4_20140621.mat', '5_20140411.mat', '6_20130712.mat',
                   '7_20131027.mat', '8_20140511.mat', '9_20140620.mat',
@@ -195,6 +217,7 @@ def read_seed_raw(dir_path):
                   '10_20131211.mat', '11_20140630.mat', '12_20131207.mat',
                   '13_20140610.mat', '14_20140627.mat', '15_20131105.mat']
                  ]
+    eeg_files = _resolve_seed_files(dir_path, eeg_files)
     # Extract the label for all trail in three sessions
     label = np.array(loadmat(f"{dir_path}/label.mat")['label'])
     labels = np.tile(label[0]+1, (3, 15, 1))
@@ -231,7 +254,7 @@ def read_seed_feature(dir_path, feature_type="de"):
     :return: the eeg features from seed dataset
     """
 
-    dir_path += "/ExtractedFeatures"
+    dir_path = os.path.join(dir_path, "ExtractedFeatures")
     eeg_files = [['1_20131027.mat', '2_20140404.mat', '3_20140603.mat',
                   '4_20140621.mat', '5_20140411.mat', '6_20130712.mat',
                   '7_20131027.mat', '8_20140511.mat', '9_20140620.mat',
@@ -248,6 +271,7 @@ def read_seed_feature(dir_path, feature_type="de"):
                   '10_20131211.mat', '11_20140630.mat', '12_20131207.mat',
                   '13_20140610.mat', '14_20140627.mat', '15_20131105.mat']
                  ]
+    eeg_files = _resolve_seed_files(dir_path, eeg_files)
     feature_index = {
         "de": 0, "de_lds": 1, "psd": 2, "psd_lds": 3, "dasm": 4, "dasm_lds": 5,
         "rasm": 6, "rasm_lds": 7, "asm": 8, "asm_lds": 9, "dcau": 10, "dcau_lds": 11
@@ -286,7 +310,7 @@ def read_seedIV_raw(dir_path):
     # output : EEG signal with a trail as the basic unit and sample rate of the original dataset
     # output shape : (session, subject, trail, channel, raw_data), (session, subject, trail, label)
 
-    dir_path += "/eeg_raw_data"
+    dir_path = os.path.join(dir_path, "eeg_raw_data")
     eeg_files = [['1_20160518.mat', '2_20150915.mat', '3_20150919.mat',
                   '4_20151111.mat', '5_20160406.mat', '6_20150507.mat',
                   '7_20150715.mat', '8_20151103.mat', '9_20151028.mat',
@@ -346,7 +370,7 @@ def read_seedIV_feature(dir_path, feature_type="de_lds"):
     # output shape : (session(3), subject, trail, channel, feature), (session(3), subject, trail, label)
     # use the feature under eeg_feature_smooth dir, it has 3 dir, each dir represent 15 subejct
     # in each dir, it contains 15 subject files
-    dir_path += "/eeg_feature_smooth"
+    dir_path = os.path.join(dir_path, "eeg_feature_smooth")
     eeg_files = [['1_20160518.mat', '2_20150915.mat', '3_20150919.mat',
                   '4_20151111.mat', '5_20160406.mat', '6_20150507.mat',
                   '7_20150715.mat', '8_20151103.mat', '9_20151028.mat',

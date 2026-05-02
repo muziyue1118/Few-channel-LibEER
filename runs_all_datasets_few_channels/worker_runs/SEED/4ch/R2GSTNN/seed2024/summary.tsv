@@ -1,0 +1,2 @@
+time	channel	seed	network	status	exit_code	seconds	log_file
+2026-05-02 21:39:18	4ch	2024	R2GSTNN	failed	1	43	/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/4ch/R2GSTNN/seed2024/logs/seed_de_lds_4ch_R2GSTNN_seed2024.log

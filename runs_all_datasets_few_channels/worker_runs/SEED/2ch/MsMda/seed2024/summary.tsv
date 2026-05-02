@@ -1,0 +1,2 @@
+time	channel	seed	network	status	exit_code	seconds	log_file
+2026-05-02 21:37:19	2ch	2024	MsMda	failed	1	26	/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/MsMda/seed2024/logs/seed_de_lds_2ch_MsMda_seed2024.log

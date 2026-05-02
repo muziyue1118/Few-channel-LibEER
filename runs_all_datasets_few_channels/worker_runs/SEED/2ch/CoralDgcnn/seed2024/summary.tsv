@@ -1,0 +1,3 @@
+time	channel	seed	network	status	exit_code	seconds	log_file
+2026-05-02 21:17:59	2ch	2024	CoralDgcnn	failed	1	15	/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/CoralDgcnn/seed2024/logs/seed_de_lds_2ch_CoralDgcnn_seed2024.log
+2026-05-02 21:36:43	2ch	2024	CoralDgcnn	failed	1	20	/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/CoralDgcnn/seed2024/logs/seed_de_lds_2ch_CoralDgcnn_seed2024.log

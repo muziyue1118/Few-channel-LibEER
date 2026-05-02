@@ -1,0 +1,12 @@
+Command: python DBN_train.py -model DBN -dataset seed_de_lds -dataset_path /data/mzy/libeer_few_channel_cache/SEED/seed_de_lds/seed_sub_dependent_train_val_test_setting/4ch/libeer_cache.pkl -setting seed_sub_dependent_train_val_test_setting -metrics acc macro-f1 -metric_choose macro-f1 -batch_size 32 -epochs 80 -lr 0.001 -seed 2024 -device cuda -output_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/4ch/DBN/seed2024/results/seed_de_lds/4ch/DBN/seed2024 -log_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/4ch/DBN/seed2024/state_logs -data_dir /data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/4ch/DBN/seed2024/processed/seed_de_lds/4ch/DBN/seed2024
+Using Seed subject dependent train val test experiment mode, 
+For each subject, nine random trails were used as training set, three random trails were used as verification set, last three trails were used as test, we choose best results in verification set and test results in test
+Loading LibEER few-channel cache: /data/mzy/libeer_few_channel_cache/SEED/seed_de_lds/seed_sub_dependent_train_val_test_setting/4ch/libeer_cache.pkl
+train indexes:[8, 5, 9, 7, 10, 4, 6, 3, 14], val indexes:[13, 12, 11], test indexes:[0, 1, 2]
+Traceback (most recent call last):
+  File "/data/mzy/LibEER/LibEER/DBN_train.py", line 153, in <module>
+    main(args)
+  File "/data/mzy/LibEER/LibEER/DBN_train.py", line 136, in main
+    round_metric = train(model=model, dataset_train=dataset_train, dataset_val=dataset_val, dataset_test=dataset_test, device=device,
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: train() got an unexpected keyword argument 'test_sub_label'

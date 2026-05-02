@@ -1,4 +1,7 @@
 /log
 /result
+/runs_all_datasets_few_channels
 __pycache__/
 *.pyc
+*.log
+*.pth

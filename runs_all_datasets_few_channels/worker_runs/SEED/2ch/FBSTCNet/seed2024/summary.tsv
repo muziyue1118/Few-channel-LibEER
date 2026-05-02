@@ -1,2 +1,0 @@
-time	channel	seed	network	status	exit_code	seconds	log_file
-2026-05-02 21:37:35	2ch	2024	FBSTCNet	failed	1	42	/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/FBSTCNet/seed2024/logs/seed_de_lds_2ch_FBSTCNet_seed2024.log

@@ -1,2 +1,0 @@
-time	channel	seed	network	status	exit_code	seconds	log_file
-2026-05-02 21:18:56	2ch	2024	GCBNet_BLS	failed	1	22	/data/mzy/LibEER/runs_all_datasets_few_channels/worker_runs/SEED/2ch/GCBNet_BLS/seed2024/logs/seed_de_lds_2ch_GCBNet_BLS_seed2024.log

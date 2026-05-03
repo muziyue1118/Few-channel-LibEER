@@ -28,7 +28,7 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
         dataset_test, sampler=sampler_test, batch_size=batch_size, num_workers=4
     )
     model = model.to(device)
-    best_metric = {s: 0. for s in metrics}
+    best_metric = {s: -1. for s in metrics}
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()

@@ -13,6 +13,13 @@ import torch.optim as optim
 import torch.nn as nn
 
 
+def label_to_index(labels):
+    labels = np.asarray(labels)
+    if labels.ndim > 1:
+        return np.argmax(labels, axis=1)
+    return labels
+
+
 def main(args):
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
@@ -55,6 +62,9 @@ def main(args):
             if len(val_data) == 0:
                 val_data = test_data
                 val_label = test_label
+            train_label = label_to_index(train_label)
+            val_label = label_to_index(val_label)
+            test_label = label_to_index(test_label)
             train_data, val_data, test_data = normalize(train_data, val_data, test_data, dim='sample', method="z-score")
             # model to train
             filterRange = [(4, 8), (8, 12), (12, 16), (16, 20), (20, 24), (24, 28), (28, 32), (32, 36), (36, 40),

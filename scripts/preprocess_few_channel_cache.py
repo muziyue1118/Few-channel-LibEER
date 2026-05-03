@@ -68,6 +68,11 @@ def build_parser():
         help="Root directory for this dataset's cache output.",
     )
     parser.add_argument(
+        "--cache_profile",
+        default="feature_de_lds",
+        help="Cache profile name inserted between setting and channel, e.g. feature_de_lds or raw128.",
+    )
+    parser.add_argument(
         "--seedv_8ch_fallback",
         default="FC3_FC4",
         choices=["FC3_FC4"],
@@ -195,7 +200,7 @@ def setting_name(args):
 
 
 def output_dir_for(args, channel):
-    return Path(args.output_root) / args.dataset / setting_name(args) / channel
+    return Path(args.output_root) / args.dataset / setting_name(args) / args.cache_profile / channel
 
 
 def metadata_for(args, setting, dataset_key_value, full_channels, source_names, selected_names, selected_indices):
@@ -205,6 +210,7 @@ def metadata_for(args, setting, dataset_key_value, full_channels, source_names, 
         "dataset_key": dataset_key_value,
         "dataset": args.dataset,
         "setting": setting_name(args),
+        "cache_profile": args.cache_profile,
         "source_dataset_path": args.dataset_path,
         "full_channels": int(full_channels),
         "source_channel_names": source_names,

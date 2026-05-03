@@ -10,7 +10,7 @@ from utils.store import make_output_dir
 from utils.utils import state_log, result_log, setup_seed, sub_result_log
 from Trainer.PRPLtraining import train_and_test_GAN
 import torch
-from models.PRRL import PRRL,discriminator, DomainAdversarialLoss
+from models.PRRL import PRRL, discriminator
 import numpy as np
 from torch.optim import RMSprop
 
@@ -69,7 +69,8 @@ def main(args):
             train_data = train_data.reshape(train_data.shape[0], -1)
             val_data = val_data.reshape(val_data.shape[0], -1)
             test_data = test_data.reshape(test_data.shape[0], -1)
-            model = Model['PRRL'](channels, feature_dim, num_classes)
+            input_dim = train_data.shape[1]
+            model = PRRL(input_dim=input_dim, num_of_class=num_classes)
             target_set={'feature':test_data,'label':test_label}
             validation_set={'feature':val_data, 'label':val_label}
             source_set={'feature':train_data,'label':train_label}

@@ -9,7 +9,9 @@ import math
 from utils.metric import Metric
 from utils.store import save_state
 
-def train(model, datasets_train, dataset_val, dataset_test, samples_source, device, output_dir=None, metrics=['acc'], metric_choose=None, optimizer=None, scheduler=None, batch_size=16, epochs=40, criterion=None, loss_func=None, loss_param=None):
+def train(model, datasets_train, dataset_val, dataset_test, samples_source, device, output_dir=None,
+          metrics=['acc'], metric_choose=None, optimizer=None, scheduler=None, batch_size=16, epochs=40,
+          criterion=None, loss_func=None, loss_param=None, test_sub_label=None):
     if metrics is None:
         metrics = ['acc']
     if metric_choose is None:
@@ -23,17 +25,22 @@ def train(model, datasets_train, dataset_val, dataset_test, samples_source, devi
     sampler_val = SequentialSampler(dataset_val)
     # load dataset
     data_loader_val = DataLoader(
+        dataset_val, sampler=sampler_val, batch_size=batch_size, num_workers=4, drop_last=False
+    )
+    data_loader_val_target = DataLoader(
         dataset_val, sampler=sampler_val, batch_size=batch_size, num_workers=4, drop_last=True
     )
+    if len(data_loader_val_target) == 0:
+        data_loader_val_target = data_loader_val
     data_loader_test = DataLoader(
-        dataset_test, sampler=sampler_test, batch_size=batch_size, num_workers=4, drop_last=True
+        dataset_test, sampler=sampler_test, batch_size=batch_size, num_workers=4, drop_last=False
     )
     model = model.to(device)
-    best_metric = {s: 0. for s in metrics}
+    best_metric = {s: -1. for s in metrics}
     iteration = math.ceil(samples_source/batch_size)
     iterations = epochs * iteration
     log_interval = 10
-    target_iter = iter(data_loader_val)
+    target_iter = iter(data_loader_val_target)
     source_iters = []
     for i in range(len(source_loaders)):
         source_iters.append(iter(source_loaders[i]))
@@ -54,7 +61,7 @@ def train(model, datasets_train, dataset_val, dataset_test, samples_source, devi
                 try:
                     target_data, _ = next(target_iter)
                 except Exception as err:
-                    target_iter = iter(data_loader_val)
+                    target_iter = iter(data_loader_val_target)
                     target_data, _ = next(target_iter)
                 source_data, source_label = source_data.to(device), source_label.to(device)
                 target_data = target_data.to(device)

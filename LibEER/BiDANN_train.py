@@ -51,7 +51,6 @@ def main(args):
                     test_sub_count = len(test_data[i])
                     test_sub_label.extend([i + 1 for j in range(test_sub_count)])
                 test_sub_label = np.array(test_sub_label)
-            print(test_sub_label)
             # split train and test data by specified experiment mode
             train_data, train_label, val_data, val_label, test_data, test_label = \
                 index_to_data(data_i, label_i, train_indexes, test_indexes, val_indexes, args.keep_dim)
@@ -61,7 +60,8 @@ def main(args):
                 val_data = test_data
                 val_label = test_label
 
-            model = Model['BiDANN'](channels, feature_dim, num_classes,sample_length=9, 
+            sample_length = train_data.shape[1] if len(train_data.shape) == 4 else 1
+            model = Model['BiDANN'](channels, feature_dim, num_classes, sample_length=sample_length,
                  domain_classes = 2,lambda_ = 0.5, device=device)
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
@@ -92,4 +92,3 @@ if __name__ == '__main__':
     args = args.parse_args()
     # log out train state
     main(args)
-   

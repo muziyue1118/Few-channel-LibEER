@@ -17,6 +17,42 @@ from data_utils.preprocess import ele_normalize
 #    python Msmda_reproduction.py -sessions 1 2 3 -model MS-MDA -batch_size 256 -epochs 200 -lr 0.01 -setting  'seed_sub_independent_leave_one_out_setting' -seed 20 -sr 15
 #    0.9397
 # python Msmda_train.py -batch_size 256 -epochs 200 -lr 0.01 -setting
+
+
+def _label_to_index(labels):
+    labels = np.asarray(labels)
+    if labels.ndim > 1:
+        return np.argmax(labels, axis=1)
+    return labels
+
+
+def _as_domain_list(data_parts, label_parts):
+    if isinstance(data_parts, np.ndarray):
+        data_parts = [data_parts]
+        label_parts = [label_parts]
+    domains = []
+    for data_part, label_part in zip(data_parts, label_parts):
+        data_part = np.asarray(data_part)
+        label_part = _label_to_index(label_part)
+        if data_part.size == 0 or label_part.size == 0:
+            continue
+        n_samples = min(data_part.shape[0], label_part.shape[0])
+        if n_samples == 0:
+            continue
+        data_part = ele_normalize(data_part[:n_samples]).reshape(n_samples, -1)
+        label_part = label_part[:n_samples]
+        domains.append((data_part, label_part))
+    return domains
+
+
+def _flatten_domains(domains):
+    if len(domains) == 0:
+        raise ValueError("MsMda received no non-empty domains after split.")
+    data = np.concatenate([domain_data for domain_data, _ in domains], axis=0)
+    label = np.concatenate([domain_label for _, domain_label in domains], axis=0)
+    return data, label
+
+
 def main(args):
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
@@ -55,45 +91,28 @@ def main(args):
             train_data, train_label, val_data, val_label, test_data, test_label = \
                 index_to_data(data_i, label_i, train_indexes, test_indexes, val_indexes, keep_dim=True)
 
-            datasets_train = []
             if len(val_data) == 0:
                 val_data = test_data.copy()
                 val_label = test_label.copy()
-            samples_source = len(train_data[0])
-            for j in range(len(train_data)):
-                train_label[j] = np.array(train_label[j])
-                train_data[j] = ele_normalize(np.array(train_data[j]))
-                # print(train_data[j].shape)
-                valid_elements = (train_data[j].shape[0] // samples_source) * samples_source
-                if valid_elements != train_data[j].shape[0]:
-                    train_data[j] = train_data[j][:valid_elements]
-                    train_label[j] = train_label[j][:valid_elements]
-                train_data[j] = train_data[j].reshape(samples_source, -1)
-                # print(train_data[j].shape, train_label[j].shape)
-                if train_label[j].shape[0]!=0:
-                    datasets_train.append(torch.utils.data.TensorDataset(torch.Tensor(train_data[j]), torch.Tensor(train_label[j])))
 
-            def trans(o_data, o_label):
-                for j in range(len(o_data)):
-                    o_label[j] = np.array(o_label[j])
-                    o_data[j] = ele_normalize(np.array(o_data[j]))
-                    valid_length = (o_data[j].shape[0] // samples_source) * samples_source
-                    if valid_length != o_data[j].shape[0]:
-                        o_data[j] = o_data[j][:valid_length]
-                        o_label[j] = o_label[j][:valid_length]
-                    o_data[j] = o_data[j].reshape(samples_source, -1)
-                return o_data, o_label
+            train_domains = _as_domain_list(train_data, train_label)
+            val_domains = _as_domain_list(val_data, val_label)
+            test_domains = _as_domain_list(test_data, test_label)
+            if len(train_domains) == 0:
+                raise ValueError("MsMda received no non-empty source domains after split.")
+            samples_source = min(domain_data.shape[0] for domain_data, _ in train_domains)
+            datasets_train = [
+                torch.utils.data.TensorDataset(torch.Tensor(domain_data), torch.Tensor(domain_label))
+                for domain_data, domain_label in train_domains
+            ]
 
-            test_data, test_label= trans(test_data, test_label)
-            val_data, val_label = trans(val_data, val_label)
+            val_data, val_label = _flatten_domains(val_domains)
+            test_data, test_label = _flatten_domains(test_domains)
 
-            model = Model['MsMda'](channels, feature_dim, num_classes, number_of_source=samples_source)
+            model = Model['MsMda'](channels, feature_dim, num_classes, number_of_source=len(datasets_train))
             # Train one round using the train one round function defined in the model
-            for vds in val_data:
-                for vs in vds:
-                    print(vs.shape)
-            dataset_val = torch.utils.data.TensorDataset(torch.Tensor(np.array([vd  for vds in val_data for vd in vds])), torch.Tensor(np.array([vl for vls in val_label for vl in vls])))
-            dataset_test = torch.utils.data.TensorDataset(torch.Tensor(np.array([td for tds in test_data for td in tds])), torch.Tensor(np.array([tl for tls in test_label for tl in tls])))
+            dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
+            dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.Tensor(test_label))
 
             optimizer = optim.Adam(model.parameters(), lr=args.lr)
             criterion = nn.CrossEntropyLoss()

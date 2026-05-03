@@ -7,7 +7,8 @@ from tqdm import tqdm
 from utils.metric import Metric
 from utils.store import save_state
 
-def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="result/", metrics=None, metric_choose=None, batch_size=16, epochs=40):
+def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="result/", metrics=None,
+          metric_choose=None, batch_size=16, epochs=40, test_sub_label=None):
     if metrics is None:
         metrics = ['acc']
     if metric_choose is None:
@@ -69,7 +70,7 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
     optimizer = optim.SGD(model.parameters(), lr=0.2)
     # optimizer = optim.SGD(model.parameters(), lr=0.5)
     # scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=25, gamma=0.1)
-    best_metric = {s: 0. for s in metrics}
+    best_metric = {s: -1. for s in metrics}
     for epoch in range(epochs):
         model.train()
         # create Metric object

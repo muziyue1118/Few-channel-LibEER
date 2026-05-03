@@ -8,7 +8,9 @@ from utils.store import save_state
 
 
 # just add the graph data structure, prepared for RGNN ...
-def train(model, dataset_train, dataset_val, dataset_test, edge_adj, device, output_dir, metrics=None, metric_choose=None, optimizer=None, scheduler=None, batch_size=16, epochs=40, criterion=None, loss_func=None, loss_param=None):
+def train(model, dataset_train, dataset_val, dataset_test, edge_adj, device, output_dir, metrics=None,
+          metric_choose=None, optimizer=None, scheduler=None, batch_size=16, epochs=40, criterion=None,
+          loss_func=None, loss_param=None, test_sub_label=None):
     if metrics is None:
         metrics = ['acc']
     if metric_choose is None:
@@ -30,7 +32,7 @@ def train(model, dataset_train, dataset_val, dataset_test, edge_adj, device, out
     # transform the edge_adj to edge_index(the torch_geometric requested structure)
     edge_index = edge_adj.to_sparse()._indices()
     model = model.to(device)
-    best_metric = {s: 0. for s in metrics}
+    best_metric = {s: -1. for s in metrics}
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()

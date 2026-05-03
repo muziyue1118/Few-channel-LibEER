@@ -85,6 +85,14 @@ from torch.utils.data import Dataset
 #    0.1909	0.1302
 
 
+def get_edge_adj(dataset, channels):
+    if channels == 62 and (dataset.startswith("seed") or dataset.startswith("mped")):
+        return torch.Tensor(SEED_RGNN_ADJACENCY_MATRIX)
+    if channels == 32 and (dataset.startswith("deap") or dataset.startswith("hci")):
+        return torch.Tensor(DEAP_RGNN_ADJACENCY_MATRIX)
+    return torch.ones(channels, channels)
+
+
 def main(args):
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
@@ -131,10 +139,7 @@ def main(args):
             # noise label
             train_label = torch.Tensor(model.noise_label(train_label))
             # train_label = F.log_softmax(train_label, dim=1)
-            if args.dataset.startswith("seed") or args.dataset.startswith("mped"):
-                edge_adj = torch.Tensor(SEED_RGNN_ADJACENCY_MATRIX)
-            elif args.dataset.startswith("deap") or args.dataset.startswith("hci"):
-                edge_adj = torch.Tensor(DEAP_RGNN_ADJACENCY_MATRIX)
+            edge_adj = get_edge_adj(args.dataset, channels)
             # Train one round using the train one round function defined in the model
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
             dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))

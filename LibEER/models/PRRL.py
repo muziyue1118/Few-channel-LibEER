@@ -7,14 +7,12 @@ from typing import List, Dict
 param_path = 'config/model_param/PRRL.yaml'
 import yaml
 from sklearn import metrics
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 from sklearn.manifold import TSNE
 from sklearn.metrics import accuracy_score, f1_score, cohen_kappa_score
 class feature_extractor(nn.Module):
-    def __init__(self,hidden_1,hidden_2):
+    def __init__(self, hidden_1, hidden_2, input_dim=310):
          super(feature_extractor,self).__init__()
-         self.fc1=nn.Linear(310,hidden_1)
+         self.fc1=nn.Linear(input_dim,hidden_1)
          self.fc2=nn.Linear(hidden_1,hidden_2)
          self.dropout1 = nn.Dropout(p=0.25)
          self.dropout2 = nn.Dropout(p=0.25)
@@ -72,15 +70,14 @@ class discriminator(nn.Module):
 
 class PRRL(nn.Module):
     def __init__(self, hidden_1=64, hidden_2=64, hidden_3=64, hidden_4=64, low_rank=32, max_iter=1000, upper_threshold=0.9,
-                 lower_threshold=0.5, num_of_class=4):
+                 lower_threshold=0.5, num_of_class=4, input_dim=310):
         super(PRRL, self).__init__()
-        self.fea_extrator_f = feature_extractor(hidden_1, hidden_2)
-        self.fea_extrator_g = feature_extractor(hidden_3, hidden_4)
+        self.fea_extrator_f = feature_extractor(hidden_1, hidden_2, input_dim=input_dim)
+        self.fea_extrator_g = feature_extractor(hidden_3, hidden_4, input_dim=input_dim)
         self.U = nn.Parameter(torch.randn(low_rank, hidden_2), requires_grad=True)
         self.V = nn.Parameter(torch.randn(low_rank, hidden_4), requires_grad=True)
-        print("YYYYYYYYYYYYYYYYYY",num_of_class)
-        self.P = torch.randn(num_of_class, hidden_4)
-        self.stored_mat = torch.matmul(self.V, self.P.T)
+        self.register_buffer("P", torch.randn(num_of_class, hidden_4))
+        self.stored_mat = torch.matmul(self.V.detach(), self.P.T)
         self.max_iter = max_iter
         self.upper_threshold = upper_threshold
         self.lower_threshold = lower_threshold
@@ -110,11 +107,12 @@ class PRRL(nn.Module):
         feature_source_f = self.fea_extrator_f(source)
         feature_target_f = self.fea_extrator_f(target)
         #       feature_source_g=feature_source_f
-        feature_source_g = self.fea_extrator_f(source)
+        feature_source_g = self.fea_extrator_g(source)
         ##torch.matmul(source_label.T,torch.ones(batch_num,num_of_class))
         ## Update P through some algebra computations for the convenice of broadcast
         source_label = source_label.float()
-        self.P = torch.matmul(torch.inverse(torch.diag(source_label.sum(axis=0)) + torch.eye(self.num_of_class).cuda()),
+        eye = torch.eye(self.num_of_class, device=source_label.device, dtype=source_label.dtype)
+        self.P = torch.matmul(torch.inverse(torch.diag(source_label.sum(axis=0)) + eye),
                               torch.matmul(source_label.T, feature_source_g))
         #       self.P=torch.matmul(torch.inverse(torch.diag(source_label.sum(axis=0))),torch.matmul(source_label.T,feature_source_g))
         self.stored_mat = torch.matmul(self.V, self.P.T)
@@ -129,16 +127,21 @@ class PRRL(nn.Module):
         return source_predict, feature_source_f, feature_target_f, sim_matrix, sim_matrix_target
 
     def compute_target_centroid(self, target, target_label):
-        feature_source_g = self.fea_extrator_f(target)
+        feature_source_g = self.fea_extrator_g(target)
+        eye = torch.eye(self.num_of_class, device=target_label.device, dtype=target_label.dtype)
         target_centroid = torch.matmul(
-            torch.inverse(torch.diag(target_label.sum(axis=0)) + torch.eye(self.num_of_class).cuda()),
+            torch.inverse(torch.diag(target_label.sum(axis=0)) + eye),
             torch.matmul(target_label.T, feature_source_g))
         return target_centroid
 
+    def predict_logits(self, target):
+        feature_target_f = self.fea_extrator_f(target)
+        stored_mat = torch.matmul(self.V, self.P.T).to(feature_target_f.device)
+        return torch.matmul(torch.matmul(self.U, feature_target_f.T).T, stored_mat)
+
     def target_domain_evaluation(self, test_features, test_labels):
         self.eval()
-        feature_target_f = self.fea_extrator_f(test_features)
-        test_logit = torch.matmul(torch.matmul(self.U, feature_target_f.T).T, self.stored_mat.cuda())
+        test_logit = self.predict_logits(test_features)
         test_cluster = torch.nn.functional.softmax(test_logit, dim=1)
         test_cluster = np.argmax(test_cluster.cpu().detach().numpy(), axis=1)
         test_labels = np.argmax(test_labels.cpu().detach().numpy(), axis=1)
@@ -155,8 +158,7 @@ class PRRL(nn.Module):
 
     def cluster_label_update(self, source_features, source_labels):
         self.eval()
-        feature_target_f = self.fea_extrator_f(source_features)
-        source_logit = torch.matmul(torch.matmul(self.U, feature_target_f.T).T, self.stored_mat.cuda())
+        source_logit = self.predict_logits(source_features)
         source_cluster = np.argmax(torch.nn.functional.softmax(source_logit, dim=1).cpu().detach().numpy(), axis=1)
         source_labels = np.argmax(source_labels.cpu().detach().numpy(), axis=1)
         for i in range(len(self.cluster_label)):
@@ -177,8 +179,11 @@ class PRRL(nn.Module):
         return acc, nmi, f1
 
     def visualization(self, target, target_labels, tsne=0):
+        import matplotlib.pyplot as plt
+        from mpl_toolkits.mplot3d import Axes3D
+
         feature_target_f = self.fea_extrator_f(target)
-        target_feature = torch.matmul(torch.matmul(self.U, feature_target_f.T).T, self.stored_mat.cuda())
+        target_feature = torch.matmul(torch.matmul(self.U, feature_target_f.T).T, self.stored_mat.to(feature_target_f.device))
         #       target_feature=torch.nn.functional.softmax(target_feature, dim=1)
         target_feature = target_feature.cpu().detach().numpy()
         feature_target_f = feature_target_f.cpu().detach().numpy()
@@ -210,6 +215,8 @@ class PRRL(nn.Module):
             plt.show()
 
     def visualization_4(self, target, target_labels, tsne=0):
+        import matplotlib.pyplot as plt
+
         target_feature = self.fea_extrator_f(target)
         #       target_feature=torch.nn.functional.softmax(target_feature, dim=1)
         target_feature = target_feature.cpu().detach().numpy()
@@ -238,8 +245,7 @@ class PRRL(nn.Module):
     def predict(self, target):
         with torch.no_grad():
             self.eval()
-            feature_target_f = self.fea_extrator_f(target)
-            test_logit = torch.matmul(torch.matmul(self.U, feature_target_f.T).T, self.stored_mat.cuda()) / 8
+            test_logit = self.predict_logits(target) / 8
             test_cluster = torch.nn.functional.softmax(test_logit, dim=1)
             test_cluster = np.argmax(test_cluster.cpu().detach().numpy(), axis=1)
             cluster_0_index, cluster_1_index, cluster_2_index = np.where(test_cluster == 0)[0], \

@@ -58,7 +58,11 @@ class BiDANN(nn.Module):
     
     def forward(self, source_data, target_data):
         # x: (batch_size, sample_length, num_electrodes, in_channels)
-        # get left and right features  
+        # get left and right features
+        if source_data.dim() == 3:
+            source_data = source_data.unsqueeze(1)
+        if target_data.dim() == 3:
+            target_data = target_data.unsqueeze(1)
         if source_data.shape[2] == len(SEED_CHANNEL_NAME):
             l_source_data, r_source_data = divide_r_l(source_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
             l_target_data, r_target_data = divide_r_l(target_data,columns=SEED_CHANNEL_NAME,l_columns=LEFT_CHANNEL_NAME, r_columns=RIGHT_CHANNEL_NAME)
@@ -112,10 +116,14 @@ def divide_r_l(features,columns,l_columns, r_columns):#batch_size*9*62*5
 
 
 def divide_current_channels(features, hemi_electrodes):
-    left_count = min(hemi_electrodes, features.shape[2])
-    right_count = min(hemi_electrodes, features.shape[2])
-    left = features[:, :, :left_count, :]
-    right = features[:, :, features.shape[2] - right_count:, :]
+    if features.shape[2] in (2, 4, 8):
+        left = features[:, :, 0::2, :]
+        right = features[:, :, 1::2, :]
+    else:
+        left_count = min(hemi_electrodes, features.shape[2])
+        right_count = min(hemi_electrodes, features.shape[2])
+        left = features[:, :, :left_count, :]
+        right = features[:, :, features.shape[2] - right_count:, :]
     left = _pad_hemi(left, hemi_electrodes)
     right = _pad_hemi(right, hemi_electrodes)
     return (

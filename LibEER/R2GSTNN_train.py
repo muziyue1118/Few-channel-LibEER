@@ -55,14 +55,13 @@ def main(args):
             # split train and test data by specified experiment mode
             train_data, train_label, val_data, val_label, test_data, test_label = \
                 index_to_data(data_i, label_i, train_indexes, test_indexes, val_indexes, args.keep_dim)
-            print(f"train data shape: {train_data.shape}, train label shape: {train_label.shape}")
-            print(f"train_label[0]: {train_label[0]}")
             if len(val_data) == 0:
                 val_data = test_data
                 val_label = test_label
 
             region_index = get_region_index(channels)
-            model = Model['R2GSTNN'](input_size=feature_dim,  num_classes=num_classes, regions=len(region_index), region_index=region_index, k=3, t=9,
+            time_steps = train_data.shape[1] if len(train_data.shape) == 4 else 1
+            model = Model['R2GSTNN'](input_size=feature_dim,  num_classes=num_classes, regions=len(region_index), region_index=region_index, k=3, t=time_steps,
                  regional_size=100, global_size = 150,regional_temporal_size=200, global_temporal_size=250,
                  domain_classes=2, lambda_ = 1,dropout=0.5, num_electrodes=channels)
             dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))

@@ -51,6 +51,7 @@ set -u
 #   BATCH_SIZE=32
 #   LR=0.001
 #   EXTRA_ARGS="-time_window 1 -feature_type de_lds"
+#   SKIP_MISSING_CACHE=1
 #   DRY_RUN=0
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -78,12 +79,20 @@ RUN_ROOT="${RUN_ROOT:-$PROJECT_ROOT/runs_all_datasets_few_channels}"
 STOP_ON_FAIL="${STOP_ON_FAIL:-0}"
 KILL_ON_FAIL="${KILL_ON_FAIL:-0}"
 DRY_RUN="${DRY_RUN:-0}"
+SKIP_MISSING_CACHE="${SKIP_MISSING_CACHE:-0}"
 QUEUE_SLEEP_SECONDS="${QUEUE_SLEEP_SECONDS:-10}"
 
 mkdir -p "$RUN_ROOT/launcher_logs" "$RUN_ROOT/job_status" "$RUN_ROOT/worker_runs"
 MASTER_SUMMARY="$RUN_ROOT/master_summary.tsv"
+SUMMARY_HEADER="time	dataset_key	dataset	cache_profile	channel	seed	network	gpu	status	exit_code	seconds	cache_path	launcher_log	worker_run_root"
+if [[ -f "$MASTER_SUMMARY" ]]; then
+  read -r existing_header < "$MASTER_SUMMARY" || existing_header=""
+  if [[ "$existing_header" != *$'	cache_profile	'* ]]; then
+    mv "$MASTER_SUMMARY" "$MASTER_SUMMARY.legacy.$(date +%Y%m%d%H%M%S)"
+  fi
+fi
 if [[ ! -f "$MASTER_SUMMARY" ]]; then
-  printf "time\tdataset_key\tdataset\tchannel\tseed\tnetwork\tgpu\tstatus\texit_code\tseconds\tlauncher_log\tworker_run_root\n" > "$MASTER_SUMMARY"
+  printf "%s\n" "$SUMMARY_HEADER" > "$MASTER_SUMMARY"
 fi
 
 read -r -a DATASET_LIST <<< "$DATASETS"
@@ -109,12 +118,28 @@ fi
 
 dataset_name_for_key() {
   case "$1" in
-    SEED) printf "%s" "${SEED_DATASET:-seed_de_lds}" ;;
+    SEED) printf "%s" "${SEED_FEATURE_DATASET:-${SEED_DATASET:-seed_de_lds}}" ;;
     SEEDIV) printf "%s" "${SEEDIV_DATASET:-seediv_de_lds}" ;;
-    SEEDV) printf "%s" "${SEEDV_DATASET:-seedv_raw}" ;;
-    FACED) printf "%s" "${FACED_DATASET:-faced_de_lds}" ;;
+    SEEDV) printf "%s" "${SEEDV_FEATURE_DATASET:-${SEEDV_DATASET:-seedv_raw}}" ;;
+    FACED) printf "%s" "${FACED_FEATURE_DATASET:-${FACED_DATASET:-faced_de_lds}}" ;;
     *)
       echo "Unsupported dataset key '$1'. Use SEED, SEEDIV, SEEDV, FACED." >&2
+      return 1
+      ;;
+  esac
+}
+
+dataset_name_for_key_profile() {
+  local dataset_key="$1"
+  local cache_profile="$2"
+  case "$dataset_key:$cache_profile" in
+    SEED:feature_de_lds) printf "%s" "${SEED_FEATURE_DATASET:-${SEED_DATASET:-seed_de_lds}}" ;;
+    SEED:raw128) printf "%s" "${SEED_RAW_DATASET:-seed_raw}" ;;
+    SEEDV:feature_de_lds) printf "%s" "${SEEDV_FEATURE_DATASET:-${SEEDV_DATASET:-seedv_raw}}" ;;
+    SEEDV:raw128) printf "%s" "${SEEDV_RAW_DATASET:-seedv_raw}" ;;
+    FACED:feature_de_lds) printf "%s" "${FACED_FEATURE_DATASET:-${FACED_DATASET:-faced_de_lds}}" ;;
+    *)
+      echo "Unsupported dataset/profile pair '$dataset_key/$cache_profile'." >&2
       return 1
       ;;
   esac
@@ -133,6 +158,20 @@ setting_for_key() {
   esac
 }
 
+cache_profile_for_network() {
+  case "$1" in
+    EEGNet|TSception|ACRNN|FBSTCNet) printf "%s" "raw128" ;;
+    *) printf "%s" "feature_de_lds" ;;
+  esac
+}
+
+raw_profile_supported_for_key() {
+  case "$1" in
+    SEED|SEEDV) return 0 ;;
+    *) return 1 ;;
+  esac
+}
+
 extra_args_for_key() {
   case "$1" in
     SEED) printf "%s" "${SEED_EXTRA_ARGS:-$EXTRA_ARGS}" ;;
@@ -143,38 +182,52 @@ extra_args_for_key() {
   esac
 }
 
-path_for_key_channel() {
+explicit_path_for_key_profile_channel() {
   local dataset_key="$1"
-  local channel="$2"
-  local explicit_path=""
-  case "$dataset_key:$channel" in
-    SEED:2ch) explicit_path="${SEED_PATH_2CH:-}" ;;
-    SEED:4ch) explicit_path="${SEED_PATH_4CH:-}" ;;
-    SEED:8ch) explicit_path="${SEED_PATH_8CH:-}" ;;
-    SEEDIV:2ch) explicit_path="${SEEDIV_PATH_2CH:-}" ;;
-    SEEDIV:4ch) explicit_path="${SEEDIV_PATH_4CH:-}" ;;
-    SEEDIV:8ch) explicit_path="${SEEDIV_PATH_8CH:-}" ;;
-    SEEDV:2ch) explicit_path="${SEEDV_PATH_2CH:-}" ;;
-    SEEDV:4ch) explicit_path="${SEEDV_PATH_4CH:-}" ;;
-    SEEDV:8ch) explicit_path="${SEEDV_PATH_8CH:-}" ;;
-    FACED:2ch) explicit_path="${FACED_PATH_2CH:-}" ;;
-    FACED:4ch) explicit_path="${FACED_PATH_4CH:-}" ;;
-    FACED:8ch) explicit_path="${FACED_PATH_8CH:-}" ;;
-    *)
-      echo "Unsupported dataset/channel pair '$dataset_key/$channel'." >&2
-      return 1
-      ;;
+  local cache_profile="$2"
+  local channel="$3"
+  case "$dataset_key:$cache_profile:$channel" in
+    SEED:feature_de_lds:2ch) printf "%s" "${SEED_FEATURE_PATH_2CH:-${SEED_PATH_2CH:-}}" ;;
+    SEED:feature_de_lds:4ch) printf "%s" "${SEED_FEATURE_PATH_4CH:-${SEED_PATH_4CH:-}}" ;;
+    SEED:feature_de_lds:8ch) printf "%s" "${SEED_FEATURE_PATH_8CH:-${SEED_PATH_8CH:-}}" ;;
+    SEED:raw128:2ch) printf "%s" "${SEED_RAW_PATH_2CH:-}" ;;
+    SEED:raw128:4ch) printf "%s" "${SEED_RAW_PATH_4CH:-}" ;;
+    SEED:raw128:8ch) printf "%s" "${SEED_RAW_PATH_8CH:-}" ;;
+    SEEDV:feature_de_lds:2ch) printf "%s" "${SEEDV_FEATURE_PATH_2CH:-${SEEDV_PATH_2CH:-}}" ;;
+    SEEDV:feature_de_lds:4ch) printf "%s" "${SEEDV_FEATURE_PATH_4CH:-${SEEDV_PATH_4CH:-}}" ;;
+    SEEDV:feature_de_lds:8ch) printf "%s" "${SEEDV_FEATURE_PATH_8CH:-${SEEDV_PATH_8CH:-}}" ;;
+    SEEDV:raw128:2ch) printf "%s" "${SEEDV_RAW_PATH_2CH:-}" ;;
+    SEEDV:raw128:4ch) printf "%s" "${SEEDV_RAW_PATH_4CH:-}" ;;
+    SEEDV:raw128:8ch) printf "%s" "${SEEDV_RAW_PATH_8CH:-}" ;;
+    FACED:feature_de_lds:2ch) printf "%s" "${FACED_FEATURE_PATH_2CH:-${FACED_PATH_2CH:-}}" ;;
+    FACED:feature_de_lds:4ch) printf "%s" "${FACED_FEATURE_PATH_4CH:-${FACED_PATH_4CH:-}}" ;;
+    FACED:feature_de_lds:8ch) printf "%s" "${FACED_FEATURE_PATH_8CH:-${FACED_PATH_8CH:-}}" ;;
+    *) printf "%s" "" ;;
   esac
+}
 
+path_for_key_profile_channel() {
+  local dataset_key="$1"
+  local cache_profile="$2"
+  local channel="$3"
+  local explicit_path dataset setting profiled_path legacy_path
+  explicit_path="$(explicit_path_for_key_profile_channel "$dataset_key" "$cache_profile" "$channel")"
   if [[ -n "$explicit_path" ]]; then
     printf "%s" "$explicit_path"
     return 0
   fi
 
-  local dataset setting
-  dataset="$(dataset_name_for_key "$dataset_key")" || return 1
+  dataset="$(dataset_name_for_key_profile "$dataset_key" "$cache_profile")" || return 1
   setting="$(setting_for_key "$dataset_key")" || return 1
-  printf "%s/%s/%s/%s/%s/%s" "$CACHE_ROOT" "$dataset_key" "$dataset" "$setting" "$channel" "libeer_cache.pkl"
+  profiled_path="$CACHE_ROOT/$dataset_key/$dataset/$setting/$cache_profile/$channel/libeer_cache.pkl"
+  legacy_path="$CACHE_ROOT/$dataset_key/$dataset/$setting/$channel/libeer_cache.pkl"
+  if [[ -f "$profiled_path" || "$cache_profile" == "raw128" ]]; then
+    printf "%s" "$profiled_path"
+  elif [[ -f "$legacy_path" ]]; then
+    printf "%s" "$legacy_path"
+  else
+    printf "%s" "$profiled_path"
+  fi
 }
 
 path_var_name_for_key_channel() {
@@ -196,6 +249,33 @@ path_var_name_for_key_channel() {
   esac
 }
 
+preflight_caches() {
+  local missing=0
+  local dataset_key channel network cache_profile dataset_path
+  for dataset_key in "${DATASET_LIST[@]}"; do
+    for channel in "${CHANNEL_LIST[@]}"; do
+      for network in "${NETWORK_LIST[@]}"; do
+        cache_profile="$(cache_profile_for_network "$network")"
+        if [[ "$cache_profile" == "raw128" ]] && ! raw_profile_supported_for_key "$dataset_key"; then
+          continue
+        fi
+        dataset_path="$(path_for_key_profile_channel "$dataset_key" "$cache_profile" "$channel")" || return 1
+        if [[ ! -f "$dataset_path" && ! -d "$dataset_path" ]]; then
+          echo "Missing cache for dataset=$dataset_key profile=$cache_profile channel=$channel network=$network: $dataset_path" >&2
+          missing=1
+        fi
+      done
+    done
+  done
+  if [[ "$missing" == "1" && "$SKIP_MISSING_CACHE" != "1" ]]; then
+    echo "Set SKIP_MISSING_CACHE=1 to skip missing cache combinations instead of aborting." >&2
+    return 1
+  fi
+  return 0
+}
+
+preflight_caches || exit 1
+
 declare -A GPU_RUNNING=()
 declare -A PID_GPU=()
 declare -A PID_INFO=()
@@ -203,6 +283,7 @@ declare -A PID_STATUS_FILE=()
 declare -A PID_LOG_FILE=()
 declare -A PID_START_SECONDS=()
 declare -A PID_WORKER_ROOT=()
+declare -A PID_CACHE_PATH=()
 PIDS=()
 STOP_REQUESTED=0
 
@@ -223,8 +304,8 @@ select_gpu() {
 
 reap_finished_jobs() {
   local remaining=()
-  local pid gpu info status_file log_file start_seconds end_seconds elapsed exit_code status worker_root
-  local dataset_key dataset channel seed network
+  local pid gpu info status_file log_file start_seconds end_seconds elapsed exit_code status worker_root cache_path
+  local dataset_key dataset cache_profile channel seed network
 
   for pid in "${PIDS[@]}"; do
     if kill -0 "$pid" 2>/dev/null; then
@@ -239,6 +320,7 @@ reap_finished_jobs() {
     log_file="${PID_LOG_FILE[$pid]}"
     start_seconds="${PID_START_SECONDS[$pid]}"
     worker_root="${PID_WORKER_ROOT[$pid]}"
+    cache_path="${PID_CACHE_PATH[$pid]}"
     end_seconds="$(date +%s)"
     elapsed="$((end_seconds - start_seconds))"
 
@@ -257,16 +339,16 @@ reap_finished_jobs() {
       fi
     fi
 
-    IFS="|" read -r dataset_key dataset channel seed network <<< "$info"
-    printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
-      "$(date '+%F %T')" "$dataset_key" "$dataset" "$channel" "$seed" "$network" "$gpu" \
-      "$status" "$exit_code" "$elapsed" "$log_file" "$worker_root" >> "$MASTER_SUMMARY"
+    IFS="|" read -r dataset_key dataset cache_profile channel seed network <<< "$info"
+    printf "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n" \
+      "$(date '+%F %T')" "$dataset_key" "$dataset" "$cache_profile" "$channel" "$seed" "$network" "$gpu" \
+      "$status" "$exit_code" "$elapsed" "$cache_path" "$log_file" "$worker_root" >> "$MASTER_SUMMARY"
 
     GPU_RUNNING["$gpu"]="$((GPU_RUNNING[$gpu] - 1))"
-    echo "[$(date '+%F %T')] FINISH dataset=$dataset_key channel=$channel seed=$seed network=$network gpu=$gpu status=$status"
+    echo "[$(date '+%F %T')] FINISH dataset=$dataset_key profile=$cache_profile channel=$channel seed=$seed network=$network gpu=$gpu status=$status"
 
     unset "PID_GPU[$pid]" "PID_INFO[$pid]" "PID_STATUS_FILE[$pid]" "PID_LOG_FILE[$pid]" \
-      "PID_START_SECONDS[$pid]" "PID_WORKER_ROOT[$pid]"
+      "PID_START_SECONDS[$pid]" "PID_WORKER_ROOT[$pid]" "PID_CACHE_PATH[$pid]"
   done
 
   PIDS=("${remaining[@]}")
@@ -285,17 +367,18 @@ launch_job() {
   local dataset_key="$1"
   local dataset="$2"
   local setting="$3"
-  local channel="$4"
-  local dataset_path="$5"
-  local seed="$6"
-  local network="$7"
-  local gpu="$8"
-  local dataset_extra_args="$9"
+  local cache_profile="$4"
+  local channel="$5"
+  local dataset_path="$6"
+  local seed="$7"
+  local network="$8"
+  local gpu="$9"
+  local dataset_extra_args="${10}"
 
-  local job_id="${dataset_key}_${channel}_${network}_seed${seed}_gpu${gpu}_$(date +%s%N)"
+  local job_id="${dataset_key}_${cache_profile}_${channel}_${network}_seed${seed}_gpu${gpu}_$(date +%s%N)"
   local status_file="$RUN_ROOT/job_status/${job_id}.status"
   local launcher_log="$RUN_ROOT/launcher_logs/${job_id}.log"
-  local worker_root="$RUN_ROOT/worker_runs/${dataset_key}/${channel}/${network}/seed${seed}"
+  local worker_root="$RUN_ROOT/worker_runs/${dataset_key}/${cache_profile}/${channel}/${network}/seed${seed}"
 
   mkdir -p "$(dirname "$launcher_log")" "$(dirname "$status_file")" "$worker_root"
 
@@ -325,7 +408,7 @@ launch_job() {
       8ch) export DATASET_PATH_8CH="$dataset_path" ;;
     esac
 
-    echo "[$(date '+%F %T')] LAUNCH dataset=$dataset_key/$dataset channel=$channel seed=$seed network=$network gpu=$gpu"
+    echo "[$(date '+%F %T')] LAUNCH dataset=$dataset_key/$dataset profile=$cache_profile channel=$channel seed=$seed network=$network gpu=$gpu cache=$dataset_path"
     bash "$WORKER_SCRIPT"
     code="$?"
     echo "$code" > "$status_file"
@@ -336,31 +419,41 @@ launch_job() {
   local pid="$!"
   PIDS+=("$pid")
   PID_GPU["$pid"]="$gpu"
-  PID_INFO["$pid"]="$dataset_key|$dataset|$channel|$seed|$network"
+  PID_INFO["$pid"]="$dataset_key|$dataset|$cache_profile|$channel|$seed|$network"
   PID_STATUS_FILE["$pid"]="$status_file"
   PID_LOG_FILE["$pid"]="$launcher_log"
   PID_START_SECONDS["$pid"]="$(date +%s)"
   PID_WORKER_ROOT["$pid"]="$worker_root"
+  PID_CACHE_PATH["$pid"]="$dataset_path"
   GPU_RUNNING["$gpu"]="$((GPU_RUNNING[$gpu] + 1))"
 
-  echo "[$(date '+%F %T')] START dataset=$dataset_key channel=$channel seed=$seed network=$network gpu=$gpu log=$launcher_log"
+  echo "[$(date '+%F %T')] START dataset=$dataset_key profile=$cache_profile channel=$channel seed=$seed network=$network gpu=$gpu log=$launcher_log"
 }
 
 for dataset_key in "${DATASET_LIST[@]}"; do
-  dataset="$(dataset_name_for_key "$dataset_key")" || exit 1
   setting="$(setting_for_key "$dataset_key")" || exit 1
   dataset_extra_args="$(extra_args_for_key "$dataset_key")"
 
   for channel in "${CHANNEL_LIST[@]}"; do
-    dataset_path="$(path_for_key_channel "$dataset_key" "$channel")" || exit 1
-    if [[ -z "$dataset_path" ]]; then
-      var_name="$(path_var_name_for_key_channel "$dataset_key" "$channel")"
-      echo "Missing $var_name for dataset=$dataset_key channel=$channel." >&2
-      exit 1
-    fi
-
     for seed in "${SEED_LIST[@]}"; do
       for network in "${NETWORK_LIST[@]}"; do
+        cache_profile="$(cache_profile_for_network "$network")"
+        if [[ "$cache_profile" == "raw128" ]] && ! raw_profile_supported_for_key "$dataset_key"; then
+          echo "[$(date '+%F %T')] SKIP dataset=$dataset_key profile=$cache_profile channel=$channel network=$network: raw cache is not supported for this dataset."
+          continue
+        fi
+        dataset="$(dataset_name_for_key_profile "$dataset_key" "$cache_profile")" || exit 1
+        dataset_path="$(path_for_key_profile_channel "$dataset_key" "$cache_profile" "$channel")" || exit 1
+        if [[ ! -f "$dataset_path" && ! -d "$dataset_path" ]]; then
+          message="Missing cache for dataset=$dataset_key profile=$cache_profile channel=$channel network=$network: $dataset_path"
+          if [[ "$SKIP_MISSING_CACHE" == "1" ]]; then
+            echo "[$(date '+%F %T')] SKIP $message"
+            continue
+          fi
+          echo "$message" >&2
+          exit 1
+        fi
+
         while true; do
           reap_finished_jobs
 
@@ -374,7 +467,7 @@ for dataset_key in "${DATASET_LIST[@]}"; do
 
           gpu="$(select_gpu || true)"
           if [[ -n "${gpu:-}" ]]; then
-            launch_job "$dataset_key" "$dataset" "$setting" "$channel" "$dataset_path" "$seed" "$network" "$gpu" "$dataset_extra_args"
+            launch_job "$dataset_key" "$dataset" "$setting" "$cache_profile" "$channel" "$dataset_path" "$seed" "$network" "$gpu" "$dataset_extra_args"
             break
           fi
 

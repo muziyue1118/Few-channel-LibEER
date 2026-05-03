@@ -57,6 +57,10 @@ class R2GSTNN(nn.Module):
     def forward(self, source_data, target_data):
         #source_data: (batch_size, T, num_electrodes, d)
         #target_data: (batch_size, T, num_electrodes, d)
+        if source_data.dim() == 3:
+            source_data = source_data.unsqueeze(1)
+        if target_data.dim() == 3:
+            target_data = target_data.unsqueeze(1)
         source_regional_feature = self.regional_learner(source_data)
         source_attention_feature = self.regional_attention(source_regional_feature)
         source_global_feature = self.global_learner(source_attention_feature)
@@ -105,6 +109,8 @@ class RegionFeatureLearner(nn.Module):#input: (batch_size*T, num_electrodes, d)
                     param.data[hidden_size:2 * hidden_size].fill_(1.0)
 
     def forward(self, features):
+        if features.dim() == 3:
+            features = features.unsqueeze(1)
         regional_feature_input =[]
         regional_feature_list = []
         features = features.reshape(-1, features.shape[2], features.shape[3])

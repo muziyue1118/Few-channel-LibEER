@@ -21,8 +21,18 @@ from braindecode import EEGClassifier
 from torch.optim import AdamW
 from braindecode.training import CroppedLoss
 from braindecode.util import set_random_seeds
-from braindecode.models import get_output_shape
 from sklearn.metrics import confusion_matrix
+
+
+def _target_indices(targets):
+    if torch.is_tensor(targets):
+        if targets.dim() > 1:
+            return torch.argmax(targets, dim=1).long()
+        return targets.long().squeeze()
+    targets = np.asarray(targets)
+    if targets.ndim > 1:
+        return np.argmax(targets, axis=1)
+    return targets
 
 
 def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="result/", metrics=None,
@@ -48,11 +58,11 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
     for iep in range(epochs):
         clf.partial_fit(dataset_train, y=None, epochs=1)
         y_pred = clf.predict(dataset_val)
-        confusion_mat_group[iep, :, :] = confusion_matrix(dataset_val.tensors[1], y_pred)
-        ConfM[iep, :, :] = ConfM[iep, :, :] + confusion_matrix(dataset_val.tensors[1], y_pred)
-    correct_all = np.zeros(epochs)
-    for iepc in range(epochs):
-        correct_all[iepc] = ConfM[iepc][0][0] + ConfM[iepc][1][1] + ConfM[iepc][2][2]
+        y_true = _target_indices(dataset_val.tensors[1]).cpu().numpy()
+        cm = confusion_matrix(y_true, y_pred, labels=list(range(n_classes)))
+        confusion_mat_group[iep, :, :] = cm
+        ConfM[iep, :, :] = ConfM[iep, :, :] + cm
+    correct_all = np.trace(ConfM, axis1=1, axis2=2)
     best_epoch = np.argmax(correct_all) + 1
     best_correct = np.max(correct_all)
     clf = EEGClassifier(
@@ -77,10 +87,11 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
     else:
         result = SubMetric(metrics)
 
+    y_true_test = _target_indices(dataset_test.tensors[1]).to(device)
     if test_sub_label is None:
-        result.update(y_pred, dataset_test.tensors[1])
+        result.update(y_pred, y_true_test)
     else:
-        result.update(y_pred, dataset_test.tensors[1], torch.tensor(test_sub_label).to(device))
+        result.update(y_pred, y_true_test, torch.tensor(test_sub_label).to(device))
     result.value()
     result = result.values
     for m in metrics:

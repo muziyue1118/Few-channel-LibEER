@@ -27,12 +27,14 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
     data_loader_test = DataLoader(
         dataset_test, sampler=sampler_test, batch_size=batch_size, num_workers=4, drop_last=True
     )
-    test_sub_label_loader = DataLoader(
-        test_sub_label, sampler=sampler_test, batch_size=batch_size, num_workers=4, drop_last=True
-    )
+    test_sub_label_loader = None
+    if test_sub_label is not None:
+        test_sub_label_loader = DataLoader(
+            test_sub_label, sampler=sampler_test, batch_size=batch_size, num_workers=4, drop_last=True
+        )
     model = model.to(device)
     # create criterion
-    best_metric = {s: 0. for s in metrics}
+    best_metric = {s: -1. for s in metrics}
     for epoch in range(epochs):
         model.train()
         optimizer.zero_grad()
@@ -72,7 +74,6 @@ def train(model, dataset_train, dataset_val, dataset_test, device, output_dir="r
                 best_metric[m] = metric_value[m]
                 save_state(output_dir, model, optimizer, epoch+1, metric=m)
     model.load_state_dict(torch.load(f"{output_dir}/checkpoint-best{metric_choose}")['model'])
-    metric_value = evaluate(model, data_loader_test, device, metrics, f_criterion, loss_func, loss_param)
     if test_sub_label is not None:
         metric_value = sub_evaluate(model, data_loader_test, test_sub_label_loader, device, metrics, f_criterion, loss_func, loss_param)
     else:

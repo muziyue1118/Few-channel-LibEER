@@ -4,4 +4,5 @@
 __pycache__/
 *.pyc
 *.log
-*.pth
+*.pthLibEER/log/
+/runs_all_datasets_few_channels_smoke_20260504_110408

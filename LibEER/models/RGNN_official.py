@@ -85,20 +85,21 @@ class NewSGConv(SGConv):
 
     def forward(self, x, edge_index, edge_weight=None):
         """"""
-        if not self.cached or self.cached_result is None:
-            edge_index, norm = NewSGConv.norm(
+        cached_result = getattr(self, "cached_result", None)
+        if not self.cached or cached_result is None:
+            edge_index, edge_weight = NewSGConv.norm(
                 edge_index, x.size(0), edge_weight, dtype=x.dtype)
 
             for k in range(self.K):
-                x = self.propagate(edge_index, x=x, norm=norm)
+                x = self.propagate(edge_index, x=x, edge_weight=edge_weight)
             self.cached_result = x
 
         return self.lin(self.cached_result)
 
-    def message(self, x_j, norm):
+    def message(self, x_j, edge_weight):
         # x_j: (batch_size*num_nodes*num_nodes, num_features)
-        # norm: (batch_size*num_nodes*num_nodes, )
-        return norm.view(-1, 1) * x_j
+        # edge_weight: (batch_size*num_nodes*num_nodes, )
+        return edge_weight.view(-1, 1) * x_j
 
 
 class ReverseLayerF(Function):

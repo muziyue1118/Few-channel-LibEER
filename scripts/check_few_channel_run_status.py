@@ -321,6 +321,27 @@ def read_failure_hint(log_path: str, max_lines: int = 500) -> str:
     return nonempty[-1][:240] if nonempty else ""
 
 
+def read_failure_hint_for_row(row: SummaryRow) -> str:
+    log_candidates: list[Path] = []
+    if row.worker_run_root:
+        worker_root = Path(row.worker_run_root)
+        if worker_root.exists():
+            log_candidates.extend(sorted((worker_root / "logs").glob("*.log")))
+            log_candidates.extend(sorted(worker_root.glob("**/*.log")))
+    if row.launcher_log:
+        log_candidates.append(Path(row.launcher_log))
+
+    seen: set[Path] = set()
+    for path in log_candidates:
+        if path in seen:
+            continue
+        seen.add(path)
+        hint = read_failure_hint(str(path))
+        if hint and hint != "log file not found":
+            return hint
+    return read_failure_hint(row.launcher_log)
+
+
 def fmt_duration(seconds: int | float | None) -> str:
     if seconds is None:
         return "-"
@@ -497,7 +518,7 @@ def main() -> int:
                     row.gpu,
                     row.exit_code,
                     fmt_duration(row.seconds),
-                    read_failure_hint(row.launcher_log),
+                    read_failure_hint_for_row(row),
                     row.launcher_log,
                 ]
             )

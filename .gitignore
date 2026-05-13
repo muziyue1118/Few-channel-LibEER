@@ -1,8 +1,10 @@
 /log
 /result
 /runs_all_datasets_few_channels
+/runs_all_datasets_few_channels_smoke_*
 __pycache__/
 *.pyc
 *.log
-*.pthLibEER/log/
-/runs_all_datasets_few_channels_smoke_20260504_110408
+*.pth
+*.pt
+*.ckpt

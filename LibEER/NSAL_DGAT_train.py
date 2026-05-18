@@ -14,6 +14,13 @@ import numpy as np
 from data_utils.preprocess import ele_normalize
 
 
+def label_to_index(labels):
+    labels = np.asarray(labels)
+    if labels.ndim > 1:
+        return np.argmax(labels, axis=1).astype(np.int64)
+    return labels.astype(np.int64)
+
+
 def main(args):
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
@@ -52,15 +59,19 @@ def main(args):
             train_data, train_label, val_data, val_label, test_data, test_label = \
                 index_to_data(data_i, label_i, train_indexes, test_indexes, val_indexes, keep_dim=False)
 
-            model = Model['NSAL_DGAT'](channels=channels, feature_dim=feature_dim,num_of_class= num_classes, device=device)
+            train_label = label_to_index(train_label)
+            val_label = label_to_index(val_label)
+            test_label = label_to_index(test_label)
+
+            model = Model['NSAL_DGAT'](channels=channels, feature_dim=feature_dim,num_of_class= num_classes, device=device, source_num=len(train_data))
             # Train one round using the train one round function defined in the model
             # model to train
             if len(val_data) == 0:
                 val_data = test_data
                 val_label = test_label
-            dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data),torch.arange(len(train_data)).long(), torch.Tensor(train_label))
-            dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
-            dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.Tensor(test_label))
+            dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data),torch.arange(len(train_data)).long(), torch.LongTensor(train_label))
+            dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.LongTensor(val_label))
+            dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.LongTensor(test_label))
             hidden_2=64
             output_dir = make_output_dir(args, "NSAL_DGAT")
             domain_discriminator = Discriminator(hidden_2)

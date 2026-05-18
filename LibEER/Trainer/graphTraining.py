@@ -1,10 +1,24 @@
 import torch
+import os
 from torch.utils.data import DataLoader,RandomSampler, SequentialSampler
 from torch_geometric.data import Data
 from tqdm import tqdm
 
 from utils.metric import Metric
 from utils.store import save_state
+
+
+def _target_indices(targets):
+    if targets.dim() > 1:
+        return torch.argmax(targets, dim=1).long()
+    return targets.long().view(-1)
+
+
+def _load_best_or_current(model, optimizer, output_dir, metric_choose):
+    checkpoint_path = f"{output_dir}/checkpoint-best{metric_choose}"
+    if not os.path.exists(checkpoint_path):
+        save_state(output_dir, model, optimizer, 0, metric=metric_choose)
+    model.load_state_dict(torch.load(checkpoint_path)['model'])
 
 
 # just add the graph data structure, prepared for RGNN ...
@@ -46,13 +60,14 @@ def train(model, dataset_train, dataset_val, dataset_test, edge_adj, device, out
             samples = samples.to(device)
             edge_index = edge_index.to(device)
             targets = targets.to(device)
+            loss_targets = _target_indices(targets)
             data = Data(x=samples, edge_index=edge_index, y=samples.shape[0])
             optimizer.zero_grad()
             # perform emotion recognition
             outputs = model(data)
             # calculate the loss value
-            loss = criterion(outputs, targets) +  (0 if loss_func is None else loss_func(loss_param))
-            metric.update(torch.argmax(outputs, dim=1), targets, loss.item())
+            loss = criterion(outputs, loss_targets) +  (0 if loss_func is None else loss_func(loss_param))
+            metric.update(torch.argmax(outputs, dim=1), loss_targets, loss.item())
             train_bar.set_postfix_str(f"loss: {loss.item():.2f}")
 
             loss.backward()
@@ -66,7 +81,7 @@ def train(model, dataset_train, dataset_val, dataset_test, edge_adj, device, out
             if metric_value[m] > best_metric[m]:
                 best_metric[m] = metric_value[m]
                 save_state(output_dir, model, optimizer, epoch + 1, metric=m)
-    model.load_state_dict(torch.load(f"{output_dir}/checkpoint-best{metric_choose}")['model'])
+    _load_best_or_current(model, optimizer, output_dir, metric_choose)
     metric_value = evaluate(model, data_loader_test, edge_adj, device, metrics, criterion, loss_func, loss_param)
     for m in metrics:
         print(f"best_val_{m}: {best_metric[m]:.2f}")
@@ -85,14 +100,15 @@ def evaluate(model, data_loader, edge_adj, device, metrics, criterion, loss_func
         samples = samples.to(device)
         edge_index = edge_index.to(device)
         targets = targets.to(device)
+        loss_targets = _target_indices(targets)
         data = Data(x=samples, edge_index=edge_index, y=samples.shape[0])
         # perform emotion recognition
         outputs = model(data)
 
         # calculate the loss value
-        loss = criterion(outputs, targets) + (0 if loss_func is None else loss_func(loss_param))
+        loss = criterion(outputs, loss_targets) + (0 if loss_func is None else loss_func(loss_param))
 
-        metric.update(torch.argmax(outputs, dim=1), targets, loss.item())
+        metric.update(torch.argmax(outputs, dim=1), loss_targets, loss.item())
 
     print("\033[34m eval state: " + metric.value())
     return metric.values

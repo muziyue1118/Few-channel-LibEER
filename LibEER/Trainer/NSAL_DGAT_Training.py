@@ -2,6 +2,7 @@ import torch.nn as nn
 from torch.autograd import Variable
 import utils
 import numpy as np
+import os
 from torch.optim.optimizer import Optimizer
 from typing import Optional
 import math
@@ -12,6 +13,19 @@ from tqdm import tqdm
 
 from utils.metric import Metric, SubMetric
 from utils.store import save_state
+
+
+def _target_indices(targets):
+    if targets.dim() > 1:
+        return torch.argmax(targets, dim=1).long()
+    return targets.long().view(-1)
+
+
+def _load_best_or_current(model, optimizer, output_dir, metric_choose):
+    checkpoint_path = f"{output_dir}/checkpoint-best{metric_choose}"
+    if not os.path.exists(checkpoint_path):
+        save_state(output_dir, model, optimizer, 0, metric=metric_choose)
+    model.load_state_dict(torch.load(checkpoint_path)['model'])
 
 class StepwiseLR_GRL:
     def __init__(self, optimizer: Optimizer, init_lr: Optional[float] = 0.01,
@@ -68,38 +82,39 @@ def train(model, dann_loss, hidden_2, dataset_train, dataset_val, dataset_test, 
     data_loader_train = DataLoader(
         dataset_train, sampler=sampler_train, batch_size=batch_size, num_workers=4, drop_last=True
     )
+    data_loader_train_full = DataLoader(
+        dataset_train, sampler=SequentialSampler(dataset_train), batch_size=batch_size, num_workers=4, drop_last=False
+    )
     data_loader_val = DataLoader(
+        dataset_val, sampler=sampler_val, batch_size=batch_size, num_workers=4, drop_last=False
+    )
+    data_loader_val_target = DataLoader(
         dataset_val, sampler=sampler_val, batch_size=batch_size, num_workers=4, drop_last=True
     )
     data_loader_test = DataLoader(
-        dataset_test, sampler=sampler_test, batch_size=batch_size, num_workers=4,drop_last=True
+        dataset_test, sampler=sampler_test, batch_size=batch_size, num_workers=4,drop_last=False
     )
-    test_sub_label_loader = DataLoader(
-        test_sub_label, sampler=sampler_test, batch_size=batch_size, num_workers=4
-    )
+    if len(data_loader_val_target) == 0:
+        data_loader_val_target = data_loader_val
+    test_sub_label_loader = None
+    if test_sub_label is not None:
+        test_sub_label_loader = DataLoader(
+            test_sub_label, sampler=sampler_test, batch_size=batch_size, num_workers=4, drop_last=False
+        )
     model = model.to(device)
     interval =1
 
-    getInit(data_loader_train, model, device)
+    getInit(data_loader_train_full, model, device)
     iteration = math.ceil(len(dataset_train)/batch_size)
-    best_metric = {s: 0. for s in metrics}
+    best_metric = {s: -1. for s in metrics}
     for epoch in range(epochs):
         model.train()
         dann_loss.train()
         correct = 0
         count = 0
         _tqdm = tqdm(range(iteration), desc= f"Train Epoch {epoch  + 1}/{epochs}",leave=False)
-        if epoch % interval == 0 and epoch > 0:
-            loss, metric_value = evaluate(
-                model, data_loader_val, device, metrics, criterion
-            )
-            for m in metrics:
-                # if metric is the best, save the model state
-                if metric_value[m] > best_metric[m]:
-                    best_metric[m] = metric_value[m]
-                    save_state(output_dir, model, optimizer, epoch + 1, metric=m)
         source_loader_iter = enumerate(data_loader_train)
-        target_loader_iter = enumerate(data_loader_val)
+        target_loader_iter = enumerate(data_loader_val_target)
         T = len(dataset_test)//batch_size
         for i in _tqdm:
             try:
@@ -110,13 +125,25 @@ def train(model, dann_loss, hidden_2, dataset_train, dataset_val, dataset_test, 
             try:
                 _, (tar_data, _) = next(target_loader_iter)
             except Exception as err:
-                target_loader_iter = enumerate(data_loader_val)
+                target_loader_iter = enumerate(data_loader_val_target)
                 _, (tar_data, _) = next(target_loader_iter)
 
-            src_data = Variable(src_data.to(device))
-            src_index = Variable(src_index.to(device))
-            src_label_cls = Variable(src_label_cls.to(device))
-            tar_data = Variable(tar_data.to(device))
+            src_data = src_data.to(device)
+            src_index = src_index.to(device)
+            src_label_cls = _target_indices(src_label_cls.to(device))
+            tar_data = tar_data.to(device)
+            if src_data.shape[0] != tar_data.shape[0]:
+                batch_n = min(src_data.shape[0], tar_data.shape[0])
+                if batch_n == 0:
+                    continue
+                src_data = src_data[:batch_n]
+                src_index = src_index[:batch_n]
+                src_label_cls = src_label_cls[:batch_n]
+                tar_data = tar_data[:batch_n]
+            src_data = Variable(src_data)
+            src_index = Variable(src_index)
+            src_label_cls = Variable(src_label_cls)
+            tar_data = Variable(tar_data)
             src_output_cls, src_feature, tar_output_cls, tar_feature, source_att, target_att, tar_label = model(
                 src_data, tar_data, src_label_cls, src_index)
             cls_loss = criterion(src_output_cls, src_label_cls)
@@ -136,13 +163,21 @@ def train(model, dann_loss, hidden_2, dataset_train, dataset_val, dataset_test, 
             _tqdm.set_postfix_str(f"lr : {optimizer.param_groups[0]['lr']} loss: {loss.item():.2f}")
             # calculate the correct
             _, pred = torch.max(src_output_cls, dim=1)
-            correct += pred.eq(torch.argmax(src_label_cls, dim=1).data.view_as(pred)).sum()
+            correct += pred.eq(src_label_cls.data.view_as(pred)).sum()
             count += pred.size(0)
         scheduler.step()
-        accuracy = float(correct) / count
+        accuracy = float(correct) / max(count, 1)
         print(f"Train epoch {epoch+1}, acc: {accuracy}")
+        loss, metric_value = evaluate(
+            model, data_loader_val, device, metrics, criterion
+        )
+        for m in metrics:
+            # if metric is the best, save the model state
+            if metric_value[m] > best_metric[m]:
+                best_metric[m] = metric_value[m]
+                save_state(output_dir, model, optimizer, epoch + 1, metric=m)
         # _tqdm.set_postfix_str(f"train/epoch {epoch}, accuracy {accuracy} , loss {loss}, cls_loss {cls_loss}")
-    model.load_state_dict(torch.load(f"{output_dir}/checkpoint-best{metric_choose}")['model'])
+    _load_best_or_current(model, optimizer, output_dir, metric_choose)
     if test_sub_label is not None:
         _, metric_value = sub_evaluate(model, data_loader_test, test_sub_label_loader, device, metrics, criterion)
     else:
@@ -169,7 +204,7 @@ def evaluate(model, data_loader, device, metrics, criterion):
                                         desc=f"Evaluating : "):
         # load the samples into the device
         samples = Variable(samples.to(device))
-        targets = Variable(targets.to(device))
+        targets = Variable(_target_indices(targets.to(device)))
 
         output = model.target_predict(samples)
         loss = criterion(output, targets)
@@ -187,7 +222,7 @@ def sub_evaluate(model, data_loader, test_sub_label, device, metrics, criterion)
                                         desc=f"Evaluating : "):
         # load the samples into the device
         samples = Variable(samples.to(device))
-        targets = Variable(targets.to(device))
+        targets = Variable(_target_indices(targets.to(device)))
         output = model.target_predict(samples)
         loss = criterion(output, targets.view(-1))
         _, pred = torch.max(output, dim=1)

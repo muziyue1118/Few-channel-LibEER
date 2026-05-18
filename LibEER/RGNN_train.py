@@ -93,6 +93,13 @@ def get_edge_adj(dataset, channels):
     return torch.ones(channels, channels)
 
 
+def label_to_index(labels):
+    labels = np.asarray(labels)
+    if labels.ndim > 1:
+        return np.argmax(labels, axis=1).astype(np.int64)
+    return labels.astype(np.int64)
+
+
 def main(args):
     if args.setting is not None:
         setting = preset_setting[args.setting](args)
@@ -137,13 +144,19 @@ def main(args):
             # model to train
             model = Model['RGNN_official'](channels, feature_dim, num_classes)
             # noise label
-            train_label = torch.Tensor(model.noise_label(train_label))
+            train_label = label_to_index(train_label)
+            val_label = label_to_index(val_label)
+            test_label = label_to_index(test_label)
+            if num_classes in [2, 3, 4]:
+                train_label = torch.Tensor(model.noise_label(train_label))
+            else:
+                train_label = torch.LongTensor(train_label)
             # train_label = F.log_softmax(train_label, dim=1)
             edge_adj = get_edge_adj(args.dataset, channels)
             # Train one round using the train one round function defined in the model
-            dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), torch.Tensor(train_label))
-            dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.Tensor(val_label))
-            dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.Tensor(test_label))
+            dataset_train = torch.utils.data.TensorDataset(torch.Tensor(train_data), train_label)
+            dataset_val = torch.utils.data.TensorDataset(torch.Tensor(val_data), torch.LongTensor(val_label))
+            dataset_test = torch.utils.data.TensorDataset(torch.Tensor(test_data), torch.LongTensor(test_label))
 
             optimizer = optim.Adam(model.parameters(), lr=args.lr, weight_decay=1e-4, eps=1e-4)
             # criterion = nn.KLDivLoss(reduction='sum')

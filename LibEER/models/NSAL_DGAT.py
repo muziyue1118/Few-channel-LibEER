@@ -262,8 +262,8 @@ class Domain_adaption_model(nn.Module):
         in_planes = [feature_dim, channels]
         self.encoder = Encoder(in_planes=in_planes, layers=layers, hidden_1=hidden_1, hidden_2=hidden_2, class_nums=num_of_class )
         self.cls_classifier = ClassClassifier(hidden_2=hidden_2, num_cls=num_of_class)
-        self.source_f_bank = torch.randn(source_num, hidden_2)
-        self.source_score_bank = torch.randn(source_num, num_of_class).to(device)
+        self.register_buffer("source_f_bank", torch.randn(source_num, hidden_2))
+        self.register_buffer("source_score_bank", torch.randn(source_num, num_of_class))
         self.num_of_class = num_of_class
         self.ema_factor = 0.8
 
@@ -284,11 +284,13 @@ class Domain_adaption_model(nn.Module):
 
     def get_target_labels(self, feature_source_f, source_label_feature, source_index, feature_target_f):
         self.eval()
-        output_f = torch.nn.functional.normalize(feature_source_f)
-        self.source_f_bank[source_index] = output_f.detach().clone().cpu()
-        self.source_score_bank[source_index] = source_label_feature.detach().clone()
+        bank_device = self.source_f_bank.device
+        source_index = source_index.to(bank_device).long()
+        output_f = torch.nn.functional.normalize(feature_source_f).detach().to(bank_device)
+        self.source_f_bank[source_index] = output_f.clone()
+        self.source_score_bank[source_index] = source_label_feature.detach().to(bank_device).clone()
 
-        output_f_ = torch.nn.functional.normalize(feature_target_f).cpu().detach().clone()
+        output_f_ = torch.nn.functional.normalize(feature_target_f).detach().to(bank_device).clone()
         distance = output_f_ @ self.source_f_bank.T
         k = min(7, self.source_f_bank.shape[0])
         _, idx_near = torch.topk(distance, dim=-1, largest=True, k=k)
@@ -306,8 +308,10 @@ class Domain_adaption_model(nn.Module):
         source_predict = self.cls_classifier(source_f)
         source_label_feature = torch.nn.functional.softmax(source_predict, dim=1)
 
-        self.source_f_bank[source_index] = torch.nn.functional.normalize(source_f).detach().clone().cpu()
-        self.source_score_bank[source_index] = source_label_feature.detach().clone()
+        bank_device = self.source_f_bank.device
+        source_index = source_index.to(bank_device).long()
+        self.source_f_bank[source_index] = torch.nn.functional.normalize(source_f).detach().to(bank_device).clone()
+        self.source_score_bank[source_index] = source_label_feature.detach().to(bank_device).clone()
 
     def target_predict(self, feature_target):
         self.eval()

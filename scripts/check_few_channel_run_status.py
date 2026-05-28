@@ -118,6 +118,30 @@ def dataset_name_for_key_profile(dataset_key: str, cache_profile: str) -> str:
     return ""
 
 
+def setting_for_key(dataset_key: str) -> str:
+    if dataset_key == "SEED":
+        return os.environ.get("SEED_SETTING", "seed_sub_dependent_train_val_test_setting")
+    if dataset_key == "SEEDIV":
+        return os.environ.get("SEEDIV_SETTING", "seediv_sub_dependent_train_val_test_setting")
+    if dataset_key == "SEEDV":
+        return os.environ.get("SEEDV_SETTING", "seedv_sub_independent_loso_train_val_test_setting")
+    if dataset_key == "FACED":
+        return os.environ.get("FACED_SETTING", "faced_sub_independent_train_val_test_setting")
+    return ""
+
+
+def cache_setting_for_key(dataset_key: str) -> str:
+    if dataset_key == "SEED":
+        return os.environ.get("SEED_CACHE_SETTING") or os.environ.get("SEED_SETTING", "seed_sub_dependent_train_val_test_setting")
+    if dataset_key == "SEEDIV":
+        return os.environ.get("SEEDIV_CACHE_SETTING") or os.environ.get("SEEDIV_SETTING", "seediv_sub_dependent_train_val_test_setting")
+    if dataset_key == "SEEDV":
+        return os.environ.get("SEEDV_CACHE_SETTING", "seedv_sub_dependent_train_val_test_setting")
+    if dataset_key == "FACED":
+        return os.environ.get("FACED_CACHE_SETTING") or os.environ.get("FACED_SETTING", "faced_sub_independent_train_val_test_setting")
+    return ""
+
+
 def parse_time(value: str | None) -> dt.datetime | None:
     if not value:
         return None
@@ -457,6 +481,9 @@ def main() -> int:
     print(f"  run_log : {run_log} {'(missing)' if not run_log.exists() else ''}")
     print(f"  since   : {fmt_time(since)}")
     print(f"  launcher_alive: {'yes' if launcher_alive else 'no'}")
+    if "SEEDV" in datasets:
+        print(f"  seedv_setting      : {setting_for_key('SEEDV')}")
+        print(f"  seedv_cache_setting: {cache_setting_for_key('SEEDV')}")
     print()
 
     print("Overall")

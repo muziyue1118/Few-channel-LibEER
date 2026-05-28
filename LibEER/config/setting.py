@@ -162,6 +162,21 @@ def seedv_sub_independent_train_val_test_setting(args):
                    split_type='train-val-test', test_size=0.2, val_size=0.2,
                    sessions=[1,2,3] if args.sessions is None else args.sessions,
                    pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used)
+
+def seedv_sub_independent_loso_train_val_test_setting(args):
+    if not args.dataset.startswith('seedv'):
+        print('not using SEED V dataset, please check your setting')
+        exit(1)
+    print("Using SeedV subject independent 16-fold LOSO train val test experiment mode, \n"
+          "For each fold, one subject is used as test set, the next subject is used as validation set,"
+          " and the remaining fourteen subjects are used as training set")
+    return Setting(dataset=args.dataset, dataset_path=args.dataset_path, pass_band=[args.low_pass, args.high_pass],
+                   extract_bands=None, time_window=args.time_window, overlap=args.overlap,
+                   sample_length=args.sample_length, stride=args.stride, seed=args.seed, feature_type=args.feature_type,
+                   only_seg=args.only_seg, experiment_mode="subject-independent", normalize=args.normalize,
+                   split_type='leave-one-subject-out-val',
+                   sessions=[1, 2, 3] if args.sessions is None else args.sessions,
+                   pr=args.pr, sr=args.sr, onehot=args.onehot, label_used=args.label_used)
 def mped_sub_dependent_train_val_test_setting(args):
     if not args.dataset.startswith('mped'):
         print('not using mped dataset, please check your setting')
@@ -399,6 +414,7 @@ preset_setting = {
     "seediv_sub_independent_train_val_test_setting": seediv_sub_independent_train_val_test_setting,
     "seedv_sub_dependent_train_val_test_mean_setting":seedv_sub_dependent_train_val_test_mean_setting,
     "seedv_sub_independent_train_val_test_setting":seedv_sub_independent_train_val_test_setting,
+    "seedv_sub_independent_loso_train_val_test_setting": seedv_sub_independent_loso_train_val_test_setting,
     "deap_sub_dependent_train_val_test_setting" : deap_sub_dependent_train_val_test_setting,
     "hci_sub_dependent_train_val_test_setting" : hci_sub_dependent_train_val_test_setting,
     "deap_sub_independent_train_val_test_setting" : deap_sub_independent_train_val_test_setting,

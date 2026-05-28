@@ -53,6 +53,10 @@ set -u
 #   EXTRA_ARGS="-time_window 1 -feature_type de_lds"
 #   SKIP_MISSING_CACHE=1
 #   DRY_RUN=0
+#
+# SEED-V uses a separate training protocol and cache directory by default:
+#   SEEDV_SETTING=seedv_sub_independent_loso_train_val_test_setting
+#   SEEDV_CACHE_SETTING=seedv_sub_dependent_train_val_test_setting
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
@@ -149,8 +153,21 @@ setting_for_key() {
   case "$1" in
     SEED) printf "%s" "${SEED_SETTING:-seed_sub_dependent_train_val_test_setting}" ;;
     SEEDIV) printf "%s" "${SEEDIV_SETTING:-seediv_sub_dependent_train_val_test_setting}" ;;
-    SEEDV) printf "%s" "${SEEDV_SETTING:-seedv_sub_dependent_train_val_test_setting}" ;;
+    SEEDV) printf "%s" "${SEEDV_SETTING:-seedv_sub_independent_loso_train_val_test_setting}" ;;
     FACED) printf "%s" "${FACED_SETTING:-faced_sub_independent_train_val_test_setting}" ;;
+    *)
+      echo "Unsupported dataset key '$1'. Use SEED, SEEDIV, SEEDV, FACED." >&2
+      return 1
+      ;;
+  esac
+}
+
+cache_setting_for_key() {
+  case "$1" in
+    SEED) printf "%s" "${SEED_CACHE_SETTING:-${SEED_SETTING:-seed_sub_dependent_train_val_test_setting}}" ;;
+    SEEDIV) printf "%s" "${SEEDIV_CACHE_SETTING:-${SEEDIV_SETTING:-seediv_sub_dependent_train_val_test_setting}}" ;;
+    SEEDV) printf "%s" "${SEEDV_CACHE_SETTING:-seedv_sub_dependent_train_val_test_setting}" ;;
+    FACED) printf "%s" "${FACED_CACHE_SETTING:-${FACED_SETTING:-faced_sub_independent_train_val_test_setting}}" ;;
     *)
       echo "Unsupported dataset key '$1'. Use SEED, SEEDIV, SEEDV, FACED." >&2
       return 1
@@ -218,7 +235,7 @@ path_for_key_profile_channel() {
   fi
 
   dataset="$(dataset_name_for_key_profile "$dataset_key" "$cache_profile")" || return 1
-  setting="$(setting_for_key "$dataset_key")" || return 1
+  setting="$(cache_setting_for_key "$dataset_key")" || return 1
   profiled_path="$CACHE_ROOT/$dataset_key/$dataset/$setting/$cache_profile/$channel/libeer_cache.pkl"
   legacy_path="$CACHE_ROOT/$dataset_key/$dataset/$setting/$channel/libeer_cache.pkl"
   if [[ -f "$profiled_path" || "$cache_profile" == "raw128" ]]; then

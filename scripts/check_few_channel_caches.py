@@ -11,12 +11,13 @@ import numpy as np
 
 
 DEFAULT_CACHE_ROOT = os.environ.get("CACHE_ROOT", "/data/mzy/libeer_few_channel_cache")
+SEEDV_CACHE_SETTING = os.environ.get("SEEDV_CACHE_SETTING", "seedv_sub_dependent_train_val_test_setting")
 
 DATASET_CONFIG = {
     ("SEED", "feature_de_lds"): ("seed_de_lds", "seed_sub_dependent_train_val_test_setting"),
     ("SEED", "raw128"): ("seed_raw", "seed_sub_dependent_train_val_test_setting"),
-    ("SEEDV", "feature_de_lds"): ("seedv_raw", "seedv_sub_dependent_train_val_test_setting"),
-    ("SEEDV", "raw128"): ("seedv_raw", "seedv_sub_dependent_train_val_test_setting"),
+    ("SEEDV", "feature_de_lds"): ("seedv_raw", SEEDV_CACHE_SETTING),
+    ("SEEDV", "raw128"): ("seedv_raw", SEEDV_CACHE_SETTING),
     ("FACED", "feature_de_lds"): ("faced_de_lds", "faced_sub_independent_train_val_test_setting"),
 }
 

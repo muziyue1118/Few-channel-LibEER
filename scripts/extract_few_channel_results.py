@@ -46,17 +46,18 @@ DATASET_PROFILES = {
         "raw128": ("seed_raw", "seed_sub_dependent_train_val_test_setting"),
     },
     "SEEDV": {
-        "feature_de_lds": ("seedv_raw", "seedv_sub_dependent_train_val_test_setting"),
-        "raw128": ("seedv_raw", "seedv_sub_dependent_train_val_test_setting"),
+        "feature_de_lds": ("seedv_raw", "seedv_sub_independent_loso_train_val_test_setting"),
+        "raw128": ("seedv_raw", "seedv_sub_independent_loso_train_val_test_setting"),
     },
     "FACED": {
         "feature_de_lds": ("faced_de_lds", "faced_sub_independent_train_val_test_setting"),
     },
 }
 
-# Current few-channel settings: SEED/SEEDV are subject-dependent with 15
-# subjects; FACED is a single subject-independent train/val/test split.
-DEFAULT_UNIT_COUNTS = {"SEED": 15, "SEEDV": 15, "FACED": 1}
+# Current few-channel settings keep SEED as subject-dependent rounds across
+# sessions, while SEED-V uses 16 LOSO folds. FACED is a single subject-
+# independent split.
+DEFAULT_UNIT_COUNTS = {"SEED": 45, "SEEDV": 16, "FACED": 1}
 
 METRIC_NAME_MAP = {
     "macro-f1": "macro_f1",
@@ -416,7 +417,7 @@ def parse_worker_results(worker_root: Path) -> tuple[list[UnitResult], str]:
 
 
 def unit_type_for_job(key: JobKey) -> str:
-    if key.dataset_key in {"SEED", "SEEDV"}:
+    if key.dataset_key == "SEED":
         return "subject"
     return "fold"
 
@@ -428,9 +429,9 @@ def complete_units(
     parse_source: str,
 ) -> list[UnitResult]:
     if parsed:
+        target_unit_type = unit_type_for_job(job.key)
         for unit in parsed:
-            if unit.unit_type == "fold" and unit_type_for_job(job.key) == "subject" and unit_count > 1:
-                unit.unit_type = "subject"
+            unit.unit_type = target_unit_type
         by_index = {unit.unit_index: unit for unit in parsed}
         complete = []
         for idx in range(1, max(unit_count, max(by_index)) + 1):
@@ -465,6 +466,31 @@ def metric_values(units: list[UnitResult], metric: str) -> list[float]:
         if isinstance(value, (int, float)) and not math.isnan(value):
             values.append(float(value))
     return values
+
+
+def sanity_warning_for_job(
+    job: JobRecord,
+    units: list[UnitResult],
+    expected_units: int,
+    parse_source: str,
+) -> str:
+    if job.key.dataset_key != "SEEDV":
+        return ""
+    warnings = []
+    found_units = len([unit for unit in units if unit.metrics])
+    if found_units != expected_units:
+        warnings.append(f"found {found_units}/{expected_units} metric units")
+    acc_values = metric_values(units, "acc")
+    if acc_values:
+        acc_mean = mean(acc_values)
+        zero_units = sum(1 for value in acc_values if abs(value) < 1e-12)
+        if acc_mean < 0.2:
+            warnings.append(f"mean acc {acc_mean:.3f} below 5-class chance 0.200")
+        if zero_units > max(1, len(acc_values) // 2):
+            warnings.append(f"{zero_units}/{len(acc_values)} zero-accuracy units")
+    if job.status == "ok" and parse_source in {"missing_logs", "no_metrics_found"}:
+        warnings.append(f"ok job but metrics were not parsed from {parse_source}")
+    return "; ".join(warnings)
 
 
 def fmt_float(value: float | None) -> str:
@@ -551,6 +577,7 @@ def main() -> None:
 
         expected_units = unit_counts.get(key.dataset_key, 1)
         units = complete_units(job, parsed_units, expected_units, parse_source)
+        sanity_warning = sanity_warning_for_job(job, units, expected_units, parse_source)
         status_counts[job.status] += 1
 
         job_row = {
@@ -568,6 +595,7 @@ def main() -> None:
             "unit_count_expected": str(expected_units),
             "unit_count_found": str(len([u for u in units if u.metrics])),
             "parse_source": parse_source,
+            "sanity_warning": sanity_warning,
             "failure_hint": job.failure_hint,
             "launcher_log": job.launcher_log,
             "worker_run_root": str(worker_root),
@@ -626,7 +654,7 @@ def main() -> None:
         "unit_count_expected", "unit_count_found", "parse_source",
         *[f"{metric}_mean" for metric in metrics],
         *[f"{metric}_std" for metric in metrics],
-        "failure_hint", "launcher_log", "worker_run_root",
+        "sanity_warning", "failure_hint", "launcher_log", "worker_run_root",
     ]
     unit_fields = [
         "dataset_key", "dataset", "profile", "channel", "seed", "network",
